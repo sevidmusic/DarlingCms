@@ -23,10 +23,30 @@ namespace DarlingCms\abstractions\startup;
 abstract class Astartup implements \DarlingCms\interfaces\startup\Istartup
 {
     /**
+     * @var bool $errorReporting Boolean representing whether or not error reporting is on or off, true
+     *                           or false respectively.
+     */
+    protected $errorReporting;
+    /**
      * @var array Associative array of errors since the last call to startup(), shutdown(),
      *            or restart().
      */
     private $errors;
+
+    /**
+     * Turns error reporting on or off.
+     *
+     * @param bool $value True to switch error reporting on, false to turn error reporting off.
+     *
+     * @return bool Returns true if error reporting is on, false otherwise.
+     */
+    public function errorReporting(bool $value)
+    {
+        /* Set error reporting to the specified $value. */
+        $this->errorReporting = $value;
+        /* Return error reporting state. */
+        return $this->errorReporting;
+    }
 
     /**
      * @inheritDoc
@@ -129,6 +149,38 @@ abstract class Astartup implements \DarlingCms\interfaces\startup\Istartup
     }
 
     /**
+     * If error reporting is turned on, display any errors that occurred during last call to
+     * startup(), shutdown(), or restart().
+     */
+    public function displayErrors()
+    {
+        /* Check if error reporting is on. */
+        if ($this->errorReporting === true) {
+            /* Loop through and display each error. */
+            foreach ($this->getErrors() as $index => $error) {
+                /**
+                 * If $error is an array, the error message and error data should extracted for display,
+                 * otherwise, just display the error message.
+                 */
+                switch (is_array($error)) {
+                    case true:
+                        /* Extract and display error message from $error array. Use $index to indicate
+                           which app caused the error. */
+                        echo "<p>$index: {$error['message']}</p>";
+                        /* var_dump() the error data from the $error array. */
+                        var_dump($error['data']);
+                        break;
+                    case false:
+                        /* $error is the error message, so, display $error. Use $index to indicate which
+                           app caused the error. */
+                        echo "<p>$index: $error</p>";
+                        break;
+                }
+            }
+        }
+    }
+
+    /**
      * Returns the errors array, an associative array of errors
      * that have occurred since the last call to startup(), shutdown(),
      * or restart().
@@ -140,5 +192,4 @@ abstract class Astartup implements \DarlingCms\interfaces\startup\Istartup
     {
         return $this->errors;
     }
-
 }

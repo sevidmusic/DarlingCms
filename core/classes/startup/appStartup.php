@@ -23,11 +23,6 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
      * @var array Array of enabled apps.
      */
     private $enabledApps;
-    /**
-     * @var bool $errorReporting Boolean representing whether or not error reporting is on or off, true
-     *                           or false respectively.
-     */
-    private $errorReporting;
 
     /**
      * @var array Array of running apps indexed in order of startup.
@@ -56,21 +51,6 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
     }
 
     /**
-     * Turns error reporting on or off.
-     *
-     * @param bool $value True to switch error reporting on, false to turn error reporting off.
-     *
-     * @return bool Returns true if error reporting is on, false otherwise.
-     */
-    public function errorReporting(bool $value)
-    {
-        /* Set error reporting to the specified $value. */
-        $this->errorReporting = $value;
-        /* Return error reporting state. */
-        return $this->errorReporting;
-    }
-
-    /**
      * @inheritDoc
      */
     protected function stop()
@@ -96,7 +76,7 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
         foreach ($this->enabledApps as $enabledApp) {
             /* Start output buffer. */
             ob_start();
-            /* Attempt to include each enabled app. */
+            /* Attempt to include the app. */
             if ((include str_replace('core/classes/startup', '', __DIR__) . 'apps/' . $enabledApp . '/' . $enabledApp . '.php') === false) {
                 /* If include failed, register an error. */
                 $this->registerError('Startup Error for app "' . $enabledApp . '"', "
@@ -111,8 +91,9 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
                     </div>
                 ");
             } else {
-                /* If include succeeded add it to the running apps array. */
+                /* If include succeeded add app to the running apps array. */
                 array_push($this->runningApps, $enabledApp);
+                /* Capture app output from the buffer and add it to the $appOutput array. */
                 $this->appOutput[$enabledApp] = ob_get_contents();
             }
             /* End output buffer */
@@ -124,37 +105,5 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
 
         /* Return true if there were no errors, i.e., the errors array is empty, false otherwise. */
         return empty($this->getErrors());
-    }
-
-    /**
-     * If error reporting is turned on, display any errors that occurred during last call to
-     * startup(), shutdown(), or restart().
-     */
-    public function displayErrors()
-    {
-        /* Check if error reporting is on. */
-        if ($this->errorReporting === true) {
-            /* Loop through and display each error. */
-            foreach ($this->getErrors() as $index => $error) {
-                /**
-                 * If $error is an array, the error message and error data should extracted for display,
-                 * otherwise, just display the error message.
-                 */
-                switch (is_array($error)) {
-                    case true:
-                        /* Extract and display error message from $error array. Use $index to indicate
-                           which app caused the error. */
-                        echo "<p>$index: {$error['message']}</p>";
-                        /* var_dump() the error data from the $error array. */
-                        var_dump($error['data']);
-                        break;
-                    case false:
-                        /* $error is the error message, so, display $error. Use $index to indicate which
-                           app caused the error. */
-                        echo "<p>$index: $error</p>";
-                        break;
-                }
-            }
-        }
     }
 }
