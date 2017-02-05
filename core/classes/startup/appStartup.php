@@ -35,17 +35,24 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
     private $runningApps;
 
     /**
+     * @var array Array of app output indexed by app name.
+     */
+    private $appOutput;
+
+    /**
      * appStartup constructor. Initializes the $enabledApps and $runningApps arrays. Also,
      * turns off error reporting, initially.
      */
     public function __construct()
     {
         /* Initialize enabled apps array. */
-        $this->enabledApps = array('helloWorld', 'helloUniverse', 'doesNotExist');
+        $this->enabledApps = array('helloWorld', 'helloUniverse');
         /* Turn error reporting off initially. */
         $this->errorReporting(false);
         /* Initialize the running apps array. */
         $this->runningApps = array();
+        /* Initialize app output array. */
+        $this->appOutput = array();
     }
 
     /**
@@ -87,6 +94,8 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
     {
         /* Loop through enabled apps array. */
         foreach ($this->enabledApps as $enabledApp) {
+            /* Start output buffer. */
+            ob_start();
             /* Attempt to include each enabled app. */
             if ((include str_replace('core/classes/startup', '', __DIR__) . 'apps/' . $enabledApp . '/' . $enabledApp . '.php') === false) {
                 /* If include failed, register an error. */
@@ -95,7 +104,7 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
                       <p>An error occurred while attempting to startup the \"$enabledApp\" app.</p>
                       <p>Please check the following:</p>
                       <ul>
-                        <li>Is the \"$enabledApp\" installed?</li>
+                        <li>Is the \"$enabledApp\" app installed?</li>
                         <li>Does the \"$enabledApp\" app's directory name match \"$enabledApp\"?</li>
                         <li>Does the \"$enabledApp\" app's php file name match \"$enabledApp.php\"?</li>
                       </ul>
@@ -104,8 +113,12 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
             } else {
                 /* If include succeeded add it to the running apps array. */
                 array_push($this->runningApps, $enabledApp);
+                $this->appOutput[$enabledApp] = ob_get_contents();
             }
+            /* End output buffer */
+            ob_end_flush();
         }
+
         /* Display any errors. (Errors will ony be displayed if error reporting is turned on.) */
         $this->displayErrors();
 
