@@ -51,6 +51,44 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
     }
 
     /**
+     * Echos the specified app's output to the page. This method has
+     * no return value.
+     *
+     * @param string $app The app whose output should be displayed.
+     *
+     */
+    public function displayAppOutput(string $app)
+    {
+        echo PHP_EOL . $this->getAppOutput($app) . PHP_EOL;
+    }
+
+    /**
+     * Returns the output of the specified app as a string.
+     *
+     * @param string $app The name of the app whose output should be returned.
+     *
+     * @return string|bool The app's output as a string, or false on failure.
+     */
+    public function getAppOutput(string $app)
+    {
+        if (isset($this->appOutput[$app]) === true) {
+            return $this->appOutput[$app];
+
+        }
+        return false;
+    }
+
+    /**
+     * Returns an array of running apps, i.e., apps that started up successfully that are still running.
+     *
+     * @return array Array of running apps.
+     */
+    public function runningApps()
+    {
+        return $this->runningApps;
+    }
+
+    /**
      * @inheritDoc
      */
     protected function stop()
@@ -97,7 +135,7 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
                 $this->appOutput[$enabledApp] = ob_get_contents();
             }
             /* End output buffer */
-            ob_end_flush();
+            ob_end_clean();
         }
 
         /* Display any errors. (Errors will ony be displayed if error reporting is turned on.) */

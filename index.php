@@ -9,8 +9,10 @@ require(__DIR__ . '/vendor/autoload.php');
 
 $appStartup = new \DarlingCms\classes\startup\appStartup();
 $appStartup->errorReporting(true);
-
 $startupObjects = array($appStartup);
 foreach($startupObjects as $startupObject) {
     $startupObject->startup();
+}
+foreach($appStartup->runningApps() as $runningApp) {
+    $appStartup->displayAppOutput($runningApp);
 }
