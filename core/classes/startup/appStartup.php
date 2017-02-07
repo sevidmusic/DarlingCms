@@ -41,7 +41,7 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
     public function __construct()
     {
         /* Initialize enabled apps array. */
-        $this->enabledApps = array('helloWorld', 'helloUniverse');
+        $this->enabledApps = array('helloWorld', 'helloUniverse', 'duh');
         /* Turn error reporting off initially. */
         $this->errorReporting(false);
         /* Initialize the running apps array. */
@@ -59,7 +59,9 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
      */
     public function displayAppOutput(string $app)
     {
+        echo PHP_EOL . "<!-- $app App Output -->";
         echo PHP_EOL . $this->getAppOutput($app) . PHP_EOL;
+        echo "<!-- End $app App Output -->" . PHP_EOL;
     }
 
     /**
@@ -93,12 +95,14 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
      */
     protected function stop()
     {
-        /* No shutdown process yet, register error. */
-        $this->registerError('Shutdown Error', '
-                   <p>At the moment the Darling Cms does not allow apps to be shutdown after
-                   they have been started up.</p>
-               ');
-        /* Return false till shutdown logic is implemented. */
+        unset($this->appOutput);
+        unset($this->runningApps);
+        $this->appOutput = array();
+        $this->runningApps = array();
+        if (is_array($this->appOutput) === true && is_array($this->runningApps) === true && empty($this->appOutput) && empty($this->runningApps)) {
+            return true;
+        }
+        /* Return false if appOutput and runningApps arrays were not reset. */
         return false;
     }
 
@@ -118,7 +122,7 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
             if ((include str_replace('core/classes/startup', '', __DIR__) . 'apps/' . $enabledApp . '/' . $enabledApp . '.php') === false) {
                 /* If include failed, register an error. */
                 $this->registerError('Startup Error for app "' . $enabledApp . '"', "
-                    <div style='border: 3px solid; padding: 9px;'>
+                    <div class='dcmsErrorContainer'>
                       <p>An error occurred while attempting to startup the \"$enabledApp\" app.</p>
                       <p>Please check the following:</p>
                       <ul>
