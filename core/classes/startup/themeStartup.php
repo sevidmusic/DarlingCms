@@ -12,29 +12,61 @@
 
 namespace DarlingCms\classes\startup;
 
-
+/**
+ * Class themeStartup. Responsible for constructing the appropriate html link tags for each enabled theme.
+ * @package DarlingCms\classes\startup
+ */
 class themeStartup extends \DarlingCms\abstractions\startup\Astartup
 {
 
+    /**
+     * @var array Array of enabled themes.
+     */
     private $enabledThemes;
 
+    /**
+     * @var array Array of <link> tags for each enabled theme.
+     */
     private $themeLinkTags;
 
     /**
-     * themeStartup constructor.
+     * themeStartup constructor. Initializes the enabledThemes and themeLinkTags arrays.
+     *
      * @param $enabledThemes
      */
     public function __construct()
     {
-        $this->enabledThemes = array('darlingCms','helloWorld', 'helloUniverse');
+        /* Determine which themes are enabled. */
+        $this->enabledThemes = $this->determineEnabledThemes();
+        /* Initialize themeLinkTags array. */
         $this->themeLinkTags = array();
     }
 
+    /**
+     * Determines which themes are enabled.
+     *
+     * @return array Array of enabled themes. An empty array will be returned if there are no enabled themes.
+     */
+    final private function determineEnabledThemes()
+    {
+        return array('darlingCms', 'helloWorld', 'helloUniverse');
+    }
+
+    /**
+     * Returns the enabledThemes array.
+     *
+     * @return array The enabled themes array.
+     */
     public function getEnabledThemes()
     {
         return $this->enabledThemes;
     }
 
+    /**
+     * Display the theme link tags.
+     *
+     * This method has no return value.
+     */
     public function displayThemeLinks()
     {
         foreach ($this->getThemeLinkTags() as $themeLinkTags) {
@@ -44,31 +76,61 @@ class themeStartup extends \DarlingCms\abstractions\startup\Astartup
         }
     }
 
+    /**
+     * Returns the themeLinkTags array.
+     *
+     * @return array Array of theme <link> tags that were constructed on startup().
+     */
     protected function getThemeLinkTags()
     {
         return $this->themeLinkTags;
     }
 
     /**
-     * @inheritDoc
+     * Resets the themeLinkTags array.
+     *
+     * @return bool True if themeLinkTags array was reset, false otherwise.
      */
     protected function stop()
     {
-        // TODO: Implement stop() method.
+        unset($this->themeLinkTags);
+        $this->themeLinkTags = array();
+        return empty($this->themeLinkTags);
     }
 
     /**
-     * @inheritDoc
+     * Constructs a theme <link> tag for each enabled theme and adds it to the themeLinkTags array.
+     *
+     * @return bool True if there were no errors, false otherwise.
      */
     protected function run()
     {
+        /* Loop through enabled themes. */
         foreach ($this->enabledThemes as $enabledTheme) {
-            $this->themeLinkTags[$enabledTheme][] = "<link rel=\"stylesheet\" type=\"text/css\" href=\"http://localhost:8888/DarlingCms/themes/$enabledTheme/$enabledTheme.css\">";
+            /* Check that theme file exists. */
+            if (file_exists(str_replace('core/classes/startup', 'themes/', __DIR__) . "$enabledTheme/$enabledTheme.css") === true) {
+                /* Create an appropriately formatted <link> tag for this theme's stylesheet. */
+                $this->themeLinkTags[$enabledTheme][] = "<link rel=\"stylesheet\" type=\"text/css\" href=\"http://localhost:8888/DarlingCms/themes/$enabledTheme/$enabledTheme.css\">";
+            } else {
+                /* If theme file does not exist, register error. */
+                $this->registerError('<!-- Startup Error for theme "' . $enabledTheme . '"',
+                    "-->
+                    <!--
+                      An error occurred while attempting to startup the \"$enabledTheme\" theme.
+                      Please check the following:
+                        - Is the \"$enabledTheme\" theme installed?
+                        - Does the \"$enabledTheme\" theme's directory name match \"$enabledTheme\"?
+                        - Does the \"$enabledTheme\" theme's css file name match \"$enabledTheme.css\"?
+                      -->
+                    "
+                );
+            }
         }
 
         /* Display any errors. (Errors will ony be displayed if error reporting is turned on.) */
         $this->displayErrors();
 
-        return true;
+        /* Return true if there were no errors, false otherwise. */
+        return empty($this->getErrors());
     }
 }
