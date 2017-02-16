@@ -176,13 +176,7 @@ class darlingCmsStartup extends \DarlingCms\abstractions\startup\Astartup
     final private function displayHtmlBody()
     {
         echo PHP_EOL . '<body>' . PHP_EOL;
-
-        /* @todo: Need to find a way to govern what order app output is displayed...
-         *        and where on the page...
-         *        themeing issue?...
-         *        user function?...
-         *        Not sure how to implement....?
-         */
+        /* Get display each running apps output. */
         foreach ($this->appStartup->runningApps() as $runningApp) {
             $this->appStartup->displayAppOutput($runningApp);
         }

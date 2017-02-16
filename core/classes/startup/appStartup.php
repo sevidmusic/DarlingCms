@@ -19,16 +19,26 @@ namespace DarlingCms\classes\startup;
  */
 class appStartup extends \DarlingCms\abstractions\startup\Astartup
 {
+    /* Error code aliases. */
+
+    /**
+     * @const int Error code for an error resulting from a failed attempt to include an app.
+     */
+    const INCLUDE_ERROR = 23458;
+
+    /**
+     * @const int Error code for an error resulting from an attempt to load an app that is disabled.
+     */
+    const APP_DISABLED_ERROR = 23458;
+
     /**
      * @var array Array of enabled apps.
      */
     private $enabledApps;
-
     /**
      * @var array Array of running apps indexed in order of startup.
      */
     private $runningApps;
-
     /**
      * @var array Array of app output indexed by app name.
      */
@@ -189,17 +199,7 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
             /* Attempt to include the app. */
             if ((include str_replace('core/classes/startup', '', __DIR__) . 'apps/' . $enabledApp . '/' . $enabledApp . '.php') === false) {
                 /* If include failed, register an error. */
-                $this->registerError('<div class=\'dcmsErrorContainerTitle\'>Startup Error for app "' . $enabledApp . '"</div>', "
-                    <div class='dcmsErrorContainer'>
-                      <p>An error occurred while attempting to startup the \"$enabledApp\" app.</p>
-                      <p>Please check the following:</p>
-                      <ul>
-                        <li>Is the \"$enabledApp\" app installed?</li>
-                        <li>Does the \"$enabledApp\" app's directory name match \"$enabledApp\"?</li>
-                        <li>Does the \"$enabledApp\" app's php file name match \"$enabledApp.php\"?</li>
-                      </ul>
-                    </div>
-                ");
+                $this->registerInternalError(self::INCLUDE_ERROR);
             } else {
                 /* If include succeeded add app to the running apps array. */
                 array_push($this->runningApps, $enabledApp);
@@ -219,11 +219,55 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
             return false;
         }
         /* Register an error if an attempt is made to load an app that is not enabled. */
-        $this->registerError('<div class=\'dcmsErrorContainerTitle\'>Startup Error for app "' . $enabledApp . '"</div>',
-            '<div class=\'dcmsErrorContainer\'>Attempt made to load an app that is not enabled!</div>'
-        );
+        $this->registerInternalError(self::APP_DISABLED_ERROR);
         /* Return false if requested $enabledApp is not actually enabled. */
         return false;
+    }
+
+    /**
+     * Constructs the appropriate error message for the provided $errorCode and uses the
+     * registerError() method to register the error.
+     *
+     * This method will return false if the $errorCode is invalid, or if the error failed
+     * to be registered.
+     *
+     * @param string $appName Name of the app that caused the error.
+     *
+     * @param int $errorCode Error code for this error. (options: INCLUDE_ERROR, APP_DISABLED_ERROR)
+     *
+     * @param null $data (optional) Any data associated with the error.
+     *
+     * @return bool True if error was registered successfully, false otherwise.
+     */
+    final private function registerInternalError(string $appName, int $errorCode, $data = null)
+    {
+        $enabledApp = $appName;
+        switch ($errorCode) {
+            case 23458:
+                $index = '<div class=\'dcmsErrorContainerTitle\'>Startup Error for app "' . $enabledApp . '"</div>';
+                $message = "
+                    <div class='dcmsErrorContainer'>
+                      <p>An error occurred while attempting to startup the \"$enabledApp\" app.</p>
+                      <p>Please check the following:</p>
+                      <ul>
+                        <li>Is the \"$enabledApp\" app installed?</li>
+                        <li>Does the \"$enabledApp\" app's directory name match \"$enabledApp\"?</li>
+                        <li>Does the \"$enabledApp\" app's php file name match \"$enabledApp . php\"?</li>
+                      </ul>
+                    </div>
+                ";
+                break;
+            case 23475:
+                $index = '<div class="dcmsErrorContainerTitle">Startup Error for app "' . $enabledApp . '"</div>';
+                $message = '<div class="dcmsErrorContainer">Attempt made to load an app that is not enabled!</div>';
+                break;
+            default:
+                /* Return false if $errorCode does not exist. */
+                return false;
+        }
+
+        return $this->registerError($index, $message, $data);
+
     }
 
     /**
