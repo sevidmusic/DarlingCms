@@ -32,7 +32,8 @@ class darlingCmsStartup extends \DarlingCms\abstractions\startup\Astartup
     private $themeStartup;
 
     /**
-     * @var array Array of startup objects.
+     * @var array Array of startup objects. @todo : this is not used yet, but may be in the future.
+     * If used it should replace the internal $startupObjects arrays in the start() and stop() methods.
      */
     private $startupObjects;
 

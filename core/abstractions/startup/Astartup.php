@@ -166,14 +166,14 @@ abstract class Astartup implements \DarlingCms\interfaces\startup\Istartup
                     case true:
                         /* Extract and display error message from $error array. Use $index to indicate
                            which app caused the error. */
-                        echo "<p>$index: {$error['message']}</p>";
+                        echo "$index: {$error['message']}";
                         /* var_dump() the error data from the $error array. */
                         var_dump($error['data']);
                         break;
                     case false:
                         /* $error is the error message, so, display $error. Use $index to indicate which
                            app caused the error. */
-                        echo "<p>$index: $error</p>";
+                        echo "$index: $error";
                         break;
                 }
             }
