@@ -191,37 +191,20 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
      */
     final private function loadApp(string $enabledApp)
     {
-        if (in_array($enabledApp, $this->enabledApps) === true) {
-            /* Count initial errors in order to differentiate between previous and and new errors. */
-            $initialErrorCount = count($this->getErrors());
-            /* Start output buffer. */
-            ob_start();
-            /* Attempt to include the app. */
-            if ((include str_replace('core/classes/startup', '', __DIR__) . 'apps/' . $enabledApp . '/' . $enabledApp . '.php') === false) {
-                /* If include failed, register an error. */
-                $this->registerInternalError(self::INCLUDE_ERROR);
-            } else {
-                /* If include succeeded add app to the running apps array. */
-                array_push($this->runningApps, $enabledApp);
-                /* Capture app output from the buffer and add it to the $appOutput array. */
-                $this->appOutput[$enabledApp] = ob_get_contents();
-            }
-            /* End output buffer */
-            ob_end_clean();
-            /* Do a final error count. */
-            $finalErrorCount = count($this->getErrors());
-            /* Check if there were any errors by comparing the initial and final error counts. */
-            if ($initialErrorCount === $finalErrorCount) {
-                /* If there were no new errors return true. */
-                return true;
-            }
-            /* Return false if there were new errors. */
+        if (in_array($enabledApp, $this->enabledApps) === false) {
+            /* Register an error if an attempt is made to load an app that is not enabled. */
+            $this->registerInternalError($enabledApp, self::APP_DISABLED_ERROR);
+            /* Return false if requested $enabledApp is not actually enabled. */
             return false;
         }
-        /* Register an error if an attempt is made to load an app that is not enabled. */
-        $this->registerInternalError(self::APP_DISABLED_ERROR);
-        /* Return false if requested $enabledApp is not actually enabled. */
-        return false;
+        /* Count initial errors in order to differentiate between previous and and new errors. */
+        $initialErrorCount = count($this->getErrors());
+        /* Capture app output. */
+        $this->captureAppOutput($enabledApp);
+        /* Do a final error count. */
+        $finalErrorCount = count($this->getErrors());
+        /* Check if there were any errors by comparing the initial and final error counts. */
+        return ($initialErrorCount === $finalErrorCount);
     }
 
     /**
@@ -268,6 +251,43 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
 
         return $this->registerError($index, $message, $data);
 
+    }
+
+    /**
+     * Uses an output buffer to capture output from a specified app and stores it
+     * in the appOutput array.
+     *
+     * @param string $enabledApp Name of the app to capture output from.
+     *
+     * @return bool True if output was captured in the appOutput array successfully, false otherwise.
+     */
+    final  private function captureAppOutput(string $enabledApp)
+    {
+        /* Start output buffer. */
+        ob_start();
+        /* Attempt to include the app. */
+        if ($this->includeApp($enabledApp) === false) {
+            /* If include failed, register an error. */
+            $this->registerInternalError($enabledApp, self::INCLUDE_ERROR);
+        } else {
+            /* If include succeeded add app to the running apps array. */
+            array_push($this->runningApps, $enabledApp);
+            /* Capture app output from the buffer and add it to the $appOutput array. */
+            $this->appOutput[$enabledApp] = ob_get_contents();
+        }
+        /* End output buffer */
+        ob_end_clean();
+        /* Return true if app output was captured, false otherwise. */
+        return isset($this->appOutput[$enabledApp]);
+    }
+
+    /**
+     * @param string $enabledApp Name of the app to include.
+     * @return mixed Returns the int 1 if include succeeded, false otherwise.
+     */
+    final private function includeApp(string $enabledApp)
+    {
+        return include(str_replace('core/classes/startup', '', __DIR__) . 'apps/' . $enabledApp . '/' . $enabledApp . '.php');
     }
 
     /**

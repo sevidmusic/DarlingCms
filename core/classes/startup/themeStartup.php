@@ -122,7 +122,7 @@ class themeStartup extends \DarlingCms\abstractions\startup\Astartup
                         - Does the \"$enabledTheme\" theme's directory name match \"$enabledTheme\"?
                         - Does the \"$enabledTheme\" theme's css file name match \"$enabledTheme.css\"?
                       -->
-                    "
+                    " . PHP_EOL
                 );
             }
         }
