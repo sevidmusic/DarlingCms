@@ -76,6 +76,8 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
     /**
      * Determines which apps are enabled and returns their names in an array.
      *
+     * @todo: This method should take dependency into account, it currently does not!
+     *
      * @return array Array of enabled apps.
      */
     final private function determineEnabledApps()
@@ -85,6 +87,10 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
 
     /**
      * Disable an app.
+     *
+     * Note: This only disables the app for the instance that called this method.
+     *
+     * @todo: This method should take dependency into account, it currently does not!
      *
      * @param string $app Name of the app to disable.
      *
@@ -97,6 +103,52 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
             unset($this->enabledApps[$key]);
         }
         return !isset($this->enabledApps[$key]);
+    }
+
+    /**
+     * Enable an app.
+     *
+     * Note: This only enables the app for the instance that called this method.
+     *
+     * @todo: This method should take dependency into account, it currently does not!
+     *
+     * @param string $app Name of the app to enable.
+     *
+     * @return bool True if app was enabled successfully, false otherwise.
+     *              If app was enabled initially, this method will still return true.
+     */
+    final public function enableApp(string $app)
+    {
+        if (($key = array_search($app, $this->enabledApps)) === false) {
+            array_push($this->enabledApps, $app);
+        }
+        return isset($this->enabledApps[$key]);
+    }
+
+    /**
+     * Check if an app is enabled.
+     *
+     * Note: This only checks if the app is enabled for the instance that called this method.
+     *
+     * @param string $app Name of the app to enable.
+     *
+     * @return bool True if app is enabled, false otherwise.
+     *
+     */
+    final public function isEnabled(string $app)
+    {
+        /* Search for the $app in the enabledApps array. */
+        return (array_search($app, $this->enabledApps) !== false);
+    }
+
+    /**
+     * Returns the enabledApps array in it's current state.
+     *
+     * @return array The enabledApps array in it's current state.
+     */
+    final public function enabledApps()
+    {
+        return $this->enabledApps;
     }
 
     /**
