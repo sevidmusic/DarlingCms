@@ -29,23 +29,28 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
     /**
      * @const int Error code for an error resulting from an attempt to load an app that is disabled.
      */
-    const APP_DISABLED_ERROR = 23458;
+    const APP_DISABLED_ERROR = 23459;
 
     /**
      * @var array Array of enabled apps.
      */
     private $enabledApps;
     /**
-     * @var array Array of running apps indexed in order of startup.
+     * @var array Array of running apps numerically indexed in order of startup.
      */
     private $runningApps;
     /**
-     * @var array Array of app output indexed by app name.
+     * @var array Array of app output associatively indexed by app name.
      */
     private $appOutput;
 
     /**
-     * appStartup constructor. Initializes the enabledApps, runningApps, and appOutput arrays Also,
+     * @var string Name of the instantiator, i.e., name of the file that instantiated this instance stripped of the file-path and ".php" extension.
+     */
+    private $instantiator;
+
+    /**
+     * appStartup constructor. Initializes the enabledApps, runningApps, and appOutput arrays. Also,
      * turns off error reporting, initially. Finally, protects against an infinite startup loop
      * that would occur if object is instantiated from within an app by disabling the instantiating
      * app if the instantiator is indeed an app. In other words, the __constructor() insures that it
@@ -53,76 +58,36 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
      */
     final public function __construct()
     {
-        /* Determine what path and filename of file this object is being instantiated in. */
-        $callerFile = debug_backtrace()[0]['file'];
-        /* Filter $callerFile string to remove file path and .php extension. */
-        $caller = str_replace('.php', '', substr($callerFile, strrpos($callerFile, "/") + 1));
         /* Determine enabled apps. */
         $this->enabledApps = $this->determineEnabledApps();
-        /* Check if the $caller is one of the enabled apps. */
-        if (in_array($caller, $this->enabledApps, true) === true) {
-            /* If the $caller matches one of the enabled apps, disable the matching app to prevent causing an
-               infinite startup loop when startup() is called for this instance. */
-            $this->disableApp($caller);
-        }
         /* Initialize the running apps array. */
         $this->runningApps = array();
         /* Initialize app output array. */
         $this->appOutput = array();
         /* Turn error reporting off, initially. */
         $this->errorReporting(false);
+        /* Determine the path and filename of the file this object is being instantiated in. */
+        $callerFile = debug_backtrace()[0]['file'];
+        /* Filter $callerFile string to remove file path and .php extension. */
+        $this->instantiator = str_replace('.php', '', substr($callerFile, strrpos($callerFile, "/") + 1));
+        /* Check if the instantiator is one of the enabled apps. */
+        if ($this->isEnabled($this->instantiator) === true) {
+            /* If the instantiator matches one of the enabled apps, disable the matching app to prevent causing an
+               infinite startup loop when startup() is called for this instance. */
+            $this->disableApp($this->instantiator);
+        }
     }
 
     /**
-     * Determines which apps are enabled and returns their names in an array.
+     * Determines which apps are enabled and returns their names in a numerically indexed array.
      *
      * @todo: This method should take dependency into account, it currently does not!
      *
-     * @return array Array of enabled apps.
+     * @return array Numerically indexed array of enabled apps.
      */
     final private function determineEnabledApps()
     {
-        return array('helloWorld', 'helloUniverse');
-    }
-
-    /**
-     * Disable an app.
-     *
-     * Note: This only disables the app for the instance that called this method.
-     *
-     * @todo: This method should take dependency into account, it currently does not!
-     *
-     * @param string $app Name of the app to disable.
-     *
-     * @return bool True if app was disabled successfully, false otherwise.
-     *              If app was not enabled initially, this method will still return true.
-     */
-    final public function disableApp(string $app)
-    {
-        if (($key = array_search($app, $this->enabledApps)) !== false) {
-            unset($this->enabledApps[$key]);
-        }
-        return !isset($this->enabledApps[$key]);
-    }
-
-    /**
-     * Enable an app.
-     *
-     * Note: This only enables the app for the instance that called this method.
-     *
-     * @todo: This method should take dependency into account, it currently does not!
-     *
-     * @param string $app Name of the app to enable.
-     *
-     * @return bool True if app was enabled successfully, false otherwise.
-     *              If app was enabled initially, this method will still return true.
-     */
-    final public function enableApp(string $app)
-    {
-        if (($key = array_search($app, $this->enabledApps)) === false) {
-            array_push($this->enabledApps, $app);
-        }
-        return isset($this->enabledApps[$key]);
+        return array('helloUniverse', 'helloWorld');
     }
 
     /**
@@ -137,18 +102,62 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
      */
     final public function isEnabled(string $app)
     {
-        /* Search for the $app in the enabledApps array. */
-        return (array_search($app, $this->enabledApps) !== false);
+        /* Check for the $app in the enabledApps array. */
+        return in_array($app, $this->enabledApps, true);
     }
 
     /**
-     * Returns the enabledApps array in it's current state.
+     * Disable an app.
      *
-     * @return array The enabledApps array in it's current state.
+     * Note: This only disables the app for the instance that called this method.
+     *
+     * @see http://stackoverflow.com/questions/7225070/php-array-delete-by-value-not-key This methods code was adapted from a post on the the wonderful Stack Overflow website: http://stackoverflow.com/questions/7225070/php-array-delete-by-value-not-key
+     *
+     * @todo: This method should take dependency into account, it currently does not!
+     *
+     * @param string $app Name of the app to disable.
+     *
+     * @return bool True if app was disabled successfully, false otherwise.
+     *              If app was not enabled initially, this method will still return true.
      */
-    final public function enabledApps()
+    final public function disableApp(string $app)
     {
-        return $this->enabledApps;
+        /* Search for the $app in the enabledApps array, if found, assign it's key to $index variable. */
+        if (($index = array_search($app, $this->enabledApps, true)) !== false) {
+            /* Remove the app from the enabledApps array using it's $index. */
+            unset($this->enabledApps[$index]);
+        }
+        /* Return true if app was disabled successfully, false otherwise. */
+        return !isset($this->enabledApps[$index]);
+    }
+
+    /**
+     * Enable an app.
+     *
+     * Note: This only enables the app for the instance that called this method.
+     *
+     * Warning: This method will not enable an app if it is the instantiator of this instance.
+     * i.e., If an app called helloUniverse instantiates an appStartup() instance, and then
+     * calls $appStartupInstance->enableApp('helloUniverse'), enableApp() will not enable
+     * the helloUniverse app.
+     *
+     * @todo: This method should take dependency into account, it currently does not!
+     *
+     * @param string $app Name of the app to enable.
+     *
+     * @return bool True if app was enabled successfully, false otherwise.
+     *              If app was enabled initially, this method will still return true.
+     */
+    final public function enableApp(string $app)
+    {
+        /* If the $app is not already enabled, and the $app is not the instantiator, enable
+           the $app. */
+        if ($this->isEnabled($app) === false && $app !== $this->instantiator) {
+            /* Add $app to enabledApps array. */
+            array_push($this->enabledApps, $app);
+        }
+        /* Return true if $app is enabled, false otherwise. */
+        return $this->isEnabled($app);
     }
 
     /**
@@ -161,10 +170,19 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
      */
     public function displayAppOutput(string $app)
     {
-        echo PHP_EOL . "<!-- $app App Output -->";
-        echo PHP_EOL . $this->getAppOutput($app) . PHP_EOL;
-        echo "<!-- End $app App Output -->" . PHP_EOL;
-        return $this->getAppOutput($app);
+        /* Check if the $app is enabled. */
+        if ($this->isEnabled($app) === true) {
+            /* Get the app's output. */
+            $output = $this->getAppOutput($app);
+            /* Echo the app's output with some formatting*/
+            echo PHP_EOL . "<!-- $app App Output -->";
+            echo PHP_EOL . $output . PHP_EOL;
+            echo "<!-- End $app App Output -->" . PHP_EOL;
+            /* Return the $output, will be true if getAppOutput() succeeded, false otherwise. */
+            return $output;
+        }
+        /* Return false if an attempt is made to display output of an app that is not enabled. */
+        return false;
     }
 
     /**
@@ -176,10 +194,12 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
      */
     final public function getAppOutput(string $app)
     {
+        /* Check if the app has any output stored in the appOutput array. */
         if (isset($this->appOutput[$app]) === true) {
+            /* Return the app's output. */
             return $this->appOutput[$app];
-
         }
+        /* Return false if the app has no output stored in the appOutput array. */
         return false;
     }
 
@@ -217,7 +237,6 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
     }
 
     /**
-     *
      * Loads enabled apps and handles error reporting.
      *
      * @return bool True if all enabled apps were loaded successfully, false otherwise.
@@ -225,13 +244,25 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
     final protected function run()
     {
         /* Load each enabled app. */
-        foreach ($this->enabledApps as $enabledApp) {
+        foreach ($this->enabledApps() as &$enabledApp) {
             $this->loadApp($enabledApp);
+            /* Cleanup reference. */
+            unset($enabledApp);
         }
         /* Display any errors. (Errors will ony be displayed if error reporting is turned on.) */
         $this->displayErrors();
         /* Return true if there were no errors, i.e., the errors array is empty, false otherwise. */
         return empty($this->getErrors());
+    }
+
+    /**
+     * Returns the enabledApps array in it's current state.
+     *
+     * @return array The enabledApps array in it's current state.
+     */
+    final public function enabledApps()
+    {
+        return $this->enabledApps;
     }
 
     /**
@@ -243,7 +274,7 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
      */
     final private function loadApp(string $enabledApp)
     {
-        if (in_array($enabledApp, $this->enabledApps) === false) {
+        if ($this->isEnabled($enabledApp) === false) {
             /* Register an error if an attempt is made to load an app that is not enabled. */
             $this->registerInternalError($enabledApp, self::APP_DISABLED_ERROR);
             /* Return false if requested $enabledApp is not actually enabled. */
@@ -270,44 +301,41 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
      *
      * @param int $errorCode Error code for this error. (options: INCLUDE_ERROR, APP_DISABLED_ERROR)
      *
-     * @param null $data (optional) Any data associated with the error.
+     * @param mixed $data (optional) Any data associated with the error.
      *
      * @return bool True if error was registered successfully, false otherwise.
      */
     final private function registerInternalError(string $appName, int $errorCode, $data = null)
     {
-        $enabledApp = $appName;
         switch ($errorCode) {
-            case 23458:
-                $index = '<div class=\'dcmsErrorContainerTitle\'>Startup Error for app "' . $enabledApp . '"</div>';
+            case self::INCLUDE_ERROR:
+                $index = '<div class=\'dcmsErrorContainerTitle\'>Startup Error for app "' . $appName . '"</div>';
                 $message = "
                     <div class='dcmsErrorContainer'>
-                      <p>An error occurred while attempting to startup the \"$enabledApp\" app.</p>
+                      <p>An error occurred while attempting to startup the \"$appName\" app.</p>
                       <p>Please check the following:</p>
                       <ul>
-                        <li>Is the \"$enabledApp\" app installed?</li>
-                        <li>Does the \"$enabledApp\" app's directory name match \"$enabledApp\"?</li>
-                        <li>Does the \"$enabledApp\" app's php file name match \"$enabledApp . php\"?</li>
+                        <li>Is the \"$appName\" app installed?</li>
+                        <li>Does the \"$appName\" app's directory name match \"$appName\"?</li>
+                        <li>Does the \"$appName\" app's php file name match \"$appName.php\"?</li>
                       </ul>
                     </div>
                 ";
                 break;
-            case 23475:
-                $index = '<div class="dcmsErrorContainerTitle">Startup Error for app "' . $enabledApp . '"</div>';
+            case self::APP_DISABLED_ERROR:
+                $index = '<div class="dcmsErrorContainerTitle">Startup Error for app "' . $appName . '"</div>';
                 $message = '<div class="dcmsErrorContainer">Attempt made to load an app that is not enabled!</div>';
                 break;
             default:
                 /* Return false if $errorCode does not exist. */
                 return false;
         }
-
         return $this->registerError($index, $message, $data);
-
     }
 
     /**
      * Uses an output buffer to capture output from a specified app and stores it
-     * in the appOutput array.
+     * in the appOutput array indexed under the name of the specified app.
      *
      * @param string $enabledApp Name of the app to capture output from.
      *
@@ -334,6 +362,8 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
     }
 
     /**
+     * Attempts to include the specified app.
+     *
      * @param string $enabledApp Name of the app to include.
      * @return mixed Returns the int 1 if include succeeded, false otherwise.
      */
