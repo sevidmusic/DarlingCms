@@ -112,7 +112,6 @@ abstract class Astartup implements \DarlingCms\interfaces\startup\Istartup
     {
         /* Reset the errors array. */
         $this->resetErrors();
-
         /* Run implementations startup logic. */
         return $this->run();
     }
@@ -136,6 +135,8 @@ abstract class Astartup implements \DarlingCms\interfaces\startup\Istartup
      */
     protected function registerError(string $index, string $message, $data = null)
     {
+        /* Log the error to the php error log. */
+        error_log('Darling Content Management System Internal Error: ' . strip_tags("$index - $message") . print_r($data, true));
         /* Register error differently based on whether or not $data was provided. */
         switch ($data) {
             case null:
