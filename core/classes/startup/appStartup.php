@@ -171,7 +171,7 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
     public function displayAppOutput(string $app)
     {
         /* Check if the $app is enabled. */
-        if ($this->isEnabled($app) === true) {
+        if ($this->isEnabled($app) === true || $app === 'dcmsAppStartupErrors') {
             /* Get the app's output. */
             $output = $this->getAppOutput($app);
             /* Echo the app's output with some formatting*/
