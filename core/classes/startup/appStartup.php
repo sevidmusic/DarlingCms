@@ -171,17 +171,17 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
     public function displayAppOutput(string $app)
     {
         /* Check if the $app is enabled. */
-        if ($this->isEnabled($app) === true || $app === 'dcmsAppStartupErrors') {
+        if ($this->isEnabled($app) === true || $app === 'dcmsAppStartupErrors') { // @todo: Should also check that app is running. (i.e., ... || && isRunning($app) === true || ...)
             /* Get the app's output. */
-            $output = $this->getAppOutput($app);
+            $retrievedAppOutput = $this->getAppOutput($app);
             /* Echo the app's output with some formatting*/
             echo PHP_EOL . "<!-- $app App Output -->";
-            echo PHP_EOL . $output . PHP_EOL;
+            echo PHP_EOL . $retrievedAppOutput . PHP_EOL;
             echo "<!-- End $app App Output -->" . PHP_EOL;
-            /* Return the $output, will be true if getAppOutput() succeeded, false otherwise. */
-            return $output;
+            /* Return $retrievedAppOutput, will be true if getAppOutput() succeeded, false otherwise. */
+            return $retrievedAppOutput;
         }
-        /* Return false if an attempt is made to display output of an app that is not enabled. */
+        /* Return false if an attempt is made to display output of an app that is not enabled or is not running. */
         return false;
     }
 
@@ -213,6 +213,8 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
         return $this->runningApps;
     }
 
+    // @todo: Define isRunning() method.
+
     /**
      * Resets the appOutput, and runningApps arrays. Returns true if arrays were reset
      * successfully, false otherwise.
@@ -243,15 +245,30 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
      */
     final protected function run()
     {
-        /* Load each enabled app. */
-        foreach ($this->enabledApps() as &$enabledApp) {
-            $this->loadApp($enabledApp);
-            /* Cleanup reference. */
-            unset($enabledApp);
-        }
+        /* Load apps. */
+        $this->loadApps();
         /* Display any errors. (Errors will ony be displayed if error reporting is turned on.) */
         $this->displayErrors();
         /* Return true if there were no errors, i.e., the errors array is empty, false otherwise. */
+        return empty($this->getErrors());
+    }
+
+    /**
+     * Loads all the enabled apps.
+     *
+     * @return bool True if all enabled apps were loaded without any errors, false otherwise.
+     */
+    private function loadApps()
+    {
+        /*  Load each enabled app. */
+        foreach ($this->enabledApps() as $enabledApp) {
+            /* Make sure app was not disabled by a previously loaded app. */
+            if ($this->isEnabled($enabledApp) === true) {
+                /* Load the app. */
+                $this->loadApp($enabledApp);
+            }
+        }
+        /* Return true if all enabled apps were loaded without errors, false otherwise. */
         return empty($this->getErrors());
     }
 
@@ -266,7 +283,7 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
     }
 
     /**
-     * Load's the requested $enabledApp.
+     * Load's the specified $enabledApp.
      *
      * @param string $enabledApp The name of the enabled app to load.
      *
@@ -374,8 +391,8 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
 
     /**
      * Custom implementation of displayErrors() for appStartup() class. This implementations
-     * captures the result of calling displayErrors() in a buffer and adds the output to the
-     * app output array under the index "dcmsAppStartupErrors".
+     * displayErrors() method captures the result of calling displayErrors() in a buffer and
+     * adds the output to the app output array under the index "dcmsAppStartupErrors".
      *
      * @param bool $forceDisplay If set to true, then displayErrors() will function the same
      * as the parent implementation's displayErrors() echoing the errors to the page immediately.

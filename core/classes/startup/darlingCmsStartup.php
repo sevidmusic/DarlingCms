@@ -60,6 +60,19 @@ class darlingCmsStartup extends \DarlingCms\abstractions\startup\Astartup
          */
     }
 
+    /**
+     * @inheritDoc
+     * Responsible for turning error reporting on or off for each startup object,
+     * and for this darlingCmsStarup() instance.
+     */
+    public function errorReporting(bool $value)
+    {
+        /* Set each startup object's error reporting to the specified $value. */
+        $this->appStartup->errorReporting($value);
+        $this->themeStartup->errorReporting($value);
+        /* Call parent's errorReporting() method to turn error reporting on for this darlingCmsStartup() instance. */
+        return parent::errorReporting($value);
+    }
 
     /**
      * @inheritDoc
@@ -77,8 +90,6 @@ class darlingCmsStartup extends \DarlingCms\abstractions\startup\Astartup
 
         /* Shutdown each startup object. */
         foreach ($startupObjects as $startupObject) {
-            // DEV CODE: Keep error reporting on while in dev. Once this class is complete, remove the following line:
-            $startupObject->errorReporting(true);
             /* Store the result of calling the startup object's shutdown() method in the $stopStatus array. */
             array_push($stopStatus, $startupObject->shutdown());
         }
@@ -113,8 +124,6 @@ class darlingCmsStartup extends \DarlingCms\abstractions\startup\Astartup
 
         /* Startup each startup object. */
         foreach ($startupObjects as $startupObject) {
-            // DEV CODE: Keep error reporting on while in dev. Once this class is complete, remove the following line:
-            $startupObject->errorReporting(true);
             /* Store the result of calling the startup object's startup() method in the $startStatus array. */
             array_push($startStatus, $startupObject->startup());
         }
