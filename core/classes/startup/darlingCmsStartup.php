@@ -22,42 +22,43 @@ namespace DarlingCms\classes\startup;
 class darlingCmsStartup extends \DarlingCms\abstractions\startup\Astartup
 {
     /**
-     * @var \DarlingCms\classes\startup\appStartup $appStartup Instance of the \DarlingCms\classes\startup\appStartup() class.
+     * Index of app startup object in startupObjects array.
      */
-    private $appStartup;
+    const APP_STARTUP_OBJECT_INDEX = 0;
 
     /**
-     * @var \DarlingCms\classes\startup\themeStartup $themeStartup Instance of the \DarlingCms\classes\startup\themeStartup() class.
+     * Index of theme startup object in startupObjects array.
      */
-    private $themeStartup;
+    const THEME_STARTUP_OBJECT_INDEX = 1;
 
     /**
-     * @var array Array of startup objects. @todo : this is not used yet, but may be in the future.
-     * If used it should replace the internal $startupObjects arrays in the start() and stop() methods.
+     * Name of the interface each startup object must implement to be considered a valid startup object.
+     */
+    const DCMS_STARTUP_INTERFACE = 'DarlingCms\interfaces\startup\Istartup';
+    /**
+     * @var array Array of startup objects.
      */
     private $startupObjects;
 
     /**
-     * darlingCmsStartup constructor.
+     * darlingCmsStartup constructor. Initializes $startupObjects array, and insures that all startup objects
+     * passed to the constructor implement the \DarlingCms\interfaces\startup\Istartup interface. The first
+     * two startup objects must implement the \DarlingCms\classes\startup\appStartup and
+     * \DarlingCms\classes\startup\themeStartup classes respectively.
      * @param \DarlingCms\classes\startup\appStartup $appStartup Instance of the \DarlingCms\classes\startup\appStartup() class.
      * @param \DarlingCms\classes\startup\themeStartup $themeStartup Instance of the \DarlingCms\classes\startup\themeStartup() class.
+     * @param \DarlingCms\interfaces\startup\Istartup $_ Additional startup objects.
      */
     public function __construct(\DarlingCms\classes\startup\appStartup $appStartup, \DarlingCms\classes\startup\themeStartup $themeStartup)
     {
-        $this->appStartup = $appStartup;
-        $this->themeStartup = $themeStartup;
-        /**
-         * The following code could possible be used to accommodate passing an indefinite number of startup objects to the __constructor()
-         *
-         * $this->startupObjects = func_get_args();
-         * var_dump($this->startupObjects);
-         *
-         * ---- would make the following possible ... ----
-         *
-         * $dcms = new \DarlingCms\classes\startup\themeStartup($obj1, $obj, $obj3, ...);
-         *
-         * This change would require refactoring of the entire class...
-         */
+        $this->startupObjects = array();
+        $startupObjects = func_get_args();
+        foreach ($startupObjects as $startupObject) {
+            $implements = class_implements($startupObject);
+            if (in_array($this::DCMS_STARTUP_INTERFACE, $implements, true) === true) {
+                array_push($this->startupObjects, $startupObject);
+            }
+        }
     }
 
     /**
@@ -68,8 +69,9 @@ class darlingCmsStartup extends \DarlingCms\abstractions\startup\Astartup
     public function errorReporting(bool $value)
     {
         /* Set each startup object's error reporting to the specified $value. */
-        $this->appStartup->errorReporting($value);
-        $this->themeStartup->errorReporting($value);
+        foreach ($this->startupObjects as $startupObject) {
+            $startupObject->errorReporting($value);
+        }
         /* Call parent's errorReporting() method to turn error reporting on for this darlingCmsStartup() instance. */
         return parent::errorReporting($value);
     }
@@ -85,11 +87,9 @@ class darlingCmsStartup extends \DarlingCms\abstractions\startup\Astartup
         /* Initialize $stopStatus array which will track the success or failure of shutting down
            each startup object. */
         $stopStatus = array();
-        /* Initialize array of startup objects. */
-        $startupObjects = array($this->appStartup, $this->themeStartup);
 
         /* Shutdown each startup object. */
-        foreach ($startupObjects as $startupObject) {
+        foreach ($this->startupObjects as $startupObject) {
             /* Store the result of calling the startup object's shutdown() method in the $stopStatus array. */
             array_push($stopStatus, $startupObject->shutdown());
         }
@@ -119,11 +119,9 @@ class darlingCmsStartup extends \DarlingCms\abstractions\startup\Astartup
         /* Initialize $startStatus array which will track the success or failure of starting up
            each startup object. */
         $startStatus = array();
-        /* Initialize array of startup objects. */
-        $startupObjects = array($this->appStartup, $this->themeStartup);
 
         /* Startup each startup object. */
-        foreach ($startupObjects as $startupObject) {
+        foreach ($this->startupObjects as $startupObject) {
             /* Store the result of calling the startup object's startup() method in the $startStatus array. */
             array_push($startStatus, $startupObject->startup());
         }
@@ -173,7 +171,7 @@ class darlingCmsStartup extends \DarlingCms\abstractions\startup\Astartup
 
         echo PHP_EOL . '<title>' . (isset($_GET['page']) === true ? ucfirst(trim(filter_input(INPUT_GET, 'page', FILTER_SANITIZE_STRING))) : 'Darling Cms') . ' | ' . date('M d Y') . '</title>' . PHP_EOL;
 
-        $this->themeStartup->displayThemeLinks();
+        $this->startupObjects[$this::THEME_STARTUP_OBJECT_INDEX]->displayThemeLinks();
 
         echo PHP_EOL . '</head>' . PHP_EOL;
 
@@ -186,8 +184,8 @@ class darlingCmsStartup extends \DarlingCms\abstractions\startup\Astartup
     {
         echo PHP_EOL . '<body>' . PHP_EOL;
         /* Get display each running apps output. */
-        foreach ($this->appStartup->runningApps() as $runningApp) {
-            $this->appStartup->displayAppOutput($runningApp);
+        foreach ($this->startupObjects[$this::APP_STARTUP_OBJECT_INDEX]->runningApps() as $runningApp) {
+            $this->startupObjects[$this::APP_STARTUP_OBJECT_INDEX]->displayAppOutput($runningApp);
         }
 
         echo PHP_EOL . '</body>' . PHP_EOL;
