@@ -75,29 +75,15 @@ class app extends \DarlingCms\abstractions\component\Acomponent
     }
 
     /**
-     * Determines if a property has been initialized. This method can also be used to
-     * check if an attribute has been initialized in the componentAttributes array by
-     * setting the $checkAttribute parameter to true, and specifying the $attributeKey
-     * of the attribute to check.
+     * Determines if a property has been initialized.
      *
      * @param string $property The name of the property being checked.
      *
-     * @param bool $checkAttribute If set to true, the value specified by the $attributeKey will be
-     *                             searched for in the componentAttributes array. If set to false,
-     *                             the specified $property will be checked. Defaults to false.
-     *
-     *
      * @return bool True if specified $property has been initialized, false otherwise.
-     * Note: If $checkAttribute is set to true then this method will return true if the specified $attributeKey
-     * has been initialized in the componentAttributes array, false otherwise.
+     *
      */
-    final private function propertyInitialized(string $property, bool $checkAttribute = false, string $attributeKey = '')
+    final private function propertyInitialized(string $property)
     {
-        /* If $checkAttribute parameter is set to true then check the componentAttributes array. */
-        if ($checkAttribute === true) {
-            /* Return true if specified componentAttribute is set, false otherwise. */
-            return isset($this->componentAttributes[$attributeKey]);
-        }
         /* Return true if $property is set, false otherwise.*/
         return isset($this->$property);
     }
@@ -150,6 +136,28 @@ class app extends \DarlingCms\abstractions\component\Acomponent
             return $this->componentAttributes[$attributeName];
         }
         /* Return false if specified attribute does not exist. */
+        return false;
+    }
+
+    /**
+     * Gets a specified property's value.
+     *
+     * Note: This method does not have access to the parent's private properties.
+     *
+     * @param string $property The name of the property whose value should be returned.
+     *
+     * @return mixed|bool Returns the specified property's value, or false on failure.
+     */
+    public function getPropertyValue(string $property)
+    {
+        /* Determine valid properties, this protects against getting/setting un-intended properties. */
+        $validProperties = array_keys(get_class_vars(get_class($this)));
+        /* Make sure the specified property is valid and exists. */
+        if (in_array($property, $validProperties) && isset($this->$property) === true) {
+            /* Return the specified attribute's value. */
+            return $this->$property;
+        }
+        /* Return false if specified property is not valid or does not exist. */
         return false;
     }
 
@@ -275,5 +283,19 @@ class app extends \DarlingCms\abstractions\component\Acomponent
     public function setCustomAttribute(string $customAttributeKey, $customAttributeValue)
     {
         return $this->setComponentAttribute('customAttributes', $customAttributeValue, $customAttributeKey);
+    }
+
+    /**
+     * Determines if an attribute has been initialized in the componentAttributes array .
+     *
+     * @param string $attribute The name of the attribute being checked.
+     *
+     * @return bool True if specified $property has been initialized, false otherwise.
+     *
+     */
+    final private function componentAttributeInitialized(string $attribute)
+    {
+        /* Return true if specified componentAttribute has been initialized, false otherwise. */
+        return isset($this->componentAttributes[$attribute]);
     }
 }
