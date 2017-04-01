@@ -31,8 +31,6 @@ class themeStartup extends \DarlingCms\abstractions\startup\Astartup
 
     /**
      * themeStartup constructor. Initializes the enabledThemes and themeLinkTags arrays.
-     *
-     * @param $enabledThemes
      */
     public function __construct()
     {

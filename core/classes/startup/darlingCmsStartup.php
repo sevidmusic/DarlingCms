@@ -47,9 +47,9 @@ class darlingCmsStartup extends \DarlingCms\abstractions\startup\Astartup
      * \DarlingCms\classes\startup\themeStartup classes respectively.
      * @param \DarlingCms\classes\startup\appStartup $appStartup Instance of the \DarlingCms\classes\startup\appStartup() class.
      * @param \DarlingCms\classes\startup\themeStartup $themeStartup Instance of the \DarlingCms\classes\startup\themeStartup() class.
-     * @param \DarlingCms\interfaces\startup\Istartup $_ Additional startup objects.
+     * @param \DarlingCms\interfaces\startup\Istartup $additionalStartupObjects,... Additional startup objects.
      */
-    public function __construct(\DarlingCms\classes\startup\appStartup $appStartup, \DarlingCms\classes\startup\themeStartup $themeStartup)
+    public function __construct(\DarlingCms\classes\startup\appStartup $appStartup, \DarlingCms\classes\startup\themeStartup $themeStartup, \DarlingCms\interfaces\startup\Istartup $additionalStartupObjects = null)
     {
         $this->startupObjects = array();
         $startupObjects = func_get_args();
