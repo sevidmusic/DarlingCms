@@ -366,12 +366,15 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
         if ($this->includeApp($enabledApp) === false) {
             /* If include failed, register an error. */
             $this->registerInternalError($enabledApp, self::INCLUDE_ERROR);
-        } else {
-            /* If include succeeded add app to the running apps array. */
-            array_push($this->runningApps, $enabledApp);
-            /* Capture app output from the buffer and add it to the $appOutput array. */
-            $this->appOutput[$enabledApp] = ob_get_contents();
+            /* End output buffer */
+            ob_end_clean();
+            /* Include failed, return false. */
+            return false;
         }
+        /* If include succeeded add app to the running apps array. */
+        array_push($this->runningApps, $enabledApp);
+        /* Capture app output from the buffer and add it to the $appOutput array. */
+        $this->appOutput[$enabledApp] = ob_get_contents();
         /* End output buffer */
         ob_end_clean();
         /* Return true if app output was captured, false otherwise. */
