@@ -109,25 +109,22 @@ class themeStartup extends \DarlingCms\abstractions\startup\Astartup
             if (file_exists(str_replace('core/classes/startup', 'themes/', __DIR__) . "$enabledTheme/$enabledTheme.css") === true) {
                 /* Create an appropriately formatted <link> tag for this theme's stylesheet. */
                 $this->themeLinkTags[$enabledTheme][] = "<link rel=\"stylesheet\" type=\"text/css\" href=\"http://localhost:8888/DarlingCms/themes/$enabledTheme/$enabledTheme.css\">";
-            } else {
-                /* If theme file does not exist, register error. */
-                $this->registerError('<!-- Startup Error for theme "' . $enabledTheme . '"',
-                    "-->
-                    <!--
+                /* Theme file exists, move onto the next $enabledTheme. */
+                continue;
+            }
+            /* Theme file does not exist, register error. */
+            $this->registerError('Startup Error for theme "' . $enabledTheme . '"',
+                "
                       An error occurred while attempting to startup the \"$enabledTheme\" theme.
                       Please check the following:
                         - Is the \"$enabledTheme\" theme installed?
                         - Does the \"$enabledTheme\" theme's directory name match \"$enabledTheme\"?
                         - Does the \"$enabledTheme\" theme's css file name match \"$enabledTheme.css\"?
-                      -->
                     " . PHP_EOL
-                );
-            }
+            );
         }
-
         /* Display any errors. (Errors will ony be displayed if error reporting is turned on.) */
         $this->displayErrors();
-
         /* Return true if there were no errors, false otherwise. */
         return empty($this->getErrors());
     }
