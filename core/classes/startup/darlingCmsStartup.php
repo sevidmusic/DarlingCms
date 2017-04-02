@@ -47,13 +47,13 @@ class darlingCmsStartup extends \DarlingCms\abstractions\startup\Astartup
      * \DarlingCms\classes\startup\themeStartup classes respectively.
      * @param \DarlingCms\classes\startup\appStartup $appStartup Instance of the \DarlingCms\classes\startup\appStartup() class.
      * @param \DarlingCms\classes\startup\themeStartup $themeStartup Instance of the \DarlingCms\classes\startup\themeStartup() class.
-     * @param \DarlingCms\interfaces\startup\Istartup $additionalStartupObjects,... Additional startup objects.
+     * @param \DarlingCms\interfaces\startup\Istartup $startupObjects,... Additional startup objects.
      */
-    public function __construct(\DarlingCms\classes\startup\appStartup $appStartup, \DarlingCms\classes\startup\themeStartup $themeStartup, \DarlingCms\interfaces\startup\Istartup $additionalStartupObjects = null)
+    public function __construct(\DarlingCms\classes\startup\appStartup $appStartup, \DarlingCms\classes\startup\themeStartup $themeStartup, \DarlingCms\interfaces\startup\Istartup $startupObjects = null)
     {
         $this->startupObjects = array();
-        $startupObjects = func_get_args();
-        foreach ($startupObjects as $startupObject) {
+        $parameters = func_get_args();
+        foreach ($parameters as $startupObject) {
             $implements = class_implements($startupObject);
             if (in_array($this::DCMS_STARTUP_INTERFACE, $implements, true) === true) {
                 array_push($this->startupObjects, $startupObject);
