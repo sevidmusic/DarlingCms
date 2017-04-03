@@ -163,18 +163,15 @@ class darlingCmsStartup extends \DarlingCms\abstractions\startup\Astartup
     }
 
     /**
-     *
+     * Display the html <head> tag's content.
      */
     final private function displayHtmlHead()
     {
         echo PHP_EOL . '<head>' . PHP_EOL;
-
-        echo PHP_EOL . '<title>' . (isset($_GET['page']) === true ? ucfirst(trim(filter_input(INPUT_GET, 'page', FILTER_SANITIZE_STRING))) : 'Darling Cms') . ' | ' . date('M d Y') . '</title>' . PHP_EOL;
-
+        $page = filter_input(INPUT_GET, 'page', FILTER_SANITIZE_STRING);
+        echo PHP_EOL . '<title>' . ($page !== false ? ucfirst(trim($page)) : 'Darling Cms') . ' | ' . date('M d Y') . '</title>' . PHP_EOL;
         $this->startupObjects[$this::THEME_STARTUP_OBJECT_INDEX]->displayThemeLinks();
-
         echo PHP_EOL . '</head>' . PHP_EOL;
-
     }
 
     /**
