@@ -65,30 +65,22 @@ class json extends \DarlingCms\abstractions\crud\Acrud
     /**
      * @inheritdoc
      */
-    protected function unpack($packedData)
-    {
-        return unserialize(base64_decode(json_decode($packedData)));
-    }
-
-    /**
-     * @inheritdoc
-     */
     protected function query(string $storageId, string $mode, $data = null)
     {
         $pathToJsonFile = $this->storagePath . $this->safeId($storageId) . '.json';
         switch ($mode) {
             case 'save':
-                $this->registry[$storageId] = $this->safeId($storageId);
-                $this->updateRegistry($storageId);
+                $this->register($storageId, $mode, $data);
                 return (file_put_contents($pathToJsonFile, $data, LOCK_EX) > 0);
             case 'load':
+                var_dump($storageId);
+                var_dump($pathToJsonFile);
                 if (file_exists($pathToJsonFile) === true) {
                     return file_get_contents($pathToJsonFile);
                 }
                 return false;
             case 'delete':
-                unset($this->registry[$storageId]);
-                $this->updateRegistry($storageId);
+                $this->register($storageId, $mode);
                 if (file_exists($pathToJsonFile) === true) {
                     return unlink($pathToJsonFile);
                 }
@@ -100,18 +92,61 @@ class json extends \DarlingCms\abstractions\crud\Acrud
     }
 
     /**
-     * Update the registry.
-     * @param string $storageId The $storageId of the data currently being processed.
+     * Register stored data in the registry.
+     * @param string $storageId
+     * @param string $mode
+     * @param null $data
+     * @return
+     */
+    private function register(string $storageId, string $mode, $data = null)
+    {
+        if ($storageId !== 'registry') {
+            switch ($mode) {
+                case 'save':
+                    $classification = gettype($this->unpack($data));
+                    if ($classification === 'object') {
+                        unset($classification);
+                        $classification = get_class($this->unpack($data));
+                    }
+                    $this->registry[$classification][$storageId] = $this->safeId($storageId);
+                    break;
+                case 'delete':
+                    $classification = gettype($this->read($storageId));
+                    if ($classification === 'object') {
+                        unset($classification);
+                        $classification = get_class($this->read($storageId));
+                    }
+                    unset($this->registry[$classification][$storageId]);
+                    break;
+            }
+            return $this->updateRegistry();
+        }
+        return false;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function unpack($packedData)
+    {
+        return unserialize(base64_decode(json_decode($packedData), false));
+    }
+
+    /**
+     * Update the stored registry so it is in sync with the internal $registry.
+     * This method is called by the query() method whenever a 'save' or 'delete'
+     * query is performed.
      * @return bool True if registry was updated, false otherwise.
      */
-    private function updateRegistry(string $storageId)
+    private function updateRegistry()
     {
-        $status = false;
-        if ($storageId !== 'registry') {
-            $status = $this->update('registry', $this->registry);
+        /* Attempt to update the stored registry so it is in sync with the internal registry. */
+        if ($this->update('registry', array_filter($this->registry)) === false) {
+            /* Return false if attempt to update stored registry failed. */
+            return false;
         }
-        $this->reloadRegistry();
-        return $status;
+        /* Return true if stored registry was updated and reloaded successfully, false otherwise. */
+        return $this->reloadRegistry();
     }
 
     /**
