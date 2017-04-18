@@ -24,14 +24,63 @@ class json extends \DarlingCms\abstractions\crud\Acrud
     public function __construct()
     {
         /* Initialize storage path. */
-        $this->storagePath = trim(str_replace('core/classes/crud', '', __DIR__) . '.dcms/');
-        /* Make sure the stored registry exists. */
+        $this->initializeStoragePath();
+        /* Initialize the internal registry. */
+        $this->initializeRegistry();
+    }
+
+    /**
+     * Initializes the storage path.
+     * @return bool True if storage path was initialized, false otherwise.
+     */
+    private function initializeStoragePath()
+    {
+        /* Determine the storage directory. */
+        $storageDir = $this->determineStorageDirectory();
+        /* */
+        if (is_dir($storageDir) === false) {
+            if (mkdir($storageDir, 0755, false) === false) {
+                return false;
+            }
+        }
+        $this->storagePath = $storageDir . '/';
+        return isset($this->storagePath);
+    }
+
+    private function determineStorageDirectory()
+    {
+        return trim(str_replace('core/classes/crud', '', __DIR__) . '.dcms');
+    }
+
+    /**
+     * Initializes the registry.
+     * @return bool True if registry was initialized, false otherwise.
+     */
+    private function initializeRegistry()
+    {
+        /* Check if the stored registry exists. */
         if ($this->read('registry') === false) {
             /* If the stored registry does not exist, create it. */
-            $this->create('registry', array('registry' => $this->safeId('registry')));
+            $storageId = 'registry';
+            $this->create('registry', array(
+                $storageId => $this->generateRegistryData($storageId, 'array'),
+            ));
         }
-        /* Initialize $registry using stored registry. */
+        /* Sync the internal and stored registries. */
         $this->registry = $this->read('registry');
+        return isset($this->registry);
+    }
+
+    private function generateRegistryData(string $storageId, string $classification)
+    {
+        return array(
+            'storageId' => $storageId,
+            'safeId' => $this->safeId($storageId),
+            'storageDirectory' => str_replace('\\', '/', $classification),
+            'storageExtension' => '.json',
+            'classification' => $classification,
+            'modified' => time(),
+        );
     }
 
     /**
@@ -50,7 +99,7 @@ class json extends \DarlingCms\abstractions\crud\Acrud
      */
     public function getRegistry()
     {
-        return $this->read('registry');
+        return $this->registry;
     }
 
     /**
@@ -70,19 +119,33 @@ class json extends \DarlingCms\abstractions\crud\Acrud
         $pathToJsonFile = $this->storagePath . $this->safeId($storageId) . '.json';
         switch ($mode) {
             case 'save':
-                $this->register($storageId, $mode, $data);
-                return (file_put_contents($pathToJsonFile, $data, LOCK_EX) > 0);
+                /* Attempt to save the data. */
+                if (file_put_contents($pathToJsonFile, $data, LOCK_EX) > 0) {
+                    /* Do not register the registry, it's initialization and registration
+                       are handled by the initializeRegistry() method. */
+                    if ($storageId !== 'registry') {
+                        /* Return true if data was saved and registered, false otherwise. */
+                        return $this->register($storageId, $data);
+                    }
+                    /* When saving the registry, return true as long as data was saved, false otherwise. */
+                    return true;
+                }
+                /* Return false if data was not saved. */
+                return false;
             case 'load':
-                var_dump($storageId);
-                var_dump($pathToJsonFile);
                 if (file_exists($pathToJsonFile) === true) {
                     return file_get_contents($pathToJsonFile);
                 }
                 return false;
             case 'delete':
-                $this->register($storageId, $mode);
                 if (file_exists($pathToJsonFile) === true) {
-                    return unlink($pathToJsonFile);
+                    if (unlink($pathToJsonFile) === true) {
+                        /* Do not ever un-register the registry. */
+                        if ($storageId !== 'registry') {
+                            $this->unRegister($storageId);
+                        }
+                        return true;
+                    }
                 }
                 return false;
             default:
@@ -92,36 +155,33 @@ class json extends \DarlingCms\abstractions\crud\Acrud
     }
 
     /**
-     * Register stored data in the registry.
-     * @param string $storageId
-     * @param string $mode
-     * @param null $data
-     * @return
+     * Register data in the registry.
+     *
+     * @return bool True if data was registered and registry was updated, false otherwise.
      */
-    private function register(string $storageId, string $mode, $data = null)
+    private function register(string $storageId, string $data)
     {
-        if ($storageId !== 'registry') {
-            switch ($mode) {
-                case 'save':
-                    $classification = gettype($this->unpack($data));
-                    if ($classification === 'object') {
-                        unset($classification);
-                        $classification = get_class($this->unpack($data));
-                    }
-                    $this->registry[$classification][$storageId] = $this->safeId($storageId);
-                    break;
-                case 'delete':
-                    $classification = gettype($this->read($storageId));
-                    if ($classification === 'object') {
-                        unset($classification);
-                        $classification = get_class($this->read($storageId));
-                    }
-                    unset($this->registry[$classification][$storageId]);
-                    break;
-            }
-            return $this->updateRegistry();
+        /* Register data. */
+        $this->registry[$storageId] = $this->generateRegistryData($storageId, $this->classify($data));
+        if (isset($this->registry[$storageId]) === true) {
+            return $this->update('registry', $this->registry);
         }
+        /* Return false if data was not registered. */
         return false;
+    }
+
+    /**
+     * Determines the type or class of a piece of packed data.
+     * @param string $data The packed data to classify.
+     * @return string The classification.
+     */
+    private function classify(string $data)
+    {
+        $classification = gettype($this->unpack($data));
+        if ($classification === 'object') {
+            return get_class($this->unpack($data));
+        }
+        return $classification;
     }
 
     /**
@@ -133,33 +193,20 @@ class json extends \DarlingCms\abstractions\crud\Acrud
     }
 
     /**
-     * Update the stored registry so it is in sync with the internal $registry.
-     * This method is called by the query() method whenever a 'save' or 'delete'
-     * query is performed.
-     * @return bool True if registry was updated, false otherwise.
+     * Remove data from the registry.
+     *
+     * @return bool True if data was un-registered and registry was updated, false otherwise.
      */
-    private function updateRegistry()
+    private function unRegister(string $storageId)
     {
-        /* Attempt to update the stored registry so it is in sync with the internal registry. */
-        if ($this->update('registry', array_filter($this->registry)) === false) {
-            /* Return false if attempt to update stored registry failed. */
-            return false;
+        /* Un-register data. */
+        unset($this->registry[$storageId]);
+        /* If data was un-registered, update the stored registry. */
+        if (isset($this->registry[$storageId]) === false) {
+            return $this->update('registry', $this->registry);
         }
-        /* Return true if stored registry was updated and reloaded successfully, false otherwise. */
-        return $this->reloadRegistry();
-    }
-
-    /**
-     * Re-load the registry into the $registry property. This method is called whenever
-     * the registry is updated, i.e., whenever updateRegistry() is called.
-     * @return bool True if registry was re-loaded, false otherwise.
-     */
-    private function reloadRegistry()
-    {
-        $origRegistry = $this->registry;
-        unset($this->registry);
-        $this->registry = $this->read('registry');
-        return ($this->registry !== $origRegistry);
+        /* Return false if data was not registered. */
+        return false;
     }
 
     /**

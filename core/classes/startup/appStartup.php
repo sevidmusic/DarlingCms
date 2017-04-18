@@ -87,7 +87,7 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
      */
     final private function determineEnabledApps()
     {
-        return array('varDumper', 'helloWorld', 'phpCanvas');
+        return array('varDumper', 'helloWorld', 'crudTester', 'phpCanvas');
     }
 
     /**
