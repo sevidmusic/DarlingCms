@@ -10,6 +10,17 @@
 abstract class Acrud implements \DarlingCms\interfaces\crud\Icrud
 {
     /**
+     * Store new data.
+     * @param string $storageId An id to be assigned to the stored data.
+     * @param mixed $data The data to store.
+     * @return bool Return true if data was stored, false otherwise.
+     */
+    final public function create(string $storageId, $data)
+    {
+        return $this->query($storageId, 'save', $this->pack($data));
+    }
+
+    /**
      * Read data from storage.
      * @param string $storageId The data's storage id.
      * @return mixed The data, or false on failure.
@@ -20,13 +31,28 @@ abstract class Acrud implements \DarlingCms\interfaces\crud\Icrud
     }
 
     /**
-     * Unpack data packed by the pack() method.
-     *
-     * @param mixed $packedData The packed data.
-     *
-     * @return mixed The unpacked data, or false on failure.
+     * Updates stored data.
+     * @param string $storageId The storage id of the data to update.
+     * @param mixed $newData The new data.
+     * @return bool True if data was updated, false otherwise.
      */
-    abstract protected function unpack($packedData);
+    final public function update(string $storageId, $newData)
+    {
+        if ($this->delete($storageId) === true) {
+            return $this->create($storageId, $newData);
+        }
+        return false;
+    }
+
+    /**
+     * Delete data from storage.
+     * @param string $storageId The storage id of the data to delete.
+     * @return bool True if data was deleted, false otherwise.
+     */
+    final public function delete(string $storageId)
+    {
+        return $this->query($storageId, 'delete');
+    }
 
     /**
      * Query stored data. This method is the backbone of all implementations of this abstract class.
@@ -59,45 +85,19 @@ abstract class Acrud implements \DarlingCms\interfaces\crud\Icrud
     abstract protected function query(string $storageId, string $mode, $data = null);
 
     /**
-     * Updates stored data.
-     * @param string $storageId The storage id of the data to update.
-     * @param mixed $newData The new data.
-     * @return bool True if data was updated, false otherwise.
-     */
-    final public function update(string $storageId, $newData)
-    {
-        if ($this->delete($storageId) === true) {
-            return $this->create($storageId, $newData);
-        }
-        return false;
-    }
-
-    /**
-     * Delete data from storage.
-     * @param string $storageId The storage id of the data to delete.
-     * @return bool True if data was deleted, false otherwise.
-     */
-    final public function delete(string $storageId)
-    {
-        return $this->query($storageId, 'delete');
-    }
-
-    /**
-     * Store new data.
-     * @param string $storageId An id to be assigned to the stored data.
-     * @param mixed $data The data to store.
-     * @return bool Return true if data was stored, false otherwise.
-     */
-    final public function create(string $storageId, $data)
-    {
-        return $this->query($storageId, 'save', $this->pack($data));
-    }
-
-    /**
      * Pack data for storage.
      * @param mixed $data The data to be packed.
      * @return bool True if data was packed successfully, false otherwise.
      */
     abstract protected function pack($data);
+
+    /**
+     * Unpack data packed by the pack() method.
+     *
+     * @param mixed $packedData The packed data.
+     *
+     * @return mixed The unpacked data, or false on failure.
+     */
+    abstract protected function unpack($packedData);
 
 }
