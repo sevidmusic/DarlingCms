@@ -30,88 +30,6 @@ class json extends \DarlingCms\abstractions\crud\Acrud
     }
 
     /**
-     * Initializes the storage path.
-     * @return bool True if storage path was initialized, false otherwise.
-     */
-    private function initializeStoragePath()
-    {
-        /* Determine the storage directory. */
-        $storageDir = $this->determineStorageDirectory();
-        /* */
-        if (is_dir($storageDir) === false) {
-            if (mkdir($storageDir, 0755, false) === false) {
-                return false;
-            }
-        }
-        $this->storagePath = $storageDir . '/';
-        return isset($this->storagePath);
-    }
-
-    private function determineStorageDirectory()
-    {
-        return trim(str_replace('core/classes/crud', '', __DIR__) . '.dcms');
-    }
-
-    /**
-     * Initializes the registry.
-     * @return bool True if registry was initialized, false otherwise.
-     */
-    private function initializeRegistry()
-    {
-        /* Check if the stored registry exists. */
-        if ($this->read('registry') === false) {
-            /* If the stored registry does not exist, create it. */
-            $storageId = 'registry';
-            $this->create('registry', array(
-                $storageId => $this->generateRegistryData($storageId, 'array'),
-            ));
-        }
-        /* Sync the internal and stored registries. */
-        $this->registry = $this->read('registry');
-        return isset($this->registry);
-    }
-
-    private function generateRegistryData(string $storageId, string $classification)
-    {
-        return array(
-            'storageId' => $storageId,
-            'safeId' => $this->safeId($storageId),
-            'storageDirectory' => str_replace('\\', '/', $classification),
-            'storageExtension' => '.json',
-            'classification' => $classification,
-            'modified' => time(),
-        );
-    }
-
-    /**
-     * Generates an id that is safe to use for storage from the $storageId.
-     * @param string $storageId The storage id to generate a safe id for.
-     * @return string An id generated from the $storageId that is safe to use for storage.
-     */
-    private function safeId(string $storageId)
-    {
-        return hash_hmac('sha256', $storageId, 'ads9fuj4ih98fyhudihf908ydfgv2goe7r87gwe');
-    }
-
-    /**
-     * Returns the registry as an associative array where keys are storage ids and values are safe ids.
-     * @return mixed The registry as an associative array.
-     */
-    public function getRegistry()
-    {
-        return $this->registry;
-    }
-
-    /**
-     * Returns the full storage path to where data is stored.
-     * @return string The storage path.
-     */
-    public function getStoragePath()
-    {
-        return $this->storagePath;
-    }
-
-    /**
      * @inheritdoc
      */
     protected function query(string $storageId, string $mode, $data = null)
@@ -155,6 +73,83 @@ class json extends \DarlingCms\abstractions\crud\Acrud
     }
 
     /**
+     * @inheritdoc
+     */
+    protected function pack($data)
+    {
+        return json_encode(base64_encode(serialize($data)));
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function unpack($packedData)
+    {
+        return unserialize(base64_decode(json_decode($packedData), false));
+    }
+
+    /**
+     * Generates an id that is safe to use for storage from the $storageId.
+     * @param string $storageId The storage id to generate a safe id for.
+     * @return string An id generated from the $storageId that is safe to use for storage.
+     */
+    private function safeId(string $storageId)
+    {
+        return hash_hmac('sha256', $storageId, 'ads9fuj4ih98fyhudihf908ydfgv2goe7r87gwe');
+    }
+
+    /**
+     * Initializes the storage path.
+     * @return bool True if storage path was initialized, false otherwise.
+     */
+    private function initializeStoragePath()
+    {
+        /* Determine the storage directory. */
+        $storageDir = $this->determineStorageDirectory();
+        /* */
+        if (is_dir($storageDir) === false) {
+            if (mkdir($storageDir, 0755, false) === false) {
+                return false;
+            }
+        }
+        $this->storagePath = $storageDir . '/';
+        return isset($this->storagePath);
+    }
+
+    private function determineStorageDirectory()
+    {
+        return trim(str_replace('core/classes/crud', '', __DIR__) . '.dcms');
+    }
+
+    /**
+     * Returns the full storage path to where data is stored.
+     * @return string The storage path.
+     */
+    public function getStoragePath()
+    {
+        return $this->storagePath;
+    }
+
+    /**
+     * Initializes the registry.
+     * @return bool True if registry was initialized, false otherwise.
+     */
+    private function initializeRegistry()
+    {
+        /* Check if the stored registry exists. */
+        if ($this->read('registry') === false) {
+            /* If the stored registry does not exist, create it. */
+            $storageId = 'registry';
+            $this->create('registry', array(
+                $storageId => $this->generateRegistryData($storageId, 'array'),
+            ));
+        }
+        /* Sync the internal and stored registries. */
+        $this->registry = $this->read('registry');
+        return isset($this->registry);
+    }
+
+    /**
      * Register data in the registry.
      *
      * @return bool True if data was registered and registry was updated, false otherwise.
@@ -168,28 +163,6 @@ class json extends \DarlingCms\abstractions\crud\Acrud
         }
         /* Return false if data was not registered. */
         return false;
-    }
-
-    /**
-     * Determines the type or class of a piece of packed data.
-     * @param string $data The packed data to classify.
-     * @return string The classification.
-     */
-    private function classify(string $data)
-    {
-        $classification = gettype($this->unpack($data));
-        if ($classification === 'object') {
-            return get_class($this->unpack($data));
-        }
-        return $classification;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function unpack($packedData)
-    {
-        return unserialize(base64_decode(json_decode($packedData), false));
     }
 
     /**
@@ -209,12 +182,39 @@ class json extends \DarlingCms\abstractions\crud\Acrud
         return false;
     }
 
-    /**
-     * @inheritdoc
-     */
-    protected function pack($data)
+    private function generateRegistryData(string $storageId, string $classification)
     {
-        return json_encode(base64_encode(serialize($data)));
+        return array(
+            'storageId' => $storageId,
+            'safeId' => $this->safeId($storageId),
+            'storageDirectory' => str_replace('\\', '/', $classification),
+            'storageExtension' => '.json',
+            'classification' => $classification,
+            'modified' => time(),
+        );
+    }
+
+    /**
+     * Returns the registry as an associative array where keys are storage ids and values are safe ids.
+     * @return mixed The registry as an associative array.
+     */
+    public function getRegistry()
+    {
+        return $this->registry;
+    }
+
+    /**
+     * Determines the type or class of a piece of packed data.
+     * @param string $data The packed data to classify.
+     * @return string The classification.
+     */
+    private function classify(string $data)
+    {
+        $classification = gettype($this->unpack($data));
+        if ($classification === 'object') {
+            return get_class($this->unpack($data));
+        }
+        return $classification;
     }
 
 }
