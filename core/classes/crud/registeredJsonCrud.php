@@ -42,6 +42,12 @@ class registeredJsonCrud extends \DarlingCms\abstractions\crud\AregisteredCrud
         return isset($this->storagePath);
     }
 
+    /**
+     * Determines the path to the root storage directory on the file system.
+     * Note: Data may or may not be stored in sub-directories under this directory,
+     *       but will definitely be stored under this directory.
+     * @return string The file system path to the root storage directory.
+     */
     private function determineStorageDirectory()
     {
         return trim(str_replace('core/classes/crud', '', __DIR__) . '.dcms');
@@ -56,9 +62,32 @@ class registeredJsonCrud extends \DarlingCms\abstractions\crud\AregisteredCrud
         return $this->storagePath;
     }
 
+    /**
+     * Gets registry data associated with a specified storage id.
+     * @inheritdoc
+     */
     public function getRegistryData(string $storageId, string $name = '*')
     {
-        // TODO: Implement getRegistryData() method.
+        /* Attempt to read the registry. */
+        if (($registry = $this->read('registry')) !== false) {
+            /* Get the array of registry data associated with the specified storage id.  */
+            if (isset($registry[$storageId]) && is_array($registry[$storageId])) {
+                /* If the $name parameter is set to the wildcard character "*", return the entire array of
+                     registry data associated with the specified storage id. */
+                if ($name === '*') {
+                    return $registry[$storageId];
+                }
+                /* If the specific registry data indicated by the $name parameter exists in the
+                   registry data array associated with the specified storage id, return it. */
+                if (isset($registry[$storageId][$name]) === true) {
+                    return $registry[$storageId][$name];
+                }
+            }
+        }
+        /* Return false if registry does not exist, if there is no registry data for the specified storage id,
+           or if the registry data indicated by the $name parameter does not exist in the registry data for the
+           specified storage id. */
+        return false;
     }
 
     /**
