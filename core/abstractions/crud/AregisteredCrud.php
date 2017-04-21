@@ -156,7 +156,7 @@ abstract class AregisteredCrud implements \DarlingCms\interfaces\crud\Icrud
      * @param string $data The packed data to classify.
      * @return string The classification.
      */
-    private function classify(string $data)
+    protected function classify(string $data)
     {
         $classification = gettype($this->unpack($data));
         if ($classification === 'object') {
@@ -243,4 +243,5 @@ abstract class AregisteredCrud implements \DarlingCms\interfaces\crud\Icrud
      *                        registry data $name.
      */
     abstract public function getRegistryData(string $storageId, string $name = '*');
+
 }
