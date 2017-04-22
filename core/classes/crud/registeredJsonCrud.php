@@ -54,15 +54,6 @@ class registeredJsonCrud extends \DarlingCms\abstractions\crud\AregisteredCrud
     }
 
     /**
-     * Returns the full storage path to where data is stored.
-     * @return string The storage path.
-     */
-    public function getStoragePath()
-    {
-        return $this->storagePath;
-    }
-
-    /**
      * Gets registry data associated with a specified storage id.
      * @inheritdoc
      */
@@ -95,30 +86,59 @@ class registeredJsonCrud extends \DarlingCms\abstractions\crud\AregisteredCrud
      */
     protected function query(string $storageId, string $mode, $data = null)
     {
-        $pathToJsonFile = $this->storagePath . $this->safeId($storageId) . '.json';
         switch ($mode) {
             case 'save':
+                $storageDirectoryPath = $this->generateStorageDirectoryPath($this->classify($data));
+                $savePath = $this->generateSavePath($storageId, $this->classify($data));
+                /* Make sure the appropriate storage directory exists for the data. */
+                if (is_dir($storageDirectoryPath) === false) {
+                    mkdir($storageDirectoryPath, 0755, true);
+                }
+
                 /* Attempt to save the data. */
-                if (file_put_contents($pathToJsonFile, $data, LOCK_EX) > 0) {
+                if (file_put_contents($savePath, $data, LOCK_EX) > 0) {
                     /* Return true if data was saved, false otherwise. */
                     return true;
                 }
                 /* Return false if data was not saved. */
                 return false;
             case 'load':
-                if (file_exists($pathToJsonFile) === true) {
-                    return file_get_contents($pathToJsonFile);
+                /* Determine the save path based on the registry data for the specified storage id. */
+                $savePath = $this->determineSavePath($storageId);
+                if (file_exists($savePath) === true) {
+                    return file_get_contents($savePath);
                 }
+                /* Return false if the storage directory or the file associated with specified
+                   storage id does not exist.*/
                 return false;
             case 'delete':
-                if (file_exists($pathToJsonFile) === true) {
-                    return unlink($pathToJsonFile);
+                /* Determine the save path based on the registry data for the specified storage id. */
+                $savePath = $this->determineSavePath($storageId);
+                if (file_exists($savePath) === true) {
+                    return unlink($savePath);
                 }
                 return false;
             default:
                 error_log('Attempt to use invalid query mode in ' . __FILE__);
                 return false;
         }
+    }
+
+    private function generateStorageDirectoryPath(string $classification)
+    {
+        return $this->storagePath . str_replace('\\', '/', $classification) . '/';
+    }
+
+    /**
+     * Generates a save path for the data based on it's classification.
+     * @param string $storageId The storage id of the data to generate a save path for.
+     * @param string $classification The classification of the data to generate a save path for.
+     * @return string The generated save path.
+     */
+    private function generateSavePath(string $storageId, string $classification)
+    {
+        return $this->generateStorageDirectoryPath($classification) . $this->safeId($storageId) . '.json';
+
     }
 
     /**
@@ -129,6 +149,41 @@ class registeredJsonCrud extends \DarlingCms\abstractions\crud\AregisteredCrud
     private function safeId(string $storageId)
     {
         return hash_hmac('sha256', $storageId, 'sdfghu7654esdfghbvcdsw3456yhgbnju765432345rtfg', false);
+    }
+
+    /**
+     * Determines the save path for the specified storage id based
+     * on the registry data associated with the specified storage id.
+     * @param string $storageId The storage id to determine a save path for.
+     * @return bool|string The save path, or false if the save path could not be determined.
+     */
+    private function determineSavePath(string $storageId)
+    {
+        /* Lookup the storage directory for the specified storage id in the registry. */
+        switch ($storageId) {
+            case 'registry':
+                $storageDirectoryPath = $this->getStoragePath() . 'array/';
+                break;
+            default:
+                if (isset($this->getRegistry()[$storageId]['storageDirectory']) === false) {
+                    return false;
+                }
+                $storageDirectoryPath = $this->getRegistry()[$storageId]['storageDirectory'];
+                break;
+        }
+        if (is_dir($storageDirectoryPath) === true) {
+            return $storageDirectoryPath . $this->safeId($storageId) . '.json';
+        }
+        return false;
+    }
+
+    /**
+     * Returns the full storage path to where data is stored.
+     * @return string The storage path.
+     */
+    public function getStoragePath()
+    {
+        return $this->storagePath;
     }
 
     /**
@@ -152,7 +207,7 @@ class registeredJsonCrud extends \DarlingCms\abstractions\crud\AregisteredCrud
         return array(
             'storageId' => $storageId,
             'safeId' => $this->safeId($storageId),
-            'storageDirectory' => str_replace('\\', '/', $classification),
+            'storageDirectory' => $this->generateStorageDirectoryPath($classification),
             'storageExtension' => '.json',
             'classification' => $classification,
             'modified' => time(),
