@@ -47,7 +47,7 @@ class themeStartup extends \DarlingCms\abstractions\startup\Astartup
      */
     final private function determineEnabledThemes()
     {
-        return array('darlingCms', 'helloWorld', 'helloUniverse');
+        return array('darlingCms', 'helloWorld', 'helloUniverse', 'crudTester');
     }
 
     /**
