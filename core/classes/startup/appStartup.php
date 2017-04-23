@@ -66,8 +66,8 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
     {
         /* Set the crud. */
         $this->setCrud(new \DarlingCms\classes\crud\registeredJsonCrud());
-        /* Determine enabled apps. */
-        $this->enabledApps = $this->determineEnabledApps();
+        /* Set enabled apps. */
+        $this->setEnabledApps();
         /* Initialize the running apps array. */
         $this->runningApps = array();
         /* Initialize app output array. */
@@ -92,18 +92,20 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
     }
 
     /**
-     * Determines which apps are enabled and returns their names in a numerically indexed array.
+     * Uses the $crud to read in stored app objects, determines which apps are enabled, and
+     * adds them to the $enabledApps array via the setEnabledApp() method.
      *
      * @todo: This method should take dependency into account, it currently does not!
      *
-     * @return array Numerically indexed array of enabled apps.
+     * @return bool True if enabledApps were set, false otherwise.
      */
-    final private function determineEnabledApps()
+    final private function setEnabledApps()
     {
         if (isset($this->enabledApps) === false || is_array($this->enabledApps) === false) {
             // For now, require the appManager app to insure core apps exist and are enabled by default.
             $this->enabledApps = array('appManager');
         }
+        $initialAppCount = count($this->enabledApps);
         $registry = $this->crud->getRegistry();
         $apps = array();
         foreach ($registry as $registryData) {
@@ -117,7 +119,8 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
                 $this->setEnabledApp($app);
             }
         }
-        return $this->enabledApps();
+        $finalAppCount = count($this->enabledApps);
+        return ($initialAppCount < $finalAppCount);
     }
 
     private function setEnabledApp(\DarlingCms\classes\component\app $app)
@@ -127,16 +130,6 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
             return true;
         }
         return false;
-    }
-
-    /**
-     * Returns the enabledApps array in it's current state.
-     *
-     * @return array The enabledApps array in it's current state.
-     */
-    final public function enabledApps()
-    {
-        return $this->enabledApps;
     }
 
     /**
@@ -252,17 +245,17 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
         return false;
     }
 
-    // @todo: Define isRunning() method?
-
     /**
      * Returns an array of running apps, i.e., apps that started up successfully that are still running.
      *
      * @return array Array of running apps.
      */
-    final public function runningApps()
+    final public function getRunningApps()
     {
         return $this->runningApps;
     }
+
+    // @todo: Define isRunning() method?
 
     /**
      * Resets the appOutput, and runningApps arrays. Returns true if arrays were reset
@@ -310,7 +303,7 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
     private function loadApps()
     {
         /*  Load each enabled app. */
-        foreach ($this->enabledApps() as $enabledApp) {
+        foreach ($this->getEnabledApps() as $enabledApp) {
             /* Make sure app was not disabled by a previously loaded app. */
             if ($this->isEnabled($enabledApp) === true) {
                 /* Load the app. */
@@ -319,6 +312,16 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
         }
         /* Return true if all enabled apps were loaded without errors, false otherwise. */
         return empty($this->getErrors());
+    }
+
+    /**
+     * Returns the enabledApps array in it's current state.
+     *
+     * @return array The enabledApps array in it's current state.
+     */
+    final public function getEnabledApps()
+    {
+        return $this->enabledApps;
     }
 
     /**
