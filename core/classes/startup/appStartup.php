@@ -43,11 +43,17 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
      * @var array Array of app output associatively indexed by app name.
      */
     private $appOutput;
-
     /**
-     * @var string Name of the instantiator, i.e., name of the file that instantiated this instance stripped of the file-path and ".php" extension.
+     * @var string Name of the instantiator, i.e., name of the file that instantiated
+     *             this instance stripped of the file-path and ".php" extension.
      */
     private $instantiator;
+    /**
+     * @var \DarlingCms\abstractions\crud\AregisteredCrud Instance of an object that implements the
+     *                                                    \DarlingCms\abstractions\crud\AregisteredCrud
+     *                                                    abstract class.
+     */
+    private $crud;
 
     /**
      * appStartup constructor. Initializes the enabledApps, runningApps, and appOutput arrays. Also,
@@ -58,6 +64,8 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
      */
     final public function __construct()
     {
+        /* Set the crud. */
+        $this->setCrud(new \DarlingCms\classes\crud\registeredJsonCrud());
         /* Determine enabled apps. */
         $this->enabledApps = $this->determineEnabledApps();
         /* Initialize the running apps array. */
@@ -78,6 +86,11 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
         }
     }
 
+    private function setCrud(\DarlingCms\abstractions\crud\AregisteredCrud $crud)
+    {
+        $this->crud = $crud;
+    }
+
     /**
      * Determines which apps are enabled and returns their names in a numerically indexed array.
      *
@@ -87,7 +100,43 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
      */
     final private function determineEnabledApps()
     {
-        return array('varDumper', 'helloWorld', 'crudTester', 'phpCanvas');
+        if (isset($this->enabledApps) === false || is_array($this->enabledApps) === false) {
+            // For now, require the appManager app to insure core apps exist and are enabled by default.
+            $this->enabledApps = array('appManager');
+        }
+        $registry = $this->crud->getRegistry();
+        $apps = array();
+        foreach ($registry as $registryData) {
+            $storageId = $this->crud->getRegistryData($registryData['storageId'], 'storageId');
+            if ($this->crud->getRegistryData($registryData['storageId'], 'classification') === 'DarlingCms\classes\component\app') {
+                array_push($apps, $this->crud->read($storageId));
+            }
+        }
+        foreach ($apps as $app) {
+            if (gettype($app) === 'object' && get_class($app) === 'DarlingCms\classes\component\app') {
+                $this->setEnabledApp($app);
+            }
+        }
+        return $this->enabledApps();
+    }
+
+    private function setEnabledApp(\DarlingCms\classes\component\app $app)
+    {
+        if (in_array($app->getComponentName(), $this->enabledApps, true) === false) {
+            array_push($this->enabledApps, $app->getComponentName());
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Returns the enabledApps array in it's current state.
+     *
+     * @return array The enabledApps array in it's current state.
+     */
+    final public function enabledApps()
+    {
+        return $this->enabledApps;
     }
 
     /**
@@ -203,6 +252,8 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
         return false;
     }
 
+    // @todo: Define isRunning() method?
+
     /**
      * Returns an array of running apps, i.e., apps that started up successfully that are still running.
      *
@@ -212,8 +263,6 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
     {
         return $this->runningApps;
     }
-
-    // @todo: Define isRunning() method.
 
     /**
      * Resets the appOutput, and runningApps arrays. Returns true if arrays were reset
@@ -270,16 +319,6 @@ class appStartup extends \DarlingCms\abstractions\startup\Astartup
         }
         /* Return true if all enabled apps were loaded without errors, false otherwise. */
         return empty($this->getErrors());
-    }
-
-    /**
-     * Returns the enabledApps array in it's current state.
-     *
-     * @return array The enabledApps array in it's current state.
-     */
-    final public function enabledApps()
-    {
-        return $this->enabledApps;
     }
 
     /**
