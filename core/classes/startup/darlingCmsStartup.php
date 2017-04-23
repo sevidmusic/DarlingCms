@@ -181,7 +181,7 @@ class darlingCmsStartup extends \DarlingCms\abstractions\startup\Astartup
     {
         echo PHP_EOL . '<body>' . PHP_EOL;
         /* Get display each running apps output. */
-        foreach ($this->startupObjects[$this::APP_STARTUP_OBJECT_INDEX]->runningApps() as $runningApp) {
+        foreach ($this->startupObjects[$this::APP_STARTUP_OBJECT_INDEX]->getRunningApps() as $runningApp) {
             $this->startupObjects[$this::APP_STARTUP_OBJECT_INDEX]->displayAppOutput($runningApp);
         }
 
