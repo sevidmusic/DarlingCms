@@ -285,17 +285,4 @@ class app extends \DarlingCms\abstractions\component\Acomponent
         return $this->setComponentAttribute('customAttributes', $customAttributeValue, $customAttributeKey);
     }
 
-    /**
-     * Determines if an attribute has been initialized in the componentAttributes array .
-     *
-     * @param string $attribute The name of the attribute being checked.
-     *
-     * @return bool True if specified $property has been initialized, false otherwise.
-     *
-     */
-    final private function componentAttributeInitialized(string $attribute)
-    {
-        /* Return true if specified componentAttribute has been initialized, false otherwise. */
-        return isset($this->componentAttributes[$attribute]);
-    }
 }
