@@ -31,7 +31,7 @@ class registeredJsonCrud extends \DarlingCms\abstractions\crud\AregisteredCrud
     private function initializeStoragePath()
     {
         /* Determine the storage directory. */
-        $storageDir = $this->determineStorageDirectory();
+        $storageDir = trim(str_replace('core/classes/crud', '', __DIR__) . '.dcms');
         /* */
         if (is_dir($storageDir) === false) {
             if (mkdir($storageDir, 0755, false) === false) {
@@ -40,17 +40,6 @@ class registeredJsonCrud extends \DarlingCms\abstractions\crud\AregisteredCrud
         }
         $this->storagePath = $storageDir . '/';
         return isset($this->storagePath);
-    }
-
-    /**
-     * Determines the path to the root storage directory on the file system.
-     * Note: Data may or may not be stored in sub-directories under this directory,
-     *       but will definitely be stored under this directory.
-     * @return string The file system path to the root storage directory.
-     */
-    private function determineStorageDirectory()
-    {
-        return trim(str_replace('core/classes/crud', '', __DIR__) . '.dcms');
     }
 
     /**
