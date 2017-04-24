@@ -200,6 +200,7 @@ class registeredJsonCrud extends \DarlingCms\abstractions\crud\AregisteredCrud
             'storageExtension' => '.json',
             'classification' => $classification,
             'modified' => time(),
+            'additionalData' => $additionalData,
         );
     }
 
