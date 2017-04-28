@@ -32,14 +32,15 @@ $singleAppStartup2 = new \DarlingCms\classes\startup\singleAppStartup($app2);
 $singleAppStartup3 = new \DarlingCms\classes\startup\singleAppStartup($app3);
 $singleAppStartup4 = new \DarlingCms\classes\startup\singleAppStartup($app4);
 
-$multiAppStartup = new \DarlingCms\classes\startup\multiAppStartup($singleAppStartup1, $singleAppStartup2);
-$multiAppStartup->setStartupObject($singleAppStartup3);
+$multiAppStartup = new \DarlingCms\classes\startup\multiAppStartup($singleAppStartup1, $singleAppStartup2, $singleAppStartup3, $singleAppStartup4);
+
 $startupObject = new \DarlingCms\classes\startup\darlingCmsStartup($multiAppStartup);
-$startupObject->setStartupObject($singleAppStartup4);
 $startupObject->startup();
+
 if (function_exists('huDebug')) {
     huDebug($startupObject, 'Startup Object');
 }
+
 echo "
   </body>
 </html>

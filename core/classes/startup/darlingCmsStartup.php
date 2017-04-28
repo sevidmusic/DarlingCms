@@ -22,22 +22,17 @@ class darlingCmsStartup extends \DarlingCms\abstractions\startup\Astartup
     private $startupObjects;
 
     /**
-     * darlingCmsStartup constructor. Adds the startup objects passed the constructor
-     * to the startup objects array.
-     *
-     * @param \DarlingCms\interfaces\startup\Istartup $startupObject Instance of an object that
-     *                                                                implements the
-     *                                                                \DarlingCms\interfaces\startup\Istartup
-     *                                                                interface. Multiple startup objects can be
-     *                                                                passed in as additional parameters.
-     * @return bool True if all startup objects were added successfully, false otherwise.
+     * darlingCmsStartup constructor. Adds the startup objects passed the constructor to the startup objects array.
+     * @param \DarlingCms\interfaces\startup\Istartup[] ...$startupObjects Instances of objects that implement the
+     *                                                                     \DarlingCms\interfaces\startup\Istartup
+     *                                                                     interface.
      */
-    public function __construct(\DarlingCms\interfaces\startup\Istartup $startupObject)
+    public function __construct(\DarlingCms\interfaces\startup\Istartup ...$startupObjects)
     {
         /* Initialize status array. Tracks success or failure of each call to setStartupObject(). */
         $status = array();
         /* Add each startup object to the startup objects array. */
-        foreach (func_get_args() as $startUpObject) {
+        foreach ($startupObjects as $startUpObject) {
             /* Call setStartupObject() and store result in $status array. */
             array_push($status, $this->setStartupObject($startUpObject));
         }
