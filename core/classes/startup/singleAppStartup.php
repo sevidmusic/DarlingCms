@@ -75,8 +75,6 @@ class singleAppStartup extends \DarlingCms\abstractions\startup\Astartup
         /* Only run if app is enabled.  */
         if ($this->app->getComponentAttributeValue('enabled') === true) {
             $status = $this->captureAppOutput();
-            /* For now...display output. */
-            echo $this->app->getComponentAttributeValue('customAttributes')['appOutput'];
             return $status;
         }
         return false;

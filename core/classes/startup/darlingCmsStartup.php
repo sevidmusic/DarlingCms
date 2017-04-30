@@ -19,7 +19,7 @@ class darlingCmsStartup extends \DarlingCms\abstractions\startup\Astartup
     /**
      * @var array Array of objects that implement the \DarlingCms\interfaces\startup\Istartup interface.
      */
-    private $startupObjects;
+    protected $startupObjects;
 
     /**
      * darlingCmsStartup constructor. Adds the startup objects passed the constructor to the startup objects array.
