@@ -11,3 +11,6 @@ in the development of apps and themes.
 
 The Darling CMS aims to be standards compliant, and to provide a core whose code is simple and S.O.L.I.D.
 in design.
+
+# Codacy Badge
+[![Codacy Badge](https://api.codacy.com/project/badge/grade/5b4c6fabcebe47d2bd7648823c073156)](https://www.codacy.com/app/sdmwebsdm/DarlingCms)
