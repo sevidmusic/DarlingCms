@@ -12,6 +12,8 @@ namespace DarlingCms\classes\startup;
 class multiAppStartup extends \DarlingCms\classes\startup\darlingCmsStartup
 {
     private $runningApps;
+    private $singleAppStartup;
+    private $app;
 
     /**
      * Adds a startup object to the internal $startupObjects array.
@@ -27,9 +29,9 @@ class multiAppStartup extends \DarlingCms\classes\startup\darlingCmsStartup
      */
     public function setStartupObject(\DarlingCms\interfaces\startup\Istartup $startupObject)
     {
-        /* Initialize the app output array. */
+        /* Initialize the running apps array. */
         $this->runningApps = array();
-        /* Ensure that the startup object is an instance of the singleAppStartup() implementation
+        /* Ensure that the startup object is specifically an instance of the singleAppStartup() implementation
            of the Istartup interface. */
         if (get_class($startupObject) === 'DarlingCms\classes\startup\singleAppStartup') {
             /* If startup object is in fact an instance of the singleAppStartup() class. */
@@ -59,26 +61,47 @@ class multiAppStartup extends \DarlingCms\classes\startup\darlingCmsStartup
         /* Initialize status array. Tracks success or failure of each call to startup(). */
         $status = array();
         foreach ($this->startupObjects as $startupObject) {
-            /* Get the app being processed. */
-            $app = $startupObject->getApp();
-            /* "Tell" the app about the app components that are already running. */
-            $app->setCustomAttribute('runningApps', $this->runningApps);
-            /* Call startup() and store result in $status array. */
-            array_push($status, $startupObject->startup());
-            /* Sync internal running apps array with components modified running apps array. */
-            unset($this->runningApps);
-            $this->runningApps = $app->getComponentAttributeValue('customAttributes')['runningApps'];
-            /* Unset the app's running apps array, no need to keep this data after the app has been processed. */
-            $app->setCustomAttribute('runningApps', array());
-            /* Add the app to the internal running apps array. */
-            $this->runningApps[$app->getComponentName()] = $app;
+            $this->setSingleAppStartup($startupObject);
+            $this->setApp($this->singleAppStartup->getApp());
+            /* Start the app. */
+            array_push($status, $this->startApp());
         }
 
         /* Display app output. */
         foreach ($this->runningApps as $app) {
-            echo $app->getComponentAttributeValue('customAttributes')['appOutput'];
+            $this->setApp($app);
+            echo $this->app->getComponentAttributeValue('customAttributes')['appOutput'];
         }
         /* Return true if all calls to setStartupObject() returned true, false otherwise. */
+        return (in_array(false, $status) === false);
+    }
+
+    private function setSingleAppStartup(\DarlingCms\classes\startup\singleAppStartup $singleAppStartup)
+    {
+        $this->singleAppStartup = $singleAppStartup;
+        return isset($this->singleAppStartup);
+    }
+
+    private function setApp(\DarlingCms\classes\component\app $app)
+    {
+        $this->app = $app;
+        return isset($this->app);
+    }
+
+    private function startApp()
+    {
+        $status = array();
+        /* "Tell" the app about the app components that are already running. */
+        $this->app->setCustomAttribute('runningApps', $this->runningApps);
+        /* Call startup() and store result in $status array. */
+        array_push($status, $this->singleAppStartup->startup());
+        /* Sync internal running apps array with components modified running apps array. */
+        unset($this->runningApps);
+        $this->runningApps = $this->app->getComponentAttributeValue('customAttributes')['runningApps'];
+        /* Unset the app's running apps array, no need to keep this data after the app has been processed. */
+        $this->app->setCustomAttribute('runningApps', array());
+        /* Add the app to the internal running apps array. */
+        $this->runningApps[$this->app->getComponentName()] = $this->app;
         return (in_array(false, $status) === false);
     }
 

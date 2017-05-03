@@ -204,6 +204,8 @@ class app extends \DarlingCms\abstractions\component\Acomponent
                 case 'themes':
                     /* Add the $attributeValue to the specified componentAttributes[$attributeName] array. */
                     array_push($this->componentAttributes[$attributeName], $attributeValue);
+                    /* Insure there are no duplicate registrations. */
+                    $this->componentAttributes[$attributeName] = array_unique($this->componentAttributes[$attributeName]);
                     /* Return true if $attributeValue was added to the specified componentAttributes[$attributeName] array, false otherwise. */
                     return in_array($attributeValue, $this->componentAttributes[$attributeName], true);
                 case 'customAttributes':
