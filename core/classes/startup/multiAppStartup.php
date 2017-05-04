@@ -117,12 +117,10 @@ class multiAppStartup extends \DarlingCms\classes\startup\darlingCmsStartup
 
     private function dependenciesMet()
     {
-        /* Get the app's name. */
-        $appName = $this->app->getComponentName();
         /* Get the app's dependencies. */
         $dependencies = $this->app->getComponentAttributeValue('dependencies');
         /* Store so and app being processed for future reference */
-        $processingSingleAppSo = $this->singleAppStartup;
+        $processingSo = $this->singleAppStartup;
         $processingApp = $this->app;
 
         /* Cycle through dependencies. */
@@ -134,7 +132,7 @@ class multiAppStartup extends \DarlingCms\classes\startup\darlingCmsStartup
                 $this->setApp($this->singleAppStartup->getApp());
                 /* Startup the dependency. */ //var_dump("Starting up $dependency, it is required by $appName");
                 $this->startApp();
-                $this->setSingleAppStartup($processingSingleAppSo);
+                $this->setSingleAppStartup($processingSo);
                 $this->setApp($processingApp);
             }
         }
