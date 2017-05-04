@@ -9,7 +9,7 @@
 namespace DarlingCms\classes\startup;
 
 
-class multiAppStartup extends \DarlingCms\classes\startup\darlingCmsStartup
+class multiAppStartup extends \DarlingCms\classes\startup\multiStartup
 {
     private $runningApps;
     private $singleAppStartup;

@@ -14,7 +14,7 @@ namespace DarlingCms\classes\startup;
  *
  * @package DarlingCms\classes\startup
  */
-class darlingCmsStartup extends \DarlingCms\abstractions\startup\Astartup
+class multiStartup extends \DarlingCms\abstractions\startup\Astartup
 {
     /**
      * @var array Array of objects that implement the \DarlingCms\interfaces\startup\Istartup interface.
