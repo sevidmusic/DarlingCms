@@ -70,7 +70,7 @@ class multiAppStartup extends \DarlingCms\classes\startup\darlingCmsStartup
         /* Display app output. */
         foreach ($this->runningApps as $app) {
             $this->setApp($app);
-            echo $this->app->getComponentAttributeValue('customAttributes')['appOutput'];
+            echo $this->app->getComponentAttributeValue('customAttributes')['appOutput'] . PHP_EOL;
         }
         /* Return true if all calls to setStartupObject() returned true, false otherwise. */
         return (in_array(false, $status) === false);
@@ -90,19 +90,64 @@ class multiAppStartup extends \DarlingCms\classes\startup\darlingCmsStartup
 
     private function startApp()
     {
-        $status = array();
-        /* "Tell" the app about the app components that are already running. */
-        $this->app->setCustomAttribute('runningApps', $this->runningApps);
-        /* Call startup() and store result in $status array. */
-        array_push($status, $this->singleAppStartup->startup());
-        /* Sync internal running apps array with components modified running apps array. */
-        unset($this->runningApps);
-        $this->runningApps = $this->app->getComponentAttributeValue('customAttributes')['runningApps'];
-        /* Unset the app's running apps array, no need to keep this data after the app has been processed. */
-        $this->app->setCustomAttribute('runningApps', array());
-        /* Add the app to the internal running apps array. */
-        $this->runningApps[$this->app->getComponentName()] = $this->app;
-        return (in_array(false, $status) === false);
+        /* Make sure app is not already running. */
+        if (in_array($this->app->getComponentName(), array_keys($this->runningApps, true)) === true) {
+            /* Return false if app is already running. */
+            return false;
+        }
+        /* Make sure dependencies have been met, and app is not already running. */
+        if ($this->dependenciesMet() === true) {
+            $status = array();
+            /* "Tell" the app about the app components that are already running. */
+            $this->app->setCustomAttribute('runningApps', $this->runningApps);
+            /* Call startup() and store result in $status array. */
+            array_push($status, $this->singleAppStartup->startup());
+            /* Sync internal running apps array with components modified running apps array. */
+            unset($this->runningApps);
+            $this->runningApps = $this->app->getComponentAttributeValue('customAttributes')['runningApps'];
+            /* Unset the app's running apps array, no need to keep this data after the app has been processed. */
+            $this->app->setCustomAttribute('runningApps', array());
+            /* Add the app to the internal running apps array. */
+            $this->runningApps[$this->app->getComponentName()] = $this->app;
+            return (in_array(false, $status) === false);
+        }
+        /* Return false if all dependencies were not met. */
+        return false;
     }
 
+    private function dependenciesMet()
+    {
+        /* Get the app's name. */
+        $appName = $this->app->getComponentName();
+        /* Get the app's dependencies. */
+        $dependencies = $this->app->getComponentAttributeValue('dependencies');
+        /* Store so and app being processed for future reference */
+        $processingSingleAppSo = $this->singleAppStartup;
+        $processingApp = $this->app;
+
+        /* Cycle through dependencies. */
+        foreach ($dependencies as $dependency) {
+            /* If dependency is not already running. */
+            if (in_array($dependency, array_keys($this->runningApps)) === false) {
+                /* Get dependency's startup object. */
+                $this->setSingleAppStartup($this->getSingleAppStartupObject($dependency));
+                $this->setApp($this->singleAppStartup->getApp());
+                /* Startup the dependency. */ //var_dump("Starting up $dependency, it is required by $appName");
+                $this->startApp();
+                $this->setSingleAppStartup($processingSingleAppSo);
+                $this->setApp($processingApp);
+            }
+        }
+        return true;
+    }
+
+    private function getSingleAppStartupObject(string $appName)
+    {
+        foreach ($this->startupObjects as $startupObject) {
+            if ($startupObject->getApp()->getComponentName() === $appName) {
+                return $startupObject;
+            }
+        }
+        return false;
+    }
 }

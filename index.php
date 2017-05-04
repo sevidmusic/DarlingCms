@@ -23,12 +23,18 @@ $mas = new  \DarlingCms\classes\startup\multiAppStartup($aps);
 /* Initialize crud to read app components from storage. */
 $crud = new \DarlingCms\classes\crud\registeredJsonCrud();
 
-/* Initialize array of the names of the apps to startup. */
-$apps = array('htmlHeadManager', 'varDumper', 'helloUniverse', 'helloWorld', 'crudTester', 'cveReporter', 'phpCanvas', 'htmlFooterManager');
+/* Determine the names of the available apps in the apps directory. */
+$availableApps = array();
+foreach (new DirectoryIterator(__DIR__ . '/apps') as $fileInfo) {
+    if ($fileInfo->isDot()) {
+        continue;
+    }
+    $availableApps[] = $fileInfo->getFilename();
+}
 
 $appStartupObjects = array();
 
-foreach ($apps as $appName) {
+foreach ($availableApps as $appName) {
     if ($crud->read($appName) !== false) {
         $app = $crud->read($appName);
         array_push($appStartupObjects, new \DarlingCms\classes\startup\singleAppStartup($app));
