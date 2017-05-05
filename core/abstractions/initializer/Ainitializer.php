@@ -11,7 +11,7 @@ namespace DarlingCms\abstractions\initializer;
 
 abstract class Ainitializer implements \DarlingCms\interfaces\initializer\Iinitializer
 {
-    private $initialized;
+    protected $initialized;
 
     /**
      * @return bool True if initialization was successful, false otherwise.
