@@ -14,7 +14,6 @@ class dcmsInitializer extends \DarlingCms\abstractions\initializer\Ainitializer
     /**
      * @var array
      */
-    //protected $initialized; // @todo: IMPORTANT!!! change parent's $initialized property's visibility to protected so children do not have to overwrite it as seen here!
     private $crud;
 
     /**
@@ -83,7 +82,7 @@ class dcmsInitializer extends \DarlingCms\abstractions\initializer\Ainitializer
         $appStartupObjects = array();
 
         /* Search registry for any data classified as an app component. */
-        foreach ($this->crud->getRegistry() as $storageId => $registryData) {
+        foreach (array_keys($this->crud->getRegistry()) as $storageId) {
             /* Check if the data's classification indicates an app component. */
             if ($this->crud->getRegistryData($storageId, 'classification') === 'DarlingCms\classes\component\app') {
                 /* Load the app component. */

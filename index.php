@@ -12,7 +12,7 @@ $initializer->initialize();
 $initialized = $initializer->getInitialized();
 $appStartupObjects = $initialized['array']['appStartupObjects'];
 
-if (empty($appStartupObjects) !== true) {
+if (empty($appStartupObjects) === false) {
     /* Initialize multiAppStartup() object, passing the first singleAppStartup object to the constructor. */
     $mas = new  \DarlingCms\classes\startup\multiAppStartup(array_shift($appStartupObjects));
 
