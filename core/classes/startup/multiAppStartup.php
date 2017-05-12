@@ -11,8 +11,17 @@ namespace DarlingCms\classes\startup;
 
 class multiAppStartup extends \DarlingCms\classes\startup\multiStartup
 {
+    /**
+     * @var array Array of running apps.
+     */
     private $runningApps;
+    /**
+     * @var \DarlingCms\classes\startup\singleAppStartup Local instance of a singleAppStartup object.
+     */
     private $singleAppStartup;
+    /**
+     * @var \DarlingCms\classes\component\app Local instance of a app component.
+     */
     private $app;
 
     /**
@@ -58,7 +67,7 @@ class multiAppStartup extends \DarlingCms\classes\startup\multiStartup
      */
     protected function run()
     {
-        /* Initialize status array. Tracks success or failure of each call to startup(). */
+        /* Initialize status array. Tracks success or failure of each call to startApp(). */
         $status = array();
         foreach ($this->startupObjects as $startupObject) {
             $this->setSingleAppStartup($startupObject);
@@ -76,18 +85,32 @@ class multiAppStartup extends \DarlingCms\classes\startup\multiStartup
         return (in_array(false, $status) === false);
     }
 
+    /**
+     * Set the single app startup object property.
+     * @param singleAppStartup $singleAppStartup The startup object.
+     * @return bool True if startup object was set, false otherwise.
+     */
     private function setSingleAppStartup(\DarlingCms\classes\startup\singleAppStartup $singleAppStartup)
     {
         $this->singleAppStartup = $singleAppStartup;
         return isset($this->singleAppStartup);
     }
 
+    /**
+     * Set the app property.
+     * @param \DarlingCms\classes\component\app $app The app component.
+     * @return bool True if app was set, false otherwise.
+     */
     private function setApp(\DarlingCms\classes\component\app $app)
     {
         $this->app = $app;
         return isset($this->app);
     }
 
+    /**
+     * Starts up an app.
+     * @return bool True if app started up successfully, false otherwise.
+     */
     private function startApp()
     {
         /* Make sure app is not already running. */
@@ -95,7 +118,7 @@ class multiAppStartup extends \DarlingCms\classes\startup\multiStartup
             /* Return false if app is already running. */
             return false;
         }
-        /* Make sure dependencies have been met, and app is not already running. */
+        /* Make sure dependencies have been met. */
         if ($this->dependenciesMet() === true) {
             $status = array();
             /* "Tell" the app about the app components that are already running. */
@@ -115,6 +138,10 @@ class multiAppStartup extends \DarlingCms\classes\startup\multiStartup
         return false;
     }
 
+    /**
+     * Ensures all dependencies are met. Specifically, ensures any apps an app is dependent on are running.
+     * @return bool True if all dependencies are met, false otherwise.
+     */
     private function dependenciesMet()
     {
         /* Get the app's dependencies. */
@@ -139,6 +166,11 @@ class multiAppStartup extends \DarlingCms\classes\startup\multiStartup
         return true;
     }
 
+    /**
+     * Gets the startup object associated with the specified app.
+     * @param string $appName Name of the app whose startup object should be returned.
+     * @return \DarlingCms\classes\startup\singleAppStartup|bool The startup object, or false on failure.
+     */
     private function getSingleAppStartupObject(string $appName)
     {
         foreach ($this->startupObjects as $startupObject) {
