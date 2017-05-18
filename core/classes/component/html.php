@@ -21,7 +21,7 @@ class html extends \DarlingCms\abstractions\component\Acomponent
     /**
      * @var string The content that goes between the tags, only used with oc types.
      */
-    protected $content;
+    protected $content = ''; // set to empty string to ensure string type on instantiation.
     //@todo: Review oc and uc arrays to double check tags are in appropriate array and that none are missing...
     /**
      * @var string The tag type.
@@ -165,7 +165,7 @@ class html extends \DarlingCms\abstractions\component\Acomponent
         $this->setComponentName($tagType);
         if (in_array($tagType, $this->ocTagTypes, true) || in_array($tagType, $this->ucTagTypes, true)) {
             $this->tagType = $tagType;
-            $this->content = trim($content);
+            $this->content = PHP_EOL . trim($content) . PHP_EOL;
             $this->generateHtml();
         }
         parent::__construct();
