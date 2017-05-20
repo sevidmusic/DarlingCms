@@ -6,7 +6,7 @@
  * Time: 10:30 AM
  */
 
-namespace DarlingCms\classes\component;
+namespace DarlingCms\classes\component\html;
 
 /**
  * Class htmlContainer. Responsible for generating "containing" tags for one or more html components.
@@ -26,7 +26,7 @@ namespace DarlingCms\classes\component;
  * </div>
  * @package DarlingCms\classes\component
  */
-class htmlContainer extends \DarlingCms\classes\component\html\html
+class htmlContainer extends html
 {
     /**
      * htmlContainer constructor.
