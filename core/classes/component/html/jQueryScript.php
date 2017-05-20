@@ -12,7 +12,7 @@ namespace DarlingCms\classes\component\html;
  * Class jQueryScript. Html component that wraps groups of jQuery component query strings in script tags.
  * @package DarlingCms\classes\component\html
  */
-class jQueryScript extends \DarlingCms\classes\component\html
+class jQueryScript extends html
 {
     /**
      * jQueryScript constructor. Adds the jQuery components, and calls the parent's construct method

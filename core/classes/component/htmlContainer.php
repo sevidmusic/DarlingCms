@@ -26,7 +26,7 @@ namespace DarlingCms\classes\component;
  * </div>
  * @package DarlingCms\classes\component
  */
-class htmlContainer extends \DarlingCms\classes\component\html
+class htmlContainer extends \DarlingCms\classes\component\html\html
 {
     /**
      * htmlContainer constructor.
@@ -34,7 +34,7 @@ class htmlContainer extends \DarlingCms\classes\component\html
      * @param array $attributes Array of attributes for the container.
      * @param html[] ...$html The html component(s) to be contained.
      */
-    public function __construct(string $tagType, array $attributes, \DarlingCms\classes\component\html ...$html)
+    public function __construct(string $tagType, array $attributes, \DarlingCms\classes\component\html\html ...$html)
     {
         if (is_array($attributes) === false) {
             $attributes = array();
@@ -53,7 +53,7 @@ class htmlContainer extends \DarlingCms\classes\component\html
      * @param html[] ...$htmlComponent The html component(s) to append to the container's content.
      * @return bool True if successful, false otherwise.
      */
-    public function appendHtml(\DarlingCms\classes\component\html ...$htmlComponent)
+    public function appendHtml(\DarlingCms\classes\component\html\html ...$htmlComponent)
     {
         foreach ($htmlComponent as $component) {
             $this->content .= PHP_EOL . $component->getHtml() . PHP_EOL;
@@ -67,7 +67,7 @@ class htmlContainer extends \DarlingCms\classes\component\html
      * @param html[] ...$htmlComponent The html component(s) to prepend to the containers content.
      * @return bool True if successful, false otherwise.
      */
-    public function prependHtml(\DarlingCms\classes\component\html ...$htmlComponent)
+    public function prependHtml(\DarlingCms\classes\component\html\html ...$htmlComponent)
     {
         array_reverse($htmlComponent);
         foreach ($htmlComponent as $component) {

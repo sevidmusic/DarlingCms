@@ -6,7 +6,7 @@
  * Time: 9:10 PM
  */
 
-namespace DarlingCms\classes\component;
+namespace DarlingCms\classes\component\html;
 
 /**
  * Class html. Defines an object whose responsibility is to generate a string of html based on certain parameters.
