@@ -26,7 +26,11 @@ class html extends \DarlingCms\abstractions\component\Acomponent
     /**
      * @var string The tag type.
      */
-    private $tagType;
+    protected $tagType;
+    /**
+     * @var string The html.
+     */
+    protected $html = '';
     /**
      * @var array Array of valid html tag types that require an opening and closing html tag.
      */
@@ -148,10 +152,6 @@ class html extends \DarlingCms\abstractions\component\Acomponent
         'style',
         'sub',
     );
-    /**
-     * @var string The html.
-     */
-    private $html;
 
     /**
      * html constructor.
@@ -200,7 +200,7 @@ class html extends \DarlingCms\abstractions\component\Acomponent
      * @return bool True if html was generated and set and assigned to the html property, false otherwise.
      */
     public function generateHtml()
-    {
+    {// @todo: You may need to also check the oc tag is in the oc tags array...?
         return (in_array($this->tagType, $this->ucTagTypes, true) ? $this->generateUcTag() : $this->generateOcTag());
     }
 
@@ -260,5 +260,16 @@ class html extends \DarlingCms\abstractions\component\Acomponent
         return $this->html;
     }
 
-
+    /**
+     * @inheritdoc
+     */
+    function __debugInfo()
+    {
+        return array(
+            'tagType' => $this->tagType,
+            'html' => $this->html,
+            'content' => $this->content,
+            'componentAttributes' => $this->getComponentAttributes(),
+        );
+    }
 }
