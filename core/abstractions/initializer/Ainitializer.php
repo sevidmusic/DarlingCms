@@ -11,7 +11,10 @@ namespace DarlingCms\abstractions\initializer;
 
 abstract class Ainitializer implements \DarlingCms\interfaces\initializer\Iinitializer
 {
-    protected $initialized;
+    /**
+     * @var array Array of initialized items.
+     */
+    protected $initialized = array();
 
     /**
      * @return bool True if initialization was successful, false otherwise.

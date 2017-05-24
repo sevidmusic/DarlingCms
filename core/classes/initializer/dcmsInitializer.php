@@ -15,13 +15,12 @@ class dcmsInitializer extends \DarlingCms\abstractions\initializer\Ainitializer
      * @var array
      */
     private $crud;
-
+    
     /**
      * initializer constructor.
      */
     public function __construct(\DarlingCms\abstractions\crud\AregisteredCrud $crud)
     {
-        $this->initialized = array();
         $this->crud = $crud;
         $this->setInitialized($this->crud, 'crud');
     }
