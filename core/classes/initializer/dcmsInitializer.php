@@ -15,7 +15,7 @@ class dcmsInitializer extends \DarlingCms\abstractions\initializer\Ainitializer
      * @var array
      */
     private $crud;
-    
+
     /**
      * initializer constructor.
      */
@@ -34,30 +34,51 @@ class dcmsInitializer extends \DarlingCms\abstractions\initializer\Ainitializer
     private function setInitialized($item, string $index = '')
     {
         if ($index !== '') {
-            switch (gettype($item)) {
-                case 'object':
-                    $classification = trim(get_class($item));
-                    $this->initialized[$classification][$index] = $item;
-                    break;
-                default:
-                    $classification = trim(gettype($item));
-                    $this->initialized[$classification][$index] = $item;
-                    break;
-            }
-            return true;
+            return $this->handleAssociativeIndex($index, $item);
         }
+        return $this->handleNumericIndex($item);
+    }
 
+    /**
+     * Handle associative indexing of an item in the initialized array.
+     * @param string $index The index to use.
+     * @param mixed $item The item being set in the initialized array.
+     * @return bool True if item was set in the initialized array under the specified index, false otherwise.
+     */
+    private function handleAssociativeIndex(string $index, $item)
+    {
+        /* Handle associative index. */
         switch (gettype($item)) {
             case 'object':
                 $classification = trim(get_class($item));
-                $this->initialized[$classification][] = $item;
                 break;
             default:
                 $classification = trim(gettype($item));
-                $this->initialized[$classification][] = $item;
                 break;
         }
-        return true;
+        $this->initialized[$classification][$index] = $item;
+        return isset($this->initialized[$classification][$index]);
+    }
+
+    /**
+     * Handle numeric indexing of an item in the initialized array.
+     * Note: This numeric index will be generated internally.
+     * @param mixed $item The item being set in the initialized array.
+     * @return bool True if item was set in the initialized array, false otherwise.
+     */
+    private function handleNumericIndex($item)
+    {
+        /* Handle numeric index. */
+        switch (gettype($item)) {
+            case 'object':
+                $classification = trim(get_class($item));
+                break;
+            default:
+                $classification = trim(gettype($item));
+                break;
+        }
+        $this->initialized[$classification][] = $item;
+        return in_array($item, $this->initialized[$classification], true);
     }
 
     /**
@@ -83,12 +104,22 @@ class dcmsInitializer extends \DarlingCms\abstractions\initializer\Ainitializer
         /* Search registry for any data classified as an app component. */
         foreach (array_keys($this->crud->getRegistry()) as $storageId) {
             /* Check if the data's classification indicates an app component. */
-            if ($this->crud->getRegistryData($storageId, 'classification') === 'DarlingCms\classes\component\app') {
-                /* Load the app component. */
-                if (($app = $this->crud->read($storageId)) !== false) {
-                    /* Create a singleAppStartup instance for the app component and add it to the $appStartupObjects array. */
-                    array_push($appStartupObjects, new \DarlingCms\classes\startup\singleAppStartup($app));
-                }
+            switch ($this->crud->getRegistryData($storageId, 'classification')) {
+                case 'DarlingCms\classes\component\app':
+                    /* Load the app component. */
+                    if (($app = $this->crud->read($storageId)) !== false) {
+                        /* Create a singleAppStartup instance for the app component and add it to the $appStartupObjects array. */
+                        array_push($appStartupObjects, new \DarlingCms\classes\startup\singleAppStartup($app));
+                    }
+                    break;
+                case 'DarlingCms\classes\component\appPackage':
+                    // unpack apps from app package and create startup objects for them
+                    $package = $this->crud->read($storageId);
+
+                    foreach ($package->getComponentAttributes()['customAttributes']['apps'] as $app) {
+                        array_push($appStartupObjects, new \DarlingCms\classes\startup\singleAppStartup($this->crud->read($app)));
+                    }
+                    break;
             }
         }
 
