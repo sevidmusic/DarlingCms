@@ -115,21 +115,12 @@ class dcmsInitializer extends \DarlingCms\abstractions\initializer\Ainitializer
         /* Search registry for any data classified as an app component. */
         foreach (array_keys($this->crud->getRegistry()) as $storageId) {
             /* Check if the data's classification indicates an app component. */
-            switch ($this->crud->getRegistryData($storageId, 'classification')) {
-                case 'DarlingCms\classes\component\app':
-                    /* Load the app component. */
-                    if (($app = $this->crud->read($storageId)) !== false) {
-                        /* Create a singleAppStartup instance for the app component and add it to the $appStartupObjects array. */
-                        array_push($appStartupObjects, new \DarlingCms\classes\startup\singleAppStartup($app));
-                    }
-                    break;
-                case 'DarlingCms\classes\component\appPackage': /* THIS CASE WILL BE PHASED OUT SOON!!! */
-                    /* @todo: This case should be phased out when the appPackage object is phased out. It is been deemed unnecessary. */
-                    $package = $this->crud->read($storageId);
-                    foreach ($package->getComponentAttributes()['customAttributes']['apps'] as $app) {
-                        array_push($appStartupObjects, new \DarlingCms\classes\startup\singleAppStartup($this->crud->read($app)));
-                    }
-                    break;
+            if ($this->crud->getRegistryData($storageId, 'classification') === 'DarlingCms\classes\component\app') {
+                /* Load the app component. */
+                if (($app = $this->crud->read($storageId)) !== false) {
+                    /* Create a singleAppStartup instance for the app component and add it to the $appStartupObjects array. */
+                    array_push($appStartupObjects, new \DarlingCms\classes\startup\singleAppStartup($app));
+                }
             }
         }
 
