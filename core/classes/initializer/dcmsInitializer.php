@@ -8,20 +8,31 @@
 
 namespace DarlingCms\classes\initializer;
 
-
+/**
+ * Class dcmsInitializer. Responsible for initializing any data needed by the Darling Cms. Initialized data
+ * is stored in an array which can be retrieved by calling the getInitialized() method defined by the parent
+ * Ainitializer abstract class.
+ *
+ * @package DarlingCms\classes\initializer
+ */
 class dcmsInitializer extends \DarlingCms\abstractions\initializer\Ainitializer
 {
     /**
-     * @var array
+     * @var \DarlingCms\abstractions\crud\AregisteredCrud Registered Crud object used by the dcmsInitializer.
      */
     private $crud;
 
     /**
-     * initializer constructor.
+     * dcmsInitializer constructor. Assigns the provided registered crud implementation to the $crud property,
+     * and also sets it as one of the initialized items under the index "crud".
+     *
+     * @param \DarlingCms\abstractions\crud\AregisteredCrud $crud Instance of an object that implements the \DarlingCms\abstractions\crud\AregisteredCrud abstract class.
      */
     public function __construct(\DarlingCms\abstractions\crud\AregisteredCrud $crud)
     {
+        /* Assign the provided registered crud implementation to the $crud property. */
         $this->crud = $crud;
+        /* Also, set the provided registered crud implementation as one of the initialized items under the index "crud". */
         $this->setInitialized($this->crud, 'crud');
     }
 
@@ -82,14 +93,14 @@ class dcmsInitializer extends \DarlingCms\abstractions\initializer\Ainitializer
     }
 
     /**
-     * @return bool True if initialization was successful, false otherwise.
+     * @return bool True if any data other then the crud was initialized, false otherwise.
      */
     public function initialize()
     {
         /* Initialize appStartupObjects. */
         $this->initAppStartupObjects();
-
-        return true;
+        /* Return true if there was any data initialized other then the crud, false otherwise. */
+        return (count($this->initialized) > 1);
     }
 
     /**
@@ -112,10 +123,9 @@ class dcmsInitializer extends \DarlingCms\abstractions\initializer\Ainitializer
                         array_push($appStartupObjects, new \DarlingCms\classes\startup\singleAppStartup($app));
                     }
                     break;
-                case 'DarlingCms\classes\component\appPackage':
-                    // unpack apps from app package and create startup objects for them
+                case 'DarlingCms\classes\component\appPackage': /* THIS CASE WILL BE PHASED OUT SOON!!! */
+                    /* @todo: This case should be phased out when the appPackage object is phased out. It is been deemed unnecessary. */
                     $package = $this->crud->read($storageId);
-
                     foreach ($package->getComponentAttributes()['customAttributes']['apps'] as $app) {
                         array_push($appStartupObjects, new \DarlingCms\classes\startup\singleAppStartup($this->crud->read($app)));
                     }
@@ -125,7 +135,10 @@ class dcmsInitializer extends \DarlingCms\abstractions\initializer\Ainitializer
 
         /* Determine if this is a fresh install of the Darling Cms based on whether
            or not any single app startup objects were instantiated for any app
-           components registered with the crud. */
+           components registered with the crud. The assumptions is, since apps
+           define the functionality of the Darling Cms, if there aren't any apps,
+           registered with the crud, then this must be a fresh install.
+         */
         if ((empty($appStartupObjects)) === true) {
             return $this->handleFreshInstall();
         }
@@ -135,24 +148,90 @@ class dcmsInitializer extends \DarlingCms\abstractions\initializer\Ainitializer
     }
 
     /**
-     * Performs required actions for a fresh Darling Cms install. Specifically, instantiates
-     * a new app component and singleAppStartup startup object for the "appManager" app.
+     * Performs required actions for a fresh Darling Cms install. Specifically, this method
+     * looks for any apps that came installed with the Darling Cms, and registers their
+     * respective app components with the crud. This method also enables any apps that
+     * came installed with the Darling Cms by default so that they may be used "out of the box".
+     * This approach will provide the user with the ability to use the installed apps without having
+     * to perform any manual configuration of said apps. It also removes the need require any apps
+     * be installed with the Darling Cms, making no assumptions about what apps should be installed,
+     * which gives the user complete control over what functionality is available to their Darling Cms
+     * installation "out of the box".
      *
-     * Note: The appManager app is responsible for managing installed Darling Cms apps, and therefore,
-     * is assigned the responsibility of enabling and configuring core apps for a fresh install.
-     *
-     * WARNING: The appManager app comes pre-installed with the Darling Cms. If it was removed, configuration
-     * of a new installation will have to be done manually.
-     *
+     * @return bool True if all installed apps were successfully configured, false otherwise. A successful
+     * configuration means that an app component was created for each app, and that app component was
+     * successfully enabled and registered with the crud.
      */
     private function handleFreshInstall()
     {
-        /* Temporarily enable appManager app for fresh install. */
-        $appManager = new  \DarlingCms\classes\component\app('appManager');
-        $appManager->enableApp();
-        $appManager->registerTheme('appManager');
-        /* Initialize singleAppStartup() object for appManager app, wrap in an array and overwrite the initialized array's
-           appStartupObjects array. */
-        return $this->setInitialized(array(new \DarlingCms\classes\startup\singleAppStartup($appManager)), 'appStartupObjects');
+        /* Determine if there are any apps installed. */
+        $installedApps = $this->determineInstalledApps();
+        switch (empty($installedApps)) {
+            case true:
+                /* Show user message indicating that no apps came installed with this installation of the Darling Cms. */
+                echo '<h1 style="font-size: 2.3em;">Welcome to the Darling Cms</h1>
+                      <p style="font-size: 2em;">There weren\'t any apps installed with this installation of the Darling Cms.
+                       Install at least one app in the "apps" directory, and then reload this page.
+                       You can find apps for the Darling Cms online @ <a href="https://github.com/sevidmusic/dcmsApps">
+                       https://github.com/sevidmusic/dcmsApps</a>
+                       Or, if you know what your doing, develop your own apps, install them in the 
+                       apps directory, and reload this page.</p>';
+                /* Return false if there were no installed apps to configure. */
+                return false;
+            default:
+                /* Initialize an array to track the success or failure of each app's configuration. */
+                $status = array();
+                foreach ($installedApps as $appName) {
+                    /* Create an app component for the app. */
+                    $app = new \DarlingCms\classes\component\app($appName);
+                    /* Enable the app. Track success or failure via the $status array. */
+                    $status[] = $app->enableApp();
+                    /* Register the new app component with the crud. Track success or failure via the $status array. */
+                    $status[] = $this->crud->create($appName, $app);
+                }
+                if ((in_array(false, $status, true) === false)) {
+                    /* Show simple welcome message. */
+                    echo '<h1 style="font-size: 2.3em;">Welcome to your new installation of the Darling Cms.</h1>
+                      <p style="font-size: 2em;">The following apps have been enabled for your new installation of the Darling Cms:<br><br>
+                      ' . implode('<br>', $installedApps) . '
+                      </p><p style="font-size: 2em;">Reload the page to start using your new installation</p>';/* Check $status array and return true if all installed apps were configured successfully, false otherwise. */;
+                    /* Return true if all installed apps were successfully configured. */
+                    return true;
+                }
+                echo '<h1 style="font-size: 2.3em;">Welcome to your new installation of the Darling Cms.</h1>
+                      <p style="font-size: 2em;">Not all of the installed apps could be enabled for you, you can still proceed to your new installation by reloading this page.</p>';
+                /* Return false if any installed apps were not successfully configured. Note: Some apps my still have been successfully configured. */
+                return false;
+        }
+    }
+
+    /**
+     * Remove dot file refs from array being processed by array_filter().
+     * @param $value string The file name.
+     * @return mixed The file name or false if the file name matched a dot file.
+     */
+    private function stripDots($value)
+    {
+        /* Create an array of values to ignore. */
+        $ignore = array('.', '..', '.DS_Store');
+        /* Unset any $value if it matches any of the values in the $ignore array. */
+        if (in_array($value, $ignore, true)) {
+            unset($value);
+        }
+        /* If value does not match any of the values in the $ignore array, return it.  */
+        if (isset($value)) {
+            return $value;
+        }
+        /* Return false if $value was unset. */
+        return false;
+    }
+
+    /**
+     * Determines what apps are installed.
+     * @return array Array of installed app names.
+     */
+    private function determineInstalledApps()
+    {
+        return array_unique(array_filter(scandir(__DIR__ . '/../../../apps'), array($this, 'stripDots')));
     }
 }
