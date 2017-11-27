@@ -257,7 +257,14 @@ class html extends \DarlingCms\abstractions\component\Acomponent
      */
     public function getHtml()
     {
-        return $this->html;
+        $id = 'NO ID';
+        foreach ($this->getComponentAttributes() as $attribute) {
+            if (substr($attribute, 0, 2) === 'id') {
+                $id = $attribute;
+            }
+        }
+        $id = ($id === 'NO ID' ? '<' . $this->tagType . '>' : $id);
+        return PHP_EOL . '<!-- Begin ' . $id . ' -->' . PHP_EOL . $this->html . PHP_EOL . '<!-- End ' . $id . ' -->' . PHP_EOL;
     }
 
     /**

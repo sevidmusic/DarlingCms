@@ -8,7 +8,42 @@
 
 namespace DarlingCms\abstractions\crud;
 
-
+/**
+ * Class AregisteredCrud
+ * @package DarlingCms\abstractions\crud
+ * @todo: Need to implement some kind of permissions logic. For instance, it would be helpful if a piece
+ *        of stored data could be locked to prevent the create() method from overwriting already stored data.
+ *        In general the crud should provide a way to control what methods are allowed to be used
+ *        on a piece of data. For example:
+ *          - A string is stored under storage id "someString"
+ *          - Another string is created and stored using same id
+ *          - At the moment, this class's create() method will simply overwrite the orginal "someString" with
+ *            the new string, permissions could prevent such an overwrite in case the data stored under the id
+ *            "someString" needs to be preserved.
+ *        Point is, all methods should first check the crud permissions before they operate on stored data.
+ *
+ *        Rough Idea:
+ *        Each piece of registered data is assigned a permissions character, combinations of these characters
+ *        can be used to assign custom permissions sets:
+ *          C = Create only. Only the create() method will work.
+ *          R = Read only. Only the read() method will work.
+ *          U = Update only. Only the update() method will work.
+ *          D = Delete only. Only the delete() method will work.
+ *          Examples of combined permissions:
+ *          RU  = Read and update only. Only the read() and Update methods will work.
+ *          RUD  = Read, update, and delete only. Only the read() and Update methods will work. (default)
+ *                 Note: This should be assigned by default upon intial creation so data cannot be overwritten
+ *                       with create(), but can be updated, read, or deleted. A parameter $permissionSet should
+ *                       be able to be provided to create() so a custom permission set can be assinged upon initial
+ *                       creation.
+ *                       i.e.,
+ *                       create() would by default assign 'RUD' as the permission set.
+ *                       create('R') would by assign 'R' as the permission set.
+ *          CRUD  = All methods will work.
+ *          DISABLED = No methods will work.
+ * Permissions should be applied per datum.
+ * i.e., each piece of registered data will have a corresponding set of permissions.
+ */
 abstract class AregisteredCrud implements \DarlingCms\interfaces\crud\Icrud
 {
     /**
