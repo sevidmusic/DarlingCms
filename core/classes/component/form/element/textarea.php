@@ -11,8 +11,9 @@ namespace DarlingCms\classes\component\form\element;
 
 class textarea extends formElement
 {
-    public function __construct(array $elementAttributes = array(), string $initialText = '')
+    public function __construct(string $name, string $initialText = '', array $elementAttributes = array())
     {
+        $elementAttributes['name'] = $name;
         parent::__construct('textarea', $elementAttributes, $initialText);
     }
 }

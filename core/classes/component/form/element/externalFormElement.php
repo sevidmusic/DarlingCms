@@ -10,6 +10,11 @@ namespace DarlingCms\classes\component\form\element;
 
 class externalFormElement extends formElement
 {
+    /**
+     * externalFormElement constructor.
+     * @param formElement $formElement Instance of a \DarlingCms\classes\component\form\element\formElement object.
+     * @param string $parentForm The id of the form this external form element is belongs to.
+     */
     public function __construct(formElement $formElement, string $parentForm)
     {
         $attributes = $formElement->getComponentAttributes();

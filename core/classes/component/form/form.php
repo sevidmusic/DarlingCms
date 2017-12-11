@@ -23,7 +23,9 @@ class form extends \DarlingCms\classes\component\html\html
         'method',
         'name',
         'novalidate',
-        'target'
+        'target',
+        'id',
+        'class'
     );
 
     public function __construct(array $attributes = array(), \DarlingCms\classes\component\form\element\formElement ...$formElement)

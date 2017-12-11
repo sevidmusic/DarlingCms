@@ -10,10 +10,19 @@ namespace DarlingCms\classes\component\form\element;
 
 class select extends formElement
 {
-    // @todo: $options should actually require the option implementation of the html component object.
-    public function __construct(array $elementAttributes = array(), \DarlingCms\classes\component\html\html ...$options)
+    public function __construct(string $name, array $selectOptions, array $additionalAttributes = array())
     {
-        parent::__construct('select', $elementAttributes, implode(PHP_EOL, $options));
+        /* Set name attribute to $name. */
+        $additionalAttributes['name'] = $name;
+        /* Initialize options array. */
+        $options = array();
+        /* Create <option> tags foreach option. */
+        foreach ($selectOptions as $option) {
+            if (is_string($option) === true) {
+                array_push($options, '<option>' . $option . '</option>');
+            }
+        }
+        parent::__construct('select', $additionalAttributes, implode(PHP_EOL, $options));
     }
 
 }
