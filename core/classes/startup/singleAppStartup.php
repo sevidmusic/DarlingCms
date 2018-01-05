@@ -26,6 +26,20 @@ class singleAppStartup extends \DarlingCms\abstractions\startup\Astartup
     private $appFilePath;
 
     /**
+     * Initialize the $app, $appDirectoryPath, $appFileName, $appFileExtension, and $appFilePath properties.
+     * Note: The __construct() method is called upon instantiation and whenever setApp() is called.
+     */
+    public function __construct(\DarlingCms\classes\component\app $app)
+    {
+        $this->app = $app;
+        $this->appDirectoryPath = str_replace('core/classes/startup', '', __DIR__) . 'apps/' . $app->getComponentName() . '/';
+        $this->appFileName = $app->getComponentName();
+        $this->appFileExtension = 'php';
+        $this->appFilePath = "$this->appDirectoryPath$this->appFileName.$this->appFileExtension";
+    }
+
+
+    /**
      * Returns the internal \DarlingCms\classes\component\app object instance.
      * @return \DarlingCms\classes\component\app The current \DarlingCms\classes\component\app app instance.
      */
@@ -43,19 +57,6 @@ class singleAppStartup extends \DarlingCms\abstractions\startup\Astartup
     {
         $this->__construct($app);
         return isset($app);
-    }
-
-    /**
-     * Initialize the $app, $appDirectoryPath, $appFileName, $appFileExtension, and $appFilePath properties.
-     * Note: The __construct() method is called upon instantiation and whenever setApp() is called.
-     */
-    public function __construct(\DarlingCms\classes\component\app $app)
-    {
-        $this->app = $app;
-        $this->appDirectoryPath = str_replace('core/classes/startup', '', __DIR__) . 'apps/' . $app->getComponentName() . '/';
-        $this->appFileName = $app->getComponentName();
-        $this->appFileExtension = 'php';
-        $this->appFilePath = "$this->appDirectoryPath$this->appFileName.$this->appFileExtension";
     }
 
     /**
@@ -117,7 +118,7 @@ class singleAppStartup extends \DarlingCms\abstractions\startup\Astartup
      *
      * @return bool True if output was captured in the appOutput array successfully, false otherwise.
      */
-    final  private function captureAppOutput()
+    final private function captureAppOutput()
     {
         /* Clear app output from any previous start-ups. */
         $this->stop();
