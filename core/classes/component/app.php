@@ -11,29 +11,27 @@ namespace DarlingCms\classes\component;
 /**
  * Class app. Defines an implementation of the  \DarlingCms\abstractions\component\Acomponent class
  * that represents a Darling CMS app component.
- *
  * @package DarlingCms\classes\component
  */
 class app extends \DarlingCms\abstractions\component\Acomponent
 {
+    private $accessController;
+
     /**
      * app constructor. Calls the parents __construct() method to set the componentId and
      * componentType, then sets the componentName, and initializes the component attributes array.
-     *
      * @param string $name The name of the app.
-     *
      * @param array $customAttributes (optional) An array of custom attributes for the app. Defaults to
      *                                           an empty array.
      */
     final public function __construct(string $name, array $customAttributes = array())
     {
-        /* Call \DarlingCms\abstractions\component\Acomponent __construct() method
-           to set the componentId and componentType. */
+        /* Call parent's __construct() method to set the componentId and componentType. */
         parent::__construct();
         /* Set the componentName using the $name parameter. */
         $this->setComponentName($name);
         /* Create an array to be used as the initial componentAttributes array whose
-           structure accommodates the expected attributes of an app component. */
+           structure reflects the expected attributes of an app component. */
         $attributes = array(
             // Disable app by default.
             'enabled' => false,
@@ -49,22 +47,59 @@ class app extends \DarlingCms\abstractions\component\Acomponent
     }
 
     /**
+     * Assigns an access controller to this app component's accessController property.
+     * Note: Method injection is used to set accessController objects because not all app objects are required to
+     * provide access control. To check if an app provides access control via an accessController object, use the
+     * hasAccessController() method.
+     * @param \DarlingCms\classes\accessControl\accessController $accessController Instance of an accessController object.
+     * @return bool True if access accessController was set, false otherwise.
+     */
+    public function setAccessController(\DarlingCms\classes\accessControl\accessController $accessController): bool
+    {
+        $this->accessController = $accessController;
+        return isset($this->accessController);
+    }
+
+    /**
+     * Checks if this app has an \DarlingCms\classes\accessControl\accessController object assigned to it.
+     * Note: The accessController property will be null if an accessController object has not been set.
+     * @return bool True if this app has an accessController object assigned to it, false otherwise.
+     */
+    public function hasAccessController(): bool
+    {
+        if (isset($this->accessController) === true && get_class($this->accessController) === 'DarlingCms\classes\accessControl\accessController') {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Returns the accessController if it is set. If the access controller is not set this method will return false.
+     * @return \DarlingCms\classes\accessControl\accessController | bool The accessController if it is
+     *                                                                   set, false otherwise.
+     */
+    public function getAccessController()
+    {
+        if ($this->hasAccessController() === true) {
+            return $this->accessController;
+        }
+        return false;
+    }
+
+
+    /**
      * Sets the componentName.
-     *
      * Note: The componentName is set upon instantiation. Calling this method outside of the __construct()
      * method will have no effect. This method is only public because it must honor the interface defined by
      * the \DarlingCms\abstractions\component\Acomponent abstract class.
-     *
      * @param string $name Should be the name of the app, this value will be assigned as the componentName.
-     *
      * @return bool Returns true if componentName was set successfully, false otherwise.
      * Note: This method will return false if called from outside of the constructor.
-     *
      */
     public function setComponentName(string $name)
     {
         /* Check if componentName is already initialized. */
-        if ($this->propertyInitialized('componentName') === true) {
+        if (isset($this->componentName) === true) {
             /* Return false if componentName is already initialized. */
             return false;
         }
@@ -75,43 +110,24 @@ class app extends \DarlingCms\abstractions\component\Acomponent
     }
 
     /**
-     * Determines if a property has been initialized.
-     *
-     * @param string $property The name of the property being checked.
-     *
-     * @return bool True if specified $property has been initialized, false otherwise.
-     *
-     */
-    final private function propertyInitialized(string $property)
-    {
-        /* Return true if $property is set, false otherwise.*/
-        return isset($this->$property);
-    }
-
-    /**
      * Sets the componentAttributes array.
-     *
      * Warning: To prevent potentially corrupting the expected structure of this implementation's
      * componentAttributes array, which is setup by the constructor upon instantiation, this
      * method will have no effect if called from outside of the constructor, even though it
      * is a public method.
-     *
      * Note: This method is only public because it must honor the interface defined by
      * the \DarlingCms\abstractions\component\Acomponent abstract class. However, in this
      * implementation it will have no effect if called from outside the __construct()
      * method. To modify the componentAttributes array after instantiation use the
      * enableApp(), disableApp(), registerDependency(), and setCustomAttribute() methods.
-     *
      * @param array $attributes Array of attributes to be assigned to the componentAttributes array.
-     *
      * @return bool True if the component attributes array was set successfully, false otherwise.
      * Note: This method will return false if called from outside of the constructor.
-     *
      */
     public function setComponentAttributes(array $attributes)
     {
         /* Protect against overwriting the componentAttributes array if it has already been initialized. */
-        if ($this->propertyInitialized('componentAttributes') === true) {
+        if (isset($this->componentAttributes) === true) {
             /* Return false if attempt is made to set the componentAttributes array after it has already been initialized. */
             return false;
         }
@@ -123,9 +139,7 @@ class app extends \DarlingCms\abstractions\component\Acomponent
 
     /**
      * Gets a specified componentAttribute value.
-     *
      * @param string $attributeName The name of the component attribute whose value should be returned.
-     *
      * @return mixed|bool Returns the specified componentAttribute's value, or false on failure.
      */
     public function getComponentAttributeValue(string $attributeName)
@@ -140,30 +154,7 @@ class app extends \DarlingCms\abstractions\component\Acomponent
     }
 
     /**
-     * Gets a specified property's value.
-     *
-     * Note: This method does not have access to the parent's private properties.
-     *
-     * @param string $property The name of the property whose value should be returned.
-     *
-     * @return mixed|bool Returns the specified property's value, or false on failure.
-     */
-    public function getPropertyValue(string $property)
-    {
-        /* Determine valid properties, this protects against getting/setting un-intended properties. */
-        $validProperties = array_keys(get_class_vars(get_class($this)));
-        /* Make sure the specified property is valid and exists. */
-        if (in_array($property, $validProperties) && isset($this->$property) === true) {
-            /* Return the specified attribute's value. */
-            return $this->$property;
-        }
-        /* Return false if specified property is not valid or does not exist. */
-        return false;
-    }
-
-    /**
      * Sets the enabled componentAttribute to true.
-     *
      * @return bool True if the enabled componentAttribute was set to true, false otherwise.
      */
     public function enableApp()
@@ -173,24 +164,18 @@ class app extends \DarlingCms\abstractions\component\Acomponent
 
     /**
      * Set the value of a specified componentAttribute.
-     *
      * @param string $attributeName The name of the componentAttribute whose value should be set.
      *                              Options: dependencies, themes, customAttributes, or enabled.
      *                              Note: Passing an attribute name that is not one of the options
      *                              listed will have no effect.
-     *
      * @param mixed $attributeValue The value to set for the componentAttribute.
-     *
      * @param string $customAttributeKey (optional) A custom key to use when setting a value in the
      *                                              componentAttributes array's customAttributes array.
      *                                              Only used when setting a value in the customAttributes
      *                                              array.
-     *
      * @return bool Returns true if componentAttribute was set successfully, false otherwise.
-     *
      * Note: This method will return false if the $attributeName is not one of the following options:
      *       dependencies, themes, customAttributes, or enabled.
-     *
      * Note: This method will return false if the $attributeName does not exist in the componentAttributes
      *       array.
      */
@@ -238,7 +223,6 @@ class app extends \DarlingCms\abstractions\component\Acomponent
 
     /**
      * Sets the enabled componentAttribute to false.
-     *
      * @return bool True if the enabled componentAttribute was set to false, false otherwise.
      */
     public function disableApp()
@@ -248,22 +232,23 @@ class app extends \DarlingCms\abstractions\component\Acomponent
 
     /**
      * Register a dependency in the componentAttribute array's dependencies array.
-     *
+     * Note: An app cannot register itself as a dependency. This method will return false if the name of
+     *       this app is passed to the $dependency parameter.
      * @param string $dependency Name of the dependency.
-     *
      * @return bool True if the dependency was registered in the componentAttribute array's
      *              dependencies array, false otherwise.
      */
     public function registerDependency(string $dependency)
     {
-        return $this->setComponentAttribute('dependencies', $dependency);
+        if ($this->getComponentName() !== $dependency) {
+            return $this->setComponentAttribute('dependencies', $dependency);
+        }
+        return false;
     }
 
     /**
      * Register a theme in the componentAttribute array's themes array.
-     *
      * @param string $theme Name of the theme.
-     *
      * @return bool True if the theme was registered in the componentAttribute array's
      *              themes array, false otherwise.
      */
@@ -274,11 +259,8 @@ class app extends \DarlingCms\abstractions\component\Acomponent
 
     /**
      * Set a custom attribute in the componentAttribute array's customAttributes array.
-     *
      * @param string $customAttributeKey A key to use for the custom attribute.
-     *
      * @param $customAttributeValue mixed The value to set for the custom attribute.
-     *
      * @return bool True if the custom attribute was set in the componentAttribute array's
      *              customAttributes array under the specified $customAttributeKey, false otherwise.
      */
