@@ -127,10 +127,15 @@ class singleAppStartup extends \DarlingCms\abstractions\startup\Astartup
         switch ($this->app->hasAccessController()) {
             /* App has an access controller. */
             case true:
-                /* Start the session with read and close option. This closes the session immediately after it's read. */
-                session_start(array('read_and_close' => true));
+                /* DEV NOTE: : Though it's not the best practice, the session object is instantiated here because it
+                 *             is only used here. If the need for session interaction becomes required outside this
+                 *             method's scope then this class should be refactored so the session object is injected
+                 *             via the constructor and saved to a private property of this class.
+                 */
+                /* Instantiate a new session object to use for any session interaction. */
+                $session = new \DarlingCms\classes\crud\session();
                 /* Check if a is a user logged in, and if the user has access based on the app's access controller. */
-                switch ((isset($_SESSION['user']) === true) && ($this->app->getAccessController()->validateAccess($_SESSION['user']))) {
+                switch (($session->read('user') !== false) && ($this->app->getAccessController()->validateAccess($session->read('user')))) {
                     /* User has access, set $accessGranted var to true. */
                     case true:
                         $accessGranted = true;
