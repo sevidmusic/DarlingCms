@@ -127,15 +127,21 @@ class singleAppStartup extends \DarlingCms\abstractions\startup\Astartup
         switch ($this->app->hasAccessController()) {
             /* App has an access controller. */
             case true:
-                /* DEV NOTE: : Though it's not the best practice, the session object is instantiated here because it
-                 *             is only used here. If the need for session interaction becomes required outside this
-                 *             method's scope then this class should be refactored so the session object is injected
-                 *             via the constructor and saved to a private property of this class.
+                /* DEV NOTE: : Though it's not the best practice, the session and crud objects are instantiated
+                 *             here because they are only used here. If the need for session or crud interaction
+                 *             becomes required outside this method's scope then this class should be refactored
+                 *             so the session and crud objects are injected via the constructor and saved to new
+                 *             private properties $session and $crud respectively.
                  */
                 /* Instantiate a new session object to use for any session interaction. */
                 $session = new \DarlingCms\classes\crud\session();
-                /* Check if a is a user logged in, and if the user has access based on the app's access controller. */
-                switch (($session->read('user') !== false) && ($this->app->getAccessController()->validateAccess($session->read('user')))) {
+                /* Instantiate a new crud object to use for interaction with stored data. */
+                $crud = new \DarlingCms\classes\crud\registeredJsonCrud();
+                /* Read the current user's user object from storage. | Current user determined by value of the 'currentUser' session variable. */
+                $user = $crud->read($session->read('currentUser'));
+                /* @todo : Check if a is a user logged in, i.e., $user->isLoggedIn() === true | will prevent a corrupted session from just setting the current user to a valid user's username which would give unauthorized access to the corrupted session. */
+                /* Check that the current user was found and that user has access by validating against the app's access controller. */
+                switch (($user !== false) && ($this->app->getAccessController()->validateAccess($user))) {
                     /* User has access, set $accessGranted var to true. */
                     case true:
                         $accessGranted = true;
