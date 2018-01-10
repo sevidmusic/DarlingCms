@@ -79,13 +79,30 @@ abstract class AregisteredCrud implements \DarlingCms\interfaces\crud\Icrud
     /**
      * Read data from storage.
      * @param string $storageId The data's storage id.
+     * @param string $classification (optional) If set, only data whose classification matches
+     *                                          the specified classification will be returned.
+     *                                          i.e., if set, even if the storage id matches
+     *                                          a piece of stored data, the data will only be
+     *                                          returned if it's classification matches the
+     *                                          specified classification.
      * @return mixed The data, or false on failure.
      * Note: Since this crud implementation allows the saving of any type of data,
      * including boolean values, it is possible that read() will return false if
      * the data associated with the specified storage id is the boolean false.
      */
-    final public function read(string $storageId)
+    final public function read(string $storageId, string $classification = '')
     {
+        /* Check if a classification was specified. */
+        if ($classification !== '') {
+            /* Only return data if the classification of the requested data matches the specified classification. */
+            if ($this->registry[$storageId]['classification'] === $classification) {
+                /* Return the data. */
+                return $this->unpack($this->query($storageId, 'load'));
+            }
+            /* The storage id was valid, but the data associated does not match the specified classification. */
+            return false;
+        }
+        /* Return the data, or false on failure. */
         return $this->unpack($this->query($storageId, 'load'));
     }
 
