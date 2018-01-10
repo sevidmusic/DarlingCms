@@ -39,6 +39,12 @@ class user extends accessController
     private $publicMetaData = array();
 
     /**
+     * @var bool Bool that indicates if user is logged in or not. If user is logged in this property will be true,
+     *           if user is not logged in this property will be false. Defaults to false for security.
+     */
+    private $loggedIn = false;
+
+    /**
      * user constructor. Instantiate's a new user object.
      * @param string $userName The user name to assign to this user.
      * @param string $password The password to assign to this user.
@@ -232,5 +238,42 @@ class user extends accessController
                 break;
         }
         return isset($this->publicMetaData[$index]);
+    }
+
+    /**
+     * Determines if user is logged in or not.
+     * @return bool True if user is logged in, false otherwise.
+     */
+    public function isLoggedIn()
+    {
+        return $this->loggedIn;
+    }
+
+    /**
+     * Login this user.
+     * @param string $password This user's password. Required for security, if $password does
+     *                         not match this user's password the user will not be logged in
+     *                         and this method will return false.
+     * @return bool True if user was logged in, false otherwise.
+     */
+    public function login(string $password)
+    {
+        /* Validate password. */
+        if ($this->validatePassword($password)) {
+            $this->loggedIn = true;
+            return $this->isLoggedIn() === true;
+        }
+        /* Invalid password, return false. */
+        return false;
+    }
+
+    /**
+     * Logout this user.
+     * @return bool True if user was logged out, false otherwise.
+     */
+    public function logout()
+    {
+        $this->loggedIn = false;
+        return $this->isLoggedIn() === false;
     }
 }
