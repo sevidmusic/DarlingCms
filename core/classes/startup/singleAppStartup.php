@@ -138,10 +138,9 @@ class singleAppStartup extends \DarlingCms\abstractions\startup\Astartup
                 /* Instantiate a new crud object to use for interaction with stored data. */
                 $crud = new \DarlingCms\classes\crud\registeredJsonCrud();
                 /* Read the current user's user object from storage. | Current user determined by value of the 'currentUser' session variable. */
-                $user = $crud->read($session->read('currentUser'));
-                /* @todo : Check if a is a user logged in, i.e., $user->isLoggedIn() === true | will prevent a corrupted session from just setting the current user to a valid user's username which would give unauthorized access to the corrupted session. */
-                /* Check that the current user was found and that user has access by validating against the app's access controller. */
-                switch (($user !== false) && ($this->app->getAccessController()->validateAccess($user))) {
+                $user = $crud->read($session->read('currentUser'), 'DarlingCms\classes\accessControl\user');
+                /* Check that the current user was found, that the user is logged in, and that user has access by validating against the app's access controller. */
+                switch (($user !== false) && $user->isLoggedIn() === true && ($this->app->getAccessController()->validateAccess($user))) {
                     /* User has access, set $accessGranted var to true. */
                     case true:
                         $accessGranted = true;
