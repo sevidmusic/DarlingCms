@@ -95,7 +95,7 @@ abstract class AregisteredCrud implements \DarlingCms\interfaces\crud\Icrud
         /* Check if a classification was specified. */
         if ($classification !== '') {
             /* Only return data if the classification of the requested data matches the specified classification. */
-            if ($this->registry[$storageId]['classification'] === $classification) {
+            if (isset($this->registry[$storageId]) === true && $this->registry[$storageId]['classification'] === $classification) {
                 /* Return the data. */
                 return $this->unpack($this->query($storageId, 'load'));
             }
