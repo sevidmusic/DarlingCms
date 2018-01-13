@@ -18,6 +18,6 @@ class fieldset extends \DarlingCms\classes\component\form\element\formElement
          * because it's responsibility is grouping form element together, and it therefore needs to be qualified
          * to be added to a form component.
          */
-        \DarlingCms\classes\component\html\html::__construct('fieldset', implode(PHP_EOL, $formElements), $attributes);
+        \DarlingCms\classes\component\html\html::__construct('fieldset', implode('', $formElements), $attributes);
     }
 }

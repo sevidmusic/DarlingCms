@@ -22,7 +22,7 @@ class select extends formElement
                 array_push($options, '<option>' . $option . '</option>');
             }
         }
-        parent::__construct('select', $additionalAttributes, implode(PHP_EOL, $options));
+        parent::__construct('select', $additionalAttributes, implode('', $options));
     }
 
 }

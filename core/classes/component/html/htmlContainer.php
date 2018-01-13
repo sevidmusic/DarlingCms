@@ -56,7 +56,7 @@ class htmlContainer extends html
     public function appendHtml(\DarlingCms\classes\component\html\html ...$htmlComponent)
     {
         foreach ($htmlComponent as $component) {
-            $this->content .= PHP_EOL . $component->getHtml() . PHP_EOL;
+            $this->content .= $component->getHtml();
         }
         return $this->generateHtml();
     }
@@ -71,7 +71,7 @@ class htmlContainer extends html
     {
         array_reverse($htmlComponent);
         foreach ($htmlComponent as $component) {
-            $this->content = PHP_EOL . $component->getHtml() . PHP_EOL . $this->content . PHP_EOL;
+            $this->content = $component->getHtml() . $this->content;
         }
         return $this->generateHtml();
     }

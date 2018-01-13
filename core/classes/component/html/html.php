@@ -165,7 +165,7 @@ class html extends \DarlingCms\abstractions\component\Acomponent
         $this->setComponentName($tagType);
         if (in_array($tagType, $this->ocTagTypes, true) || in_array($tagType, $this->ucTagTypes, true)) {
             $this->tagType = $tagType;
-            $this->content = PHP_EOL . trim($content) . PHP_EOL;
+            $this->content = trim($content);
             $this->generateHtml();
         }
         parent::__construct();
@@ -213,10 +213,10 @@ class html extends \DarlingCms\abstractions\component\Acomponent
         $attributes = $this->getComponentAttributes();
         switch (empty($attributes)) {
             case true:
-                $this->html = PHP_EOL . str_replace(' >', '>', "<$this->tagType>") . PHP_EOL;
+                $this->html = str_replace(' >', '>', "<$this->tagType>");
                 break;
             case false:
-                $this->html = PHP_EOL . str_replace(' >', '>', "<$this->tagType " . implode(' ', $this->getComponentAttributes()) . ">") . PHP_EOL;
+                $this->html = str_replace(' >', '>', "<$this->tagType " . implode(' ', $this->getComponentAttributes()) . ">");
                 break;
         }
         return isset($this->html);
@@ -231,10 +231,10 @@ class html extends \DarlingCms\abstractions\component\Acomponent
         $attributes = $this->getComponentAttributes();
         switch (empty($attributes)) {
             case true:
-                $this->html = PHP_EOL . str_replace(' >', '>', "<$this->tagType>$this->content</$this->tagType>") . PHP_EOL;
+                $this->html = str_replace(' >', '>', "<$this->tagType>$this->content</$this->tagType>");
                 break;
             case false:
-                $this->html = PHP_EOL . str_replace(' >', '>', "<$this->tagType " . implode(' ', $this->getComponentAttributes()) . ">$this->content</$this->tagType>") . PHP_EOL;
+                $this->html = str_replace(' >', '>', "<$this->tagType " . implode(' ', $this->getComponentAttributes()) . ">$this->content</$this->tagType>");
                 break;
         }
         return isset($this->html);
