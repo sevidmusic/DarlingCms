@@ -33,7 +33,7 @@ class dcmsInitializer extends \DarlingCms\abstractions\initializer\Ainitializer
         /* Assign the provided registered crud implementation to the $crud property. */
         $this->crud = $crud;
         /* Also, set the provided registered crud implementation as one of the initialized items under the index "crud". */
-        $this->setInitialized($this->crud, 'crud');
+        $this->setInitialized($this->crud, 'crud'); // @todo: This may not be necessary, at the moment this is done so crud is available as one of the initialized items...
     }
 
     /**
@@ -99,8 +99,38 @@ class dcmsInitializer extends \DarlingCms\abstractions\initializer\Ainitializer
     {
         /* Initialize appStartupObjects. */
         $this->initAppStartupObjects();
+        /* Initialize multiAppStartup object. */
+        $this->initMultiAppStartupObject();
         /* Return true if there was any data initialized other then the crud, false otherwise. */
         return (count($this->initialized) > 1);
+    }
+
+    /**
+     * Initialize the multiAppStartup object.
+     * @return bool True if multiAppStartup object was initialized, false otherwise.
+     */
+    private function initMultiAppStartupObject()
+    {
+        /* If the array of initialized appStartupObjects was initialized, proceed. */
+        if (isset($this->initialized['array']['appStartupObjects']) === true) {
+            /* Get array of initialized appStartupObjects. */
+            $appStartupObjects = $this->initialized['array']['appStartupObjects'];
+            /* If the array of initialized appStartupObjects is not empty, proceed. */
+            if (empty($appStartupObjects) === false) {
+                /* Instantiate ReflectionClass object for the multiAppStartup instance. */
+                $reflector = new \ReflectionClass('DarlingCms\classes\startup\multiAppStartup');
+                /* Call the ReflectionClass's newInstanceArgs() method in order to pass the initialized
+                 * singleAppStartup objects to the multiAppStartup class's constructor. This will create
+                 * a new instance of a multiAppStartup object. This logic removes the need to loop through
+                 * the array of singleAppStartupObjects.
+                 */
+                $multiAppStartupObject = $reflector->newInstanceArgs($appStartupObjects);
+                /* Add multiAppStartup object to the $initialized property's array. */
+                $this->setInitialized($multiAppStartupObject, 'multiAppStartup');
+            }
+        }
+        /* Return true if multiAppStartup object was initialized, false otherwise. */
+        return isset($this->initialized['DarlingCms\classes\startup\multiAppStartup']['multiAppStartup']);
     }
 
     /**
@@ -198,6 +228,7 @@ class dcmsInitializer extends \DarlingCms\abstractions\initializer\Ainitializer
 
     /**
      * Remove dot file refs from array being processed by array_filter().
+     * NOTE: This method is called by array_filter() in the determineInstalledApps() method.
      * @param $value string The file name.
      * @return mixed The file name or false if the file name matched a dot file.
      */
