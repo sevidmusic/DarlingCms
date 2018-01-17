@@ -43,8 +43,8 @@ class htmlHead extends htmlContainer
     {
         /* Determine and set the theme directory. */
         $this->themeDir = str_replace('core/classes/component/html', '', __DIR__) . self::THEME_DIR_NAME . '/';
-        /* Determine and set the url to the theme directory. */
-        $this->themeDirUrl = $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] . self::THEME_DIR_NAME . '/';
+        /* Determine and set the url to the theme directory | Exclude index.php and anything that follows from resulting string. */
+        $this->themeDirUrl = $_SERVER['HTTP_HOST'] . explode('index.php', $_SERVER['REQUEST_URI'])[0] . self::THEME_DIR_NAME . '/';
         /* Configure this html container. Set tag type to 'head' since this object generates an html header.
            Set attributes array to an empty array since the <head> tag should not have any attributes. */
         parent::__construct('head', array());
