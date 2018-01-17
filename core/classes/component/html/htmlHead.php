@@ -58,7 +58,7 @@ class htmlHead extends htmlContainer
      * @param string $stylesheet (optional) If specified, only this stylesheet will be enabled.
      * @return bool True if specified theme's stylesheets, or specified stylesheet, was enabled, false otherwise.
      */
-    public function enableTheme(string $themeName, string $stylesheet = '')
+    public function enableTheme(string $themeName, string $stylesheet = ''): bool
     {
         /* Initial number of links in the $themeLinks property's array. Used to determine if any stylesheets were
            successfully added to the $themeLinks property's array. */
@@ -93,6 +93,18 @@ class htmlHead extends htmlContainer
         $postCount = count($this->themeLinks);
         /* Return true if at least one theme link was added to the $themeLinks property's array, false otherwise. */
         return $postCount > $initialCount;
+    }
+
+    /**
+     * Appends any html objects in the $themeLinks property's array to the html head, and returns the generated html.
+     * @return string The generated html.
+     */
+    public function getHtml(): string
+    {
+        foreach ($this->themeLinks as $themeLink) {
+            $this->appendHtml($themeLink);
+        }
+        return parent::getHtml();
     }
 
     /**
@@ -156,9 +168,9 @@ class htmlHead extends htmlContainer
      *                                       i.e., '/Relative/Path/SomeStylesheet.css'
      * @return html The html object responsible for generating the link tag for the stylesheet.
      */
-    private function createThemeLink(string $themeName, string $stylesheetRelativePath)
+    private function createThemeLink(string $themeName, string $stylesheetRelativePath): html
     {
-        return new html('link', '', array('href="' . $this->themeDirUrl . $themeName . $stylesheetRelativePath . '"', 'rel="stylesheet"'));
+        return new html('link', '', array('href="http://' . $this->themeDirUrl . $themeName . $stylesheetRelativePath . '"', 'rel="stylesheet"'));
     }
 
     /**
