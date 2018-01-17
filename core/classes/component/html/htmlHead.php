@@ -23,6 +23,10 @@ class htmlHead extends htmlContainer
      */
     const THEME_DIR_NAME = 'themes';
     /**
+     * @var string The name of the $_GET variable used to determine the page title.
+     */
+    const TITLE_VAR_NAME = 'page';
+    /**
      * @var string Path to Darling Cms theme directory.
      */
     private $themeDir;
@@ -35,12 +39,18 @@ class htmlHead extends htmlContainer
      *            stylesheet that is to be loaded into the page.
      */
     private $themeLinks = array();
+    /**
+     * @var \DarlingCms\classes\crud\registeredJsonCrud Instance of a registeredJsonCrud that is used to update the
+     *                                                  stored version of this object.
+     */
+    private $crud;
 
     /**
      * htmlHead constructor.
      */
-    public function __construct()
+    public function __construct(\DarlingCms\classes\crud\registeredJsonCrud $crud)
     {
+        $this->crud = $crud;
         /* Determine and set the theme directory. */
         $this->themeDir = str_replace('core/classes/component/html', '', __DIR__) . self::THEME_DIR_NAME . '/';
         /* Determine and set the url to the theme directory | Exclude index.php and anything that follows from resulting string. */
@@ -48,12 +58,39 @@ class htmlHead extends htmlContainer
         /* Configure this html container. Set tag type to 'head' since this object generates an html header.
            Set attributes array to an empty array since the <head> tag should not have any attributes. */
         parent::__construct('head', array());
+        /* Check if a stored htmlHead object exists, if so, add any theme links it specifies, if not create it. */
+        switch ($this->crud->read('htmlHead', 'DarlingCms\classes\component\html\htmlHead')) {
+            /* Stored version does not exist, create it. */
+            case false:
+                $this->crud->create('htmlHead', $this);
+                break;
+            /* Stored version exists, add the stored versions theme links to the $themeLinks property's array. */
+            default:
+                foreach ($this->crud->read('htmlHead', 'DarlingCms\classes\component\html\htmlHead')->getThemeLinks() as $index => $themeLink) {
+                    $this->themeLinks[$index] = $themeLink;
+                }
+                break;
+        }
+    }
+
+    /**
+     * Delete the stored version in order to reset the htmlHead object's properties.
+     * WARNING: THIS WILL CAUSE ALL PROPERTIES TO BE RESET, WHICH MEANS ANY THEMES OR STYLESHEETS
+     * THAT WERE ENABLED WILL NO LONGER BE ENABLED!
+     * @return bool Deletes the stored version of this object in order to force the constructor to create a fresh instance.
+     */
+    public function resetHtmlHead()
+    {
+        return $this->crud->delete('htmlHead');
     }
 
     /**
      * Enable a Darling Cms theme. This method will add <link> tags for the specified theme's stylesheets
      * to the html <head> so they can be imported. If the optional $stylesheet parameter is specified,
      * only the specified stylesheet will be added.
+     * WARNING: CALLING THIS METHOD EVEN ONCE WILL ENABLE THE SPECIFIED THEME OR STYLESHEET UNTIL IT THEY
+     * ARE EXPLICITLY DISABLED BY THE disableTheme() METHOD, OR UNTIL A CALL TO THE resetHtmlHead() METHOD
+     * IS MADE.
      * @param string $themeName Name of the theme to enable. i.e., theme to import stylesheets from.
      * @param string $stylesheet (optional) If specified, only this stylesheet will be enabled.
      * @return bool True if specified theme's stylesheets, or specified stylesheet, was enabled, false otherwise.
@@ -91,6 +128,8 @@ class htmlHead extends htmlContainer
         /* Post number of links in the $themeLinks property's array. Used to determine if any stylesheets were
            successfully added to the $themeLinks property's array. */
         $postCount = count($this->themeLinks);
+        /* Update the stored version of this object. */
+        $this->crud->update('htmlHead', $this);
         /* Return true if at least one theme link was added to the $themeLinks property's array, false otherwise. */
         return $postCount > $initialCount;
     }
@@ -101,6 +140,15 @@ class htmlHead extends htmlContainer
      */
     public function getHtml(): string
     {
+        /* Determine the title of the page base on the $_GET variable indexed under TITLE_VAR_NAME, if not set use "Homepage" as the title. */
+        $title = (filter_input(INPUT_GET, self::TITLE_VAR_NAME) === null ? 'Homepage' : filter_input(INPUT_GET, self::TITLE_VAR_NAME));
+        /* Title will most likely be a camelCase string, break it into words via preg_match_all(). */
+        preg_match_all('/((?:^|[A-Z])[a-z]+)/', $title, $matches);
+        /* Create filtered title from preg_match_all() results making the first char of each word uppercase. */
+        $filteredTitle = ucwords(implode(' ', $matches[0]));
+        /* Add title to html head. */
+        $this->appendHtml(new html('title', $filteredTitle));
+        /* Add theme links to html head. */
         foreach ($this->themeLinks as $themeLink) {
             $this->appendHtml($themeLink);
         }
@@ -189,13 +237,47 @@ class htmlHead extends htmlContainer
         return (isset($stylesheets[$themeName . '_' . $stylesheet]) === true ? $stylesheets[$themeName . '_' . $stylesheet] : false);
     }
 
+
     /**
-     * Dev function, remove once out of dev.
+     * Returns the $themeLinks property's array, which contains any html objects responsible for generating the link
+     * tags associated with any stylesheets that are enabled.
+     * @return array Array of theme links associated with this htmlHead object.
      */
-    public function getThemeLinks()
+    public function getThemeLinks(): array
     {
-        var_dump($this->themeLinks);
+        return $this->themeLinks;
     }
+
+    public function disableTheme(string $themeName, string $stylesheet = ''): bool
+    {
+        $status = array();
+        /* Determine if a stylesheet was specified. */
+        switch ($stylesheet !== '') {
+            /* Stylesheet was specified, only disable specified stylesheet. */
+            case true:
+                unset($this->themeLinks[$themeName . '_' . $stylesheet]);
+                $status[] = !isset($this->themeLinks[$themeName . '_' . $stylesheet]);
+                break;
+            default:
+                foreach (array_keys($this->getThemeLinks()) as $themeLink) {
+                    /* Determine if theme link is associated with specified theme.
+                     * (if it is explode()'s first item will be an empty string.)
+                     */
+                    if (explode($themeName, $themeLink)[0] === '') {
+                        /* Theme link is associated with theme specified to be disabled, unset the link.  */
+                        unset($this->themeLinks[$themeLink]);
+                        /* Log status in $status array. */
+                        $status[] = !isset($this->themeLinks[$themeLink]);
+                    }
+                }
+                break;
+        }
+        /* Update stored htmlHead object. */
+        $this->crud->update('htmlHead', $this);
+        return !in_array(false, $status, true);
+    }
+
+
     /**  @todo: Implement the following methods...
      * public function addMetaData()
      * {
@@ -203,10 +285,6 @@ class htmlHead extends htmlContainer
      * }
      *
      * public function removeMetaData()
-     * {
-     *
-     * }
-     * public function disableTheme()
      * {
      *
      * }
