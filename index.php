@@ -1,25 +1,38 @@
 <?php
 /**
- * Copyright (c) 2017. Sevi Donnelly Foreman
+ * WARNING: DO NOT OUTPUT ANYTHING TO PAGE UNTIL THE multiAppStartup OBJECT'S startup() METHOD HAS BEEN CALLED.
+ * DOING SO MAY CAUSE PHP TO COMPLAIN THAT HEADERS WERE ALREADY SENT IF ANY APPS USE SESSIONS. IT IS OK TO
+ * OUTPUT TO THE PAGE AFTER CALL TO multiAppStartup OBJECT'S startup() METHOD.
  */
 
-/** Require Composer's auto-loader. **/
+/*** Require Composer's auto-loader. ***/
 require(__DIR__ . '/vendor/autoload.php');
 
-/* Initialize the Darling Cms. */
+/*** Initialize the Darling Cms. ***/
 $initializer = new \DarlingCms\classes\initializer\dcmsInitializer(new \DarlingCms\classes\crud\registeredJsonCrud());
 $initializer->initialize();
+/* Get the initialized items. */
 $initialized = $initializer->getInitialized();
-if (isset($initialized['array']) === true) {
-    $appStartupObjects = $initialized['array']['appStartupObjects'];
 
-    if (empty($appStartupObjects) === false) {
-        /* Instantiate ReflectionClass object for the multiAppStartup instance. */
-        $reflector = new ReflectionClass('DarlingCms\classes\startup\multiAppStartup');
-        /* Call the ReflectionClass's newInstanceArgs() method to pass the singleAppStartup objects in the $appStartupObjects
-           array to the multiAppStartup object's constructor. This logic removes the need to loop through the array. */
-        $mas = $reflector->newInstanceArgs($appStartupObjects);
-        /* Startup the apps. */
-        $mas->startup();
-    }
-}
+/*** Instantiate the htmlHead object used to generate the pages html header. ***/
+/**
+ * NOTE: It is best to instantiate the htmlHead object before app startup to insure changes made to htmlhead
+ * object by apps take precedence over index.php. If instantiated after startup then changes to htmlHead made
+ * by index.php will take precedence over changes made by apps. Furthermore, changes made by index.php in
+ * general should happen before startup or they will take precedence over apps.
+ * e.g. calling resetHtmlHead() before startup will allow changes made by apps to apply, if called after
+ * startup then any changes made by apps will not apply.
+ */
+$htmlHead = new \DarlingCms\classes\component\html\htmlHead($initialized['DarlingCms\classes\crud\registeredJsonCrud']['crud']);
+/* Get the multiAppStartup object. */
+$multiAppStartupObject = $initialized['DarlingCms\classes\startup\multiAppStartup']['multiAppStartup'];
+/* Use the multiAppStartup object to startup the apps | * SEE WARNING ABOVE ABOUT OUTPUTTING FROM index.php. */
+$multiAppStartupObject->startup();
+
+/*** Display the page. | * SEE WARNING ABOVE ABOUT OUTPUTTING FROM index.php. ***/
+/* Output opening html | doctype, opening html tag, etc. */
+echo '<!DOCTYPE html>' . PHP_EOL . '<html>' . $htmlHead . '<body>' . PHP_EOL;
+/* Display app output from any apps that were started up. */
+echo $multiAppStartupObject->getAppOutput();
+/* Output closing html | closing body tag, closing html tag, etc.*/
+echo PHP_EOL . '</body>' . PHP_EOL . '</html>';
