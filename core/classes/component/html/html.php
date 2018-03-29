@@ -15,6 +15,7 @@ namespace DarlingCms\classes\component\html;
  * it generates is valid, standards compliant, html 5.
  *
  * @package DarlingCms\classes\component
+ * @todo: Review tag type arrays to make sure all tags listed are approprite. span for instance was listed as a uc type, it is in fact an oc type...
  */
 class html extends \DarlingCms\abstractions\component\Acomponent
 {
@@ -103,6 +104,7 @@ class html extends \DarlingCms\abstractions\component\Acomponent
         'rt',
         'ruby',
         's',
+        'span',
         'samp',
         'script',
         'section',
@@ -147,7 +149,6 @@ class html extends \DarlingCms\abstractions\component\Acomponent
         'meta',
         'param',
         'source',
-        'span',
         'strong',
         'style',
         'sub',
