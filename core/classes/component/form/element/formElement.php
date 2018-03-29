@@ -18,6 +18,7 @@ class formElement extends \DarlingCms\classes\component\html\html
         'select',
         'textarea',
         'input',
+        'label'
     );
 
     public function __construct($elementType, array $elementAttributes = array(), $elementContent = '')
