@@ -25,7 +25,7 @@ if (isset($initialized['DarlingCms\classes\startup\multiAppStartup']['multiAppSt
      * e.g. calling resetHtmlHead() before startup will allow changes made by apps to apply, if called after
      * startup then any changes made by apps will not apply.
      */
-    $htmlHead = new \DarlingCms\classes\component\html\htmlHead($initialized['DarlingCms\classes\crud\registeredJsonCrud']['crud']);
+    $htmlHead = new \DarlingCms\classes\component\html\htmlHead($initializer->getCrud());
     $htmlHead->prependHtml(new \DarlingCms\classes\component\html\html('meta', '', array('name' => 'viewport', 'content' => 'width=device-width, initial-scale=1.0')));
     /* Get the multiAppStartup object. */
     $multiAppStartupObject = $initialized['DarlingCms\classes\startup\multiAppStartup']['multiAppStartup'];

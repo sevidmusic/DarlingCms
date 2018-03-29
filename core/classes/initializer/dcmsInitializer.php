@@ -8,14 +8,17 @@
 
 namespace DarlingCms\classes\initializer;
 
+use DarlingCms\abstractions\crud\AregisteredCrud;
+use DarlingCms\abstractions\initializer\Ainitializer;
+
 /**
  * Class dcmsInitializer. Responsible for initializing any data needed by the Darling Cms. Initialized data
  * is stored in an array which can be retrieved by calling the getInitialized() method defined by the parent
  * Ainitializer abstract class.
- *
  * @package DarlingCms\classes\initializer
+ * @see Ainitializer::getInitialized()
  */
-class dcmsInitializer extends \DarlingCms\abstractions\initializer\Ainitializer
+class dcmsInitializer extends Ainitializer
 {
     /**
      * @var \DarlingCms\abstractions\crud\AregisteredCrud Registered Crud object used by the dcmsInitializer.
@@ -28,12 +31,21 @@ class dcmsInitializer extends \DarlingCms\abstractions\initializer\Ainitializer
      *
      * @param \DarlingCms\abstractions\crud\AregisteredCrud $crud Instance of an object that implements the \DarlingCms\abstractions\crud\AregisteredCrud abstract class.
      */
-    public function __construct(\DarlingCms\abstractions\crud\AregisteredCrud $crud)
+    public function __construct(AregisteredCrud $crud)
     {
         /* Assign the provided registered crud implementation to the $crud property. */
         $this->crud = $crud;
-        /* Also, set the provided registered crud implementation as one of the initialized items under the index "crud". */
-        $this->setInitialized($this->crud, 'crud'); // @todo: This may not be necessary, at the moment this is done so crud is available as one of the initialized items...
+    }
+
+    /**
+     * Returns the AregisteredCrud implementation assigned to the initializer.
+     * @return \DarlingCms\abstractions\crud\AregisteredCrud The AregisteredCrud implementation assigned
+     *                                                       to the initializer.
+     * @see AregisteredCrud
+     */
+    public function getCrud()
+    {
+        return $this->crud;
     }
 
     /**
