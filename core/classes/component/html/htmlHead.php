@@ -8,6 +8,8 @@
 
 namespace DarlingCms\classes\component\html;
 
+use DarlingCms\abstractions\crud\AregisteredCrud;
+
 /**
  * Class htmlHead. Generates the html header, and provides methods to enable or disable
  * themes, scripts, and meta tags that are incorporated into the generated html header.
@@ -40,15 +42,16 @@ class htmlHead extends htmlContainer
      */
     private $themeLinks = array();
     /**
-     * @var \DarlingCms\classes\crud\registeredJsonCrud Instance of a registeredJsonCrud that is used to update the
-     *                                                  stored version of this object.
+     * @var AregisteredCrud The implementation of an AregisteredCrud object used by this htmlHead object for storage.
      */
     private $crud;
 
     /**
      * htmlHead constructor.
+     * @param AregisteredCrud $crud The implementation of an AregisteredCrud object used by this htmlHead object
+     *                              for storage.
      */
-    public function __construct(\DarlingCms\classes\crud\registeredJsonCrud $crud)
+    public function __construct(AregisteredCrud $crud)
     {
         $this->crud = $crud;
         /* Determine and set the theme directory. */
