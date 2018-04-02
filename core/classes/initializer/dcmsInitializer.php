@@ -215,12 +215,20 @@ class dcmsInitializer extends Ainitializer
                 /* Initialize an array to track the success or failure of each app's configuration. */
                 $status = array();
                 foreach ($installedApps as $appName) {
-                    /* Create an app component for the app. */
-                    $app = new \DarlingCms\classes\component\app($appName);
-                    /* Enable the app. Track success or failure via the $status array. */
-                    $status[] = $app->enableApp();
-                    /* Register the new app component with the crud. Track success or failure via the $status array. */
-                    $status[] = $this->crud->create($appName, $app);
+                    $appInstaller = str_replace('core/classes/initializer', '', __DIR__) . 'apps/' . $appName . '/installer.php';
+                    switch (file_exists($appInstaller)) {
+                        case true:
+                            $status[] = boolval(require $appInstaller);
+                            break;
+                        default:
+                            /* Create an app component for the app. */
+                            $app = new \DarlingCms\classes\component\app($appName);
+                            /* Enable the app. Track success or failure via the $status array. */
+                            $status[] = $app->enableApp();
+                            /* Register the new app component with the crud. Track success or failure via the $status array. */
+                            $status[] = $this->crud->create($appName, $app);
+                            break;
+                    }
                 }
                 if ((in_array(false, $status, true) === false)) {
                     /* Show simple welcome message. */
