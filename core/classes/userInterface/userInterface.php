@@ -30,19 +30,27 @@ class userInterface implements IuserInterface
     private $closingHtml = array();
 
     /**
+     * @var string The type of html tag to assign to this user interface's htmlContainer.
+     */
+    public $containerType = 'div';
+
+    /**
      * userInterface constructor. Set the user interface's html container's id attribute. Assigns each
      * of the specified css class names to the user interface's html container's class attribute.
-     * @param string $userInterfaceHtmlId The html id to assign to the user interface's html container.
-     * @param array $userInterfaceCssClasses Array of css class names to assign to the user interface's html container.
+     * @param string $userInterfaceHtmlId (optional) The html id to assign to the user interface's html container.
+     * @param array $userInterfaceCssClasses (optional) Array of css class names to assign to the user interface's
+     *                                                  html container.
      * @see userInterface::setUserInterfaceAttribute()
      */
-    public function __construct(string $userInterfaceHtmlId, array $userInterfaceCssClasses = array())
+    public function __construct(string $userInterfaceHtmlId = '', array $userInterfaceCssClasses = array())
     {
-        /* Set the user interfaces html container's id attribute. */
-        $this->setUserInterfaceAttribute('id', $userInterfaceHtmlId);
-        if (!empty($userInterfaceCssClasses)) {
-            /* Assign each of the specified css class names to the user interface's html container's class attribute. */
-            $this->setUserInterfaceAttribute('class', implode(' ', $userInterfaceCssClasses));
+        if ($userInterfaceHtmlId !== '') {
+            /* Set the user interfaces html container's id attribute. */
+            $this->setUserInterfaceAttribute('id', $userInterfaceHtmlId);
+            if (!empty($userInterfaceCssClasses)) {
+                /* Assign each of the specified css class names to the user interface's html container's class attribute. */
+                $this->setUserInterfaceAttribute('class', implode(' ', $userInterfaceCssClasses));
+            }
         }
     }
 
@@ -60,7 +68,7 @@ class userInterface implements IuserInterface
     public function getUserInterface(html ...$html): htmlContainer
     {
         /* Instantiate an htmlContainer for this user interface. */
-        $userInterface = new htmlContainer('div', $this->userInterfaceAttributes);
+        $userInterface = new htmlContainer($this->containerType, $this->userInterfaceAttributes);
         /* Append any html objects assigned to the $openingHtml property's array. */
         if (!empty($this->openingHtml)) {
             foreach ($this->openingHtml as $openingHtml) {
