@@ -232,7 +232,7 @@ class html extends \DarlingCms\abstractions\component\Acomponent
         $attributes = $this->getComponentAttributes();
         switch (empty($attributes)) {
             case true:
-                $this->html = str_replace(' >', '>', "<$this->tagType>$this->content</$this->tagType>");
+                $this->html = str_replace(' >', '>', ($this->tagType === '!--' ? "<$this->tagType" . PHP_EOL . " $this->content " . PHP_EOL . "$this->tagType>" : "<$this->tagType>$this->content</$this->tagType>"));
                 break;
             case false:
                 $this->html = str_replace(' >', '>', "<$this->tagType " . implode(' ', $this->getComponentAttributes()) . ">$this->content</$this->tagType>");
@@ -265,6 +265,9 @@ class html extends \DarlingCms\abstractions\component\Acomponent
             }
         }
         $tagId = ($tagId === 'NO ID' ? '<' . $this->tagType . '>' : $tagId);
+        if ($this->tagType === '!--') {
+            return PHP_EOL . $this->html . PHP_EOL;
+        }
         return PHP_EOL . '<!-- Begin ' . $tagId . ' -->' . PHP_EOL . $this->html . PHP_EOL . '<!-- End ' . $tagId . ' -->' . PHP_EOL;
     }
 
