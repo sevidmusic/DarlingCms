@@ -10,6 +10,7 @@ namespace DarlingCms\classes\initializer;
 
 use DarlingCms\abstractions\crud\AregisteredCrud;
 use DarlingCms\abstractions\initializer\Ainitializer;
+use DarlingCms\classes\component\html\html;
 
 /**
  * Class dcmsInitializer. Responsible for initializing any data needed by the Darling Cms. Initialized data
@@ -197,18 +198,28 @@ class dcmsInitializer extends Ainitializer
      */
     private function handleFreshInstall()
     {
+        /* Instantiate the htmlHead object used to generate the pages html header.*/
+        $htmlHead = new \DarlingCms\classes\component\html\htmlHead($this->getCrud());
+        /* Create a meta tag to set the viewport and prepend it to the htmlHead's html container. */
+        $htmlHead->prependHtml(new \DarlingCms\classes\component\html\html('meta', '', array('name="viewport"', 'content="width=device-width, initial-scale=1.0"')));
+        /* Create the user interface. */
+        $userInterface = new \DarlingCms\classes\userInterface\userInterface();
+        /* Set the user interface's container type to "html". */
+        $userInterface->containerType = 'html';
+        /* Add the htmlHead's html container to the user interface's opening html. */
+        $userInterface->addOpeningHtml($htmlHead);
+        /* Create the body html tag, and assign the app output as it's content. */
+        $body = new \DarlingCms\classes\component\html\htmlContainer('body', array('class="dcmsFreshInstall"'));
+        /* Create the "Welcome" header. */
+        $welcomeHeader = new html('h1', 'Welcome to your new installation of the Darling Cms.');
         /* Determine if there are any apps installed. */
         $installedApps = $this->determineInstalledApps();
         switch (empty($installedApps)) {
             case true:
                 /* Show user message indicating that no apps came installed with this installation of the Darling Cms. */
-                echo '<h1 style="font-size: 2.3em;">Welcome to the Darling Cms</h1>
-                      <p style="font-size: 2em;">There weren\'t any apps installed with this installation of the Darling Cms.
-                       Install at least one app in the "apps" directory, and then reload this page.
-                       You can find apps for the Darling Cms online @ <a href="https://github.com/sevidmusic/dcmsApps">
-                       https://github.com/sevidmusic/dcmsApps</a>
-                       Or, if you know what your doing, develop your own apps, install them in the 
-                       apps directory, and reload this page.</p>';
+                $welcomeMessage = new html('p', 'There weren\'t any apps installed with this installation of the Darling Cms. Install at least one app in the "apps" directory, and then reload this page. You can find apps for the Darling Cms online @ <a href="https://github.com/sevidmusic/dcmsApps">https://github.com/sevidmusic/dcmsApps</a>Or, if you know what your doing, develop your own apps, install them in the apps directory, and reload this page.');
+                $body->appendHtml($welcomeHeader, $welcomeMessage);
+                echo '<!DOCTYPE html>' . $userInterface->getUserInterface($body);
                 /* Return false if there were no installed apps to configure. */
                 return false;
             default:
@@ -231,16 +242,14 @@ class dcmsInitializer extends Ainitializer
                     }
                 }
                 if ((in_array(false, $status, true) === false)) {
-                    /* Show simple welcome message. */
-                    echo '<h1 style="font-size: 2.3em;">Welcome to your new installation of the Darling Cms.</h1>
-                      <p style="font-size: 2em;">The following apps have been enabled for your new installation of the Darling Cms:<br><br>
-                      ' . implode('<br>', $installedApps) . '
-                      </p><p style="font-size: 2em;">Reload the page to start using your new installation</p>';/* Check $status array and return true if all installed apps were configured successfully, false otherwise. */;
-                    /* Return true if all installed apps were successfully configured. */
+                    $welcomeMessage = new html('p', 'The following apps have been enabled for your new installation of the Darling Cms:<br><br>' . implode('<br>', $installedApps) . '<br><br>Reload the page to start using your new installation');
+                    $body->appendHtml($welcomeHeader, $welcomeMessage);
+                    echo '<!DOCTYPE html>' . $userInterface->getUserInterface($body);
                     return true;
                 }
-                echo '<h1 style="font-size: 2.3em;">Welcome to your new installation of the Darling Cms.</h1>
-                      <p style="font-size: 2em;">Not all of the installed apps could be enabled for you, you can still proceed to your new installation by reloading this page.</p>';
+                $welcomeMessage = new html('p', 'Not all of the installed apps could be enabled for you, you can still proceed to your new installation by reloading this page.');
+                $body->appendHtml($welcomeHeader, $welcomeMessage);
+                echo '<!DOCTYPE html>' . $userInterface->getUserInterface($body);
                 /* Return false if any installed apps were not successfully configured. Note: Some apps my still have been successfully configured. */
                 return false;
         }

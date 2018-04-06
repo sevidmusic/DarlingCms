@@ -25,7 +25,7 @@ if (isset($initialized['DarlingCms\classes\startup\multiAppStartup']['multiAppSt
      */
     $htmlHead = new \DarlingCms\classes\component\html\htmlHead($initializer->getCrud());
     /* Create a meta tag to set the viewport and prepend it to the htmlHead's html container. */
-    $htmlHead->prependHtml(new \DarlingCms\classes\component\html\html('meta', '', array('name' => 'viewport', 'content' => 'width=device-width, initial-scale=1.0')));
+    $htmlHead->prependHtml(new \DarlingCms\classes\component\html\html('meta', '', array('name="viewport"', 'content="width=device-width, initial-scale=1.0"')));
     /* Create the user interface. */
     $userInterface = new \DarlingCms\classes\userInterface\userInterface();
     /* Set the user interface's container type to "html". */
