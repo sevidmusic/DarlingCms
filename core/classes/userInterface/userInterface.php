@@ -14,6 +14,11 @@ use DarlingCms\interfaces\userInterface\IuserInterface;
  */
 class userInterface implements IuserInterface
 {
+    /* Position Constants */
+    const OPENING = 1;
+    const MIDDLE = 2;
+    const CLOSING = 4;
+
     /**
      * @var array Array of html attributes to assign to this user interface's html container.
      */
@@ -23,6 +28,12 @@ class userInterface implements IuserInterface
      * @var array Array of html objects that will be appended to the beginning of the user interface's htmlContainer.
      */
     private $openingHtml = array();
+
+    /**
+     * @var array Array of html objects that will be added to the user interface's htmlContainer between
+     *            the html objects assigned to the $openingHtml and $closingHtml property arrays.
+     */
+    private $html = array();
 
     /**
      * @var array Array of html objects that will be appended to the end of the user interface's htmlContainer.
@@ -74,6 +85,10 @@ class userInterface implements IuserInterface
             foreach ($this->openingHtml as $openingHtml) {
                 $userInterface->appendHtml($openingHtml);
             }
+        }
+        /* Append any html objects assigned to the $html properties array. */
+        foreach ($this->html as $htmls) {
+            $userInterface->appendHtml($htmls);
         }
         /* Append any html objects passed directly to this method. */
         foreach ($html as $content) {
@@ -152,6 +167,59 @@ class userInterface implements IuserInterface
         }
         /* Return true if the html objects were added, false otherwise. */
         return count($this->closingHtml) > $initialCount;
+    }
+
+    /**
+     * Add content to specified pages.
+     * @param array $pages Array of page names to add the content to.
+     * @param html $content The html object instance responsible for the content's html.
+     * @param string $position (optional) If set, determines if the content will be added to the user interface's
+     *                                    opening html, middle html, or closing html. If not set the content will be added
+     *                                    to user interface between the opening and closing html.
+     *                                    Options:
+     *                                      1 = Add to opening html. (Hint: use class constant userInterface::OPENING)
+     *                                      2 = Add to closing html. (Hint: userInterface::CLOSING)
+     *
+     * @return bool True if content was added, false otherwise. Note: This method will return false
+     *              when the current page is not one of the pages specified by the $pages parameter.
+     */
+    public function addPageContent(array $pages, html $content, $position = 2): bool
+    {
+        if (in_array(filter_input(INPUT_GET, 'page'), $pages, true)) {
+
+            return $this->addContent($content, $position);
+        }
+        return false;
+    }
+
+    public function addContent(html $content, $position = 2): bool
+    {
+        $status = array();
+        if ($position & self::OPENING) {
+            array_push($status, $this->addOpeningHtml($content));
+        }
+        if ($position & self::MIDDLE) {
+            array_push($status, $this->addHtml($content));
+        }
+        if ($position & self::CLOSING) {
+            array_push($status, $this->addClosingHtml($content));
+        }
+        return in_array(false, $status, true);
+    }
+
+    /**
+     * Add html objects to the user interface's html container.
+     * Note: Html objects added with this method will be appended to the user interface's htmlContainer
+     *       between the html objects assigned to the $openingHtml and $closingHtml property arrays.
+     * Note: This method must be called before the getUserInterface() method or it will have no effect.
+     * @param html $html The html object to added to the user interface's html container.
+     * @return bool True if html objects were added, false otherwise.
+     */
+    public function addHtml(html $html)
+    {
+        $initialCount = count($this->html);
+        array_push($this->html, $html);
+        return count($this->html) > $initialCount;
     }
 
     /**
