@@ -93,30 +93,33 @@ class userInterface implements IuserInterface
      */
     public function getUserInterface(html ...$html): htmlContainer
     {
-        /* Instantiate an htmlContainer for this user interface. */
-        $userInterface = new htmlContainer($this->containerType, $this->userInterfaceAttributes);
-        /* Append any html objects assigned to the $openingHtml property's array. */
-        if (!empty($this->openingHtml)) {
-            foreach ($this->openingHtml as $openingHtml) {
-                $userInterface->appendHtml($openingHtml);
+        if (empty(array_merge($this->openingHtml, $this->html, $this->closingHtml)) === false) {
+            /* Instantiate an htmlContainer for this user interface. */
+            $userInterface = new htmlContainer($this->containerType, $this->userInterfaceAttributes);
+            /* Append any html objects assigned to the $openingHtml property's array. */
+            if (!empty($this->openingHtml)) {
+                foreach ($this->openingHtml as $openingHtml) {
+                    $userInterface->appendHtml($openingHtml);
+                }
             }
-        }
-        /* Append any html objects assigned to the $html properties array. */
-        foreach ($this->html as $htmls) {
-            $userInterface->appendHtml($htmls);
-        }
-        /* Append any html objects passed directly to this method. */
-        foreach ($html as $content) {
-            $userInterface->appendHtml($content);
-        }
-        /* Append any html objects assigned to the $closingHtml property's array. */
-        if (!empty($this->closingHtml)) {
-            foreach ($this->closingHtml as $closingHtml) {
-                $userInterface->appendHtml($closingHtml);
+            /* Append any html objects assigned to the $html properties array. */
+            foreach ($this->html as $htmls) {
+                $userInterface->appendHtml($htmls);
             }
+            /* Append any html objects passed directly to this method. */
+            foreach ($html as $content) {
+                $userInterface->appendHtml($content);
+            }
+            /* Append any html objects assigned to the $closingHtml property's array. */
+            if (!empty($this->closingHtml)) {
+                foreach ($this->closingHtml as $closingHtml) {
+                    $userInterface->appendHtml($closingHtml);
+                }
+            }
+            /* Return the user interface's htmlContainer. */
+            return $userInterface;
         }
-        /* Return the user interface's htmlContainer. */
-        return $userInterface;
+        return new htmlContainer('!--', [$this->userInterfaceAttributes[0] . ' Placeholder']);
     }
 
     /**
