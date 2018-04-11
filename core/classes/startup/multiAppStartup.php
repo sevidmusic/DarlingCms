@@ -84,7 +84,10 @@ class multiAppStartup extends \DarlingCms\classes\startup\multiStartup
         /* Add each app's output to the $appOutput property's string. */
         foreach ($this->runningApps as $app) {
             $this->setApp($app);
-            $this->appOutput .= $this->app->getComponentAttributeValue('customAttributes')['appOutput'];
+            /* Check that the app is enabled before adding it's output to the $appOutput property. */
+            if ($this->app->getComponentAttributeValue('enabled') === true) {
+                $this->appOutput .= $this->app->getComponentAttributeValue('customAttributes')['appOutput'];
+            }
         }
         /* Return true if all calls to setStartupObject() returned true, false otherwise. */
         return (in_array(false, $status) === false);
