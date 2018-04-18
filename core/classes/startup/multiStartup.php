@@ -9,51 +9,54 @@
 namespace DarlingCms\classes\startup;
 
 /**
- * Class darlingCmsStartup. General startup object that starts up, restarts, and shuts down objects
- * that implement the \DarlingCms\interfaces\startup\Istartup interface.
+ * Class darlingCmsStartup. General startup object that can be used to start up, restart, and shut down
+ * multiple objects that implement the \DarlingCms\interfaces\startup\Istartup interface.
  *
  * @package DarlingCms\classes\startup
+ * @see \DarlingCms\interfaces\startup\Istartup
+ * @see \DarlingCms\abstractions\startup\Astartup
  */
 class multiStartup extends \DarlingCms\abstractions\startup\Astartup
 {
     /**
      * @var array Array of objects that implement the \DarlingCms\interfaces\startup\Istartup interface.
      */
-    protected $startupObjects;
+    protected $startupObjects = array();
 
     /**
-     * darlingCmsStartup constructor. Adds the startup objects passed the constructor to the startup objects array.
+     * darlingCmsStartup constructor. Adds the specified startup objects to the $startupObjects property's array
+     * via the multiStartup::setStartupObject() method.
+     * Note: The constructor will throw an Exception and log an error if any of the specified $startupObjects could
+     * not be set by the multiStartup::setStartupObject() method.
      * @param \DarlingCms\interfaces\startup\Istartup[] ...$startupObjects Instances of objects that implement the
      *                                                                     \DarlingCms\interfaces\startup\Istartup
      *                                                                     interface.
+     * @see multiStartup::setStartupObject()
+     * @see \Exception
      */
     public function __construct(\DarlingCms\interfaces\startup\Istartup ...$startupObjects)
     {
-        /* Initialize status array. Tracks success or failure of each call to setStartupObject(). */
-        $status = array();
-        /* Add each startup object to the startup objects array. */
+        /* Add each startup object to the $startupObjects property's array. */
         foreach ($startupObjects as $startUpObject) {
-            /* Call setStartupObject() and store result in $status array. */
-            array_push($status, $this->setStartupObject($startUpObject));
+            try {
+                /* If setStartupObject() returns false, throw an error. */
+                if ($this->setStartupObject($startUpObject) === false) {
+                    throw new \Exception('Darling Cms Startup Error:');
+                }
+            } catch (\Exception $e) {
+                /* If any of the calls to setStartupObject() returned false, log an error. */
+                error_log('Failed to add startup object in ' . $e->getFile() . ' on line ' . $e->getLine() . PHP_EOL . $e->getTraceAsString());
+            }
         }
-        /* Return true if all calls to setStartupObject() returned true, false otherwise. */
-        return (in_array(false, $status) === false);
     }
 
     /**
-     * Adds a startup object to the internal $startupObjects array.
-     *
+     * Adds a startup object to the $startupObjects property's array.
      * @param \DarlingCms\interfaces\startup\Istartup $startupObject The startup object to add.
-     *
-     * @return bool True if startup object was added to the startup objects array, false otherwise.
+     * @return bool True if startup object was added to the $startupObjects property's array, false otherwise.
      */
-    public function setStartupObject(\DarlingCms\interfaces\startup\Istartup $startupObject)
+    public function setStartupObject(\DarlingCms\interfaces\startup\Istartup $startupObject): bool
     {
-        /* Make sure startup objects array has been initialized. */
-        if (is_array($this->startupObjects) === false) {
-            /* Initialize startup objects array. */
-            $this->startupObjects = array();
-        }
         /* Count initial number of startup objects. */
         $initialCount = count($this->startupObjects);
         /* Push startup object into the startup objects array. */
@@ -65,11 +68,11 @@ class multiStartup extends \DarlingCms\abstractions\startup\Astartup
     }
 
     /**
-     * Class the shutdown() method of each startup object.
-     *
+     * Calls the shutdown() method of each startup object assigned to the $startupObjects property's array.
      * @return bool True if each startup object shutdown successfully, false otherwise.
+     * @see \DarlingCms\interfaces\startup\Istartup::shutdown()
      */
-    protected function stop()
+    protected function stop(): bool
     {
         /* Initialize status array. Tracks success or failure of each call to shutdown(). */
         $status = array();
@@ -83,11 +86,11 @@ class multiStartup extends \DarlingCms\abstractions\startup\Astartup
     }
 
     /**
-     * Class the startup() method of each startup object.
-     *
+     * Calls the startup() method of each startup object.
      * @return bool True if each startup object started up successfully, false otherwise.
+     * @see \DarlingCms\interfaces\startup\Istartup::startup()
      */
-    protected function run()
+    protected function run(): bool
     {
         /* Initialize status array. Tracks success or failure of each call to startup(). */
         $status = array();
