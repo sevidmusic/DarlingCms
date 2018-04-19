@@ -8,19 +8,22 @@
 
 namespace DarlingCms\classes\startup;
 
-
+/**
+ * Class multiAppStartup. This class can be used to startup multiple Darling Cms apps.
+ * @package DarlingCms\classes\startup
+ */
 class multiAppStartup extends \DarlingCms\classes\startup\multiStartup
 {
     /**
-     * @var array Array of running apps.
+     * @var array Array of running apps, i.e., apps that have been started up.
      */
-    private $runningApps;
+    private $runningApps = array();
     /**
      * @var \DarlingCms\classes\startup\singleAppStartup Local instance of a singleAppStartup object.
      */
     private $singleAppStartup;
     /**
-     * @var \DarlingCms\classes\component\app Local instance of a app component.
+     * @var \DarlingCms\classes\component\app Local instance of an app object.
      */
     private $app;
 
@@ -30,25 +33,21 @@ class multiAppStartup extends \DarlingCms\classes\startup\multiStartup
     private $appOutput = '';
 
     /**
-     * Adds a startup object to the internal $startupObjects array.
-     *
+     * Adds a startup object to the parent's $startupObject property's array.
      * @param \DarlingCms\interfaces\startup\Istartup $startupObject The startup object to add.
-     *
      * Note: This implementation further requires that the startup object implement the
      * \DarlingCms\classes\startup\singleAppStartup implementation of the
      * \DarlingCms\interfaces\startup\Istartup interface, and will return false if the
      * startup object is not in fact a instance of the singleAppStartup() class.
-     *
-     * @return bool True if startup object was added to the startup objects array, false otherwise.
+     * @return bool True if startup object was added to the $startupObjects property's array, false otherwise.
      */
-    public function setStartupObject(\DarlingCms\interfaces\startup\Istartup $startupObject)
+    public function setStartupObject(\DarlingCms\interfaces\startup\Istartup $startupObject): bool
     {
-        /* Initialize the running apps array. */
-        $this->runningApps = array();
         /* Ensure that the startup object is specifically an instance of the singleAppStartup() implementation
            of the Istartup interface. */
         if (get_class($startupObject) === 'DarlingCms\classes\startup\singleAppStartup') {
-            /* If startup object is in fact an instance of the singleAppStartup() class. */
+            /* Call the parent::setStartupObject() method to add the $startupObject to the parent's
+               $startupObject property's array. */
             return parent::setStartupObject($startupObject);
         }
         /* Return false if $startupObject is not an instance of the singleAppStartup() class. */
@@ -56,100 +55,112 @@ class multiAppStartup extends \DarlingCms\classes\startup\multiStartup
     }
 
     /**
-     * Class the shutdown() method of each startup object.
-     *
-     * @return bool True if each startup object shutdown successfully, false otherwise.
-     */
-    protected function stop()
-    {
-        return parent::stop();
-    }
-
-    /**
-     * Calls the startup() method of each startup object.
-     *
+     * Calls the startup() method of each startup object assigned to the $startupObjects property's array.
      * @return bool True if each startup object started up successfully, false otherwise.
      */
-    protected function run()
+    protected function run(): bool
     {
-        /* Initialize status array. Tracks success or failure of each call to startApp(). */
+        /* Initialize an array to track the success or failure of the methods this method calls. */
         $status = array();
         foreach ($this->startupObjects as $startupObject) {
-            $this->setSingleAppStartup($startupObject);
-            $this->setApp($this->singleAppStartup->getApp());
-            /* Start the app. */
-            array_push($status, $this->startApp());
-        }
-
-        /* Add each app's output to the $appOutput property's string. */
-        foreach ($this->runningApps as $app) {
-            $this->setApp($app);
-            /* Check that the app is enabled before adding it's output to the $appOutput property. */
+            /* Assign the $startupObject to the $singleAppStartup property via the setSingleAppStartup() method. */
+            array_push($status, $this->setSingleAppStartup($startupObject));
+            /* Assign the app object assigned to the $startupObject to the $app property via the setApp() method. */
+            array_push($status, $this->setApp($this->singleAppStartup->getApp()));
+            /* If the app is enabled, startup the app via the startApp() method. */
             if ($this->app->getComponentAttributeValue('enabled') === true) {
-                $this->appOutput .= $this->app->getComponentAttributeValue('customAttributes')['appOutput'];
+                array_push($status, $this->startApp());
             }
         }
-        /* Return true if all calls to setStartupObject() returned true, false otherwise. */
+        /* Add each running app's output to the $appOutput property's string. */
+        foreach ($this->runningApps as $app) {
+            /* Assign the app object to the $app property via the setApp() method. */
+            $this->setApp($app);
+            /* Add the app's output to the $appOutput property's string. */
+            $this->appOutput .= $this->app->getComponentAttributeValue('customAttributes')['appOutput'];
+        }
+        /* Return true if all methods called by this method returned true, false otherwise. */
         return (in_array(false, $status) === false);
     }
 
     /**
      * Returns the $appOutput property's string, which is a string constructed by concatenating the
-     * output of all the apps this object starts up.
-     * @return string String of all output generated by the apps this object started up.
+     * output of all the apps this object started up.
+     * @return string Output generated by the apps this object started up.
      */
-    public function getAppOutput()
+    public function getAppOutput(): string
     {
         return $this->appOutput;
     }
 
     /**
-     * Set the single app startup object property.
-     * @param singleAppStartup $singleAppStartup The startup object.
-     * @return bool True if startup object was set, false otherwise.
+     * Set the $singleAppStartup property.
+     * @param singleAppStartup $singleAppStartup The singleAppStartup object to assign to the
+     *                                           $singleAppStartup property.
+     * @return bool True if the specified singleAppStartup object was assigned to $singleAppStartup property,
+     *              false otherwise.
      */
-    private function setSingleAppStartup(\DarlingCms\classes\startup\singleAppStartup $singleAppStartup)
+    private function setSingleAppStartup(\DarlingCms\classes\startup\singleAppStartup $singleAppStartup): bool
     {
+        /* Assign the specified singleAppStartup object to the $singleAppStartup property. */
         $this->singleAppStartup = $singleAppStartup;
+        /* Return true if the specified singleAppStartup object was assigned to the $singleAppStartup property,
+           false otherwise. */
         return isset($this->singleAppStartup);
     }
 
     /**
-     * Set the app property.
-     * @param \DarlingCms\classes\component\app $app The app component.
-     * @return bool True if app was set, false otherwise.
+     * Set the $app property.
+     * @param \DarlingCms\classes\component\app $app The app object to assign to the $app property.
+     * @return bool True if the specified app object was assigned to the $app property, false otherwise.
      */
-    private function setApp(\DarlingCms\classes\component\app $app)
+    private function setApp(\DarlingCms\classes\component\app $app): bool
     {
+        /* Assign the specified app object to the $app property. */
         $this->app = $app;
+        /* Return true if the specified app object was assigned to the $app property, false otherwise. */
         return isset($this->app);
     }
 
     /**
-     * Starts up an app.
-     * @return bool True if app started up successfully, false otherwise.
+     * Starts up the app currently assigned to the $app property.
+     *
+     * Note: If an attempt is made to start up an app that is already running, the app will not be started up
+     * and this method will return false.
+     *
+     * Note: This method will attempt to start up any apps that the app is dependent on before starting up the app.
+     *
+     * Note: This method will return false if all of the app's dependencies are not met, i.e., if any of the apps
+     * the app is dependent do not startup successfully, the app will not be started up, and this method will return
+     * false.
+     * @return bool True if the app, and any apps it is dependent on, started up successfully, false otherwise.
      */
-    private function startApp()
+    private function startApp(): bool
     {
         /* Make sure app is not already running. */
         if (in_array($this->app->getComponentName(), array_keys($this->runningApps, true)) === true) {
             /* Return false if app is already running. */
             return false;
         }
-        /* Make sure dependencies have been met. */
+        /* If all the apps this app depends on started up successfully, startup the app. */
         if ($this->dependenciesMet() === true) {
+            /* Initialize an array to track the success or failure of the methods this method calls from this point. */
             $status = array();
-            /* "Tell" the app about the app components that are already running. */
-            $this->app->setCustomAttribute('runningApps', $this->runningApps);
-            /* Call startup() and store result in $status array. */
+            /* "Tell" the app about the apps that are already running by assigning the $runningApps property's array
+                as one of the app's custom attributes. */
+            array_push($status, $this->app->setCustomAttribute('runningApps', $this->runningApps));
+            /* Startup the app. */
             array_push($status, $this->singleAppStartup->startup());
-            /* Sync internal running apps array with components modified running apps array. */
+            /* Unset the $runningApps property's array to prepare for sync with the app's 'runningApps' array. */
             unset($this->runningApps);
+            /* Sync the the $runningApps property to the app's runningApps array. */
             $this->runningApps = $this->app->getComponentAttributeValue('customAttributes')['runningApps'];
             /* Unset the app's running apps array, no need to keep this data after the app has been processed. */
-            $this->app->setCustomAttribute('runningApps', array());
-            /* Add the app to the internal running apps array. */
+            array_push($status, $this->app->setCustomAttribute('runningApps', array()));
+            /* Add the app to the $runningApps property's array. */
             $this->runningApps[$this->app->getComponentName()] = $this->app;
+            /* Return true if all the methods this method calls returned true, i.e. startup logic was successful,
+               false otherwise. */
             return (in_array(false, $status) === false);
         }
         /* Return false if all dependencies were not met. */
@@ -158,44 +169,78 @@ class multiAppStartup extends \DarlingCms\classes\startup\multiStartup
 
     /**
      * Ensures all dependencies are met. Specifically, ensures any apps an app is dependent on are running.
-     * @return bool True if all dependencies are met, false otherwise.
+     *
+     * Note: If any of the apps the app depends on are disabled, or not installed, this method will return false
+     * and an error will be logged indicating the name of the dependency, and the name of the effected app.
+     *
+     * @return bool True if all dependencies are met, i.e., running, false otherwise.
      */
-    private function dependenciesMet()
+    private function dependenciesMet(): bool
     {
         /* Get the app's dependencies. */
         $dependencies = $this->app->getComponentAttributeValue('dependencies');
-        /* Store so and app being processed for future reference */
+        /* Store the app's singleAppStartup object for future reference */
         $processingSo = $this->singleAppStartup;
+        /* Store the app's app object for future reference. */
         $processingApp = $this->app;
-
+        /* Initialize an array to track the success or failure of each $dependency's startup via the startApp() method. */
+        $status = array();
         /* Cycle through dependencies. */
         foreach ($dependencies as $dependency) {
-            /* If dependency is not already running. */
+            /* If dependency is not already running, attempt to start it up. */
             if (in_array($dependency, array_keys($this->runningApps)) === false) {
+                /* If there is not a startup object for the dependency, i.e., the dependency is not installed,
+                   return false. */
+                if ($this->getSingleAppStartupObject($dependency) === false) {
+                    /* If dependency is not installed, log an error so it's clear why the app being processed did not start. */
+                    error_log('DCMS App Startup error in ' . __FILE__ . ' on line ' . __LINE__ . PHP_EOL . '    1. Unable to start app ' . $processingApp->getComponentName() . ' because it is dependent on app ' . $dependency . ' and the ' . $dependency . ' app has not been installed.');
+                    /* There is not a startup object for the dependency, return false. */
+                    return false;
+                }
                 /* Get dependency's startup object. */
                 $this->setSingleAppStartup($this->getSingleAppStartupObject($dependency));
+                /* Set the dependency as the current single app startup object. */
                 $this->setApp($this->singleAppStartup->getApp());
-                /* Startup the dependency. */ //var_dump("Starting up $dependency, it is required by $appName");
-                $this->startApp();
+                /* If dependency is disabled, do not start the dependency, and return false. */
+                if ($this->app->getComponentAttributeValue('enabled') === false) {
+                    /* If dependency is disabled, log an error so it's clear why the app being processed did not start. */
+                    error_log('DCMS App Startup error in ' . __FILE__ . ' on line ' . __LINE__ . PHP_EOL . '    1. Unable to start app ' . $processingApp->getComponentName() . ' because it is dependent on app ' . $dependency . ' and the ' . $dependency . ' app is disabled.');
+                    /* Return false, the dependency is disabled. */
+                    return false;
+                }
+                /* Attempt to startup the dependency. */
+                array_push($status, $this->startApp());
+                /* Re-assign the app's singleAppStartup object to the $singleAppStartup property */
                 $this->setSingleAppStartup($processingSo);
+                /* Re-assign the app's app object to the $app property */
                 $this->setApp($processingApp);
             }
         }
-        return true;
+        /* Return true if all dependencies are running, i.e. started up successfully, false otherwise. */
+        return !in_array(false, $status, true);
     }
 
     /**
-     * Gets the startup object associated with the specified app.
+     * Gets the startup object associated with the specified app from the $startupObjects property's array.
+     *
+     * Note: If there is not a singleAppStartup object for the specified app in the $startupObjects property's array,
+     * this method will return false.
      * @param string $appName Name of the app whose startup object should be returned.
      * @return \DarlingCms\classes\startup\singleAppStartup|bool The startup object, or false on failure.
+     * @see \DarlingCms\classes\startup\singleAppStartup
      */
     private function getSingleAppStartupObject(string $appName)
     {
+        /* Loop through the $startupObjects property's array to see if there is a singleAppStartup object for the
+           specified app. */
         foreach ($this->startupObjects as $startupObject) {
-            if ($startupObject->getApp()->getComponentName() === $appName) {
+            /* If the $startupObject is in fact an instance of the singleAppStartup class, and it is assigned the app's app object, return it. */
+            if (get_class($startupObject) === 'DarlingCms\classes\startup\singleAppStartup' && $startupObject->getApp()->getComponentName() === $appName) {
+                /* Return app's startup object. */
                 return $startupObject;
             }
         }
+        /* Return false, a singleAppStartup object could not be found for the app. */
         return false;
     }
 }
