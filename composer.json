@@ -1,0 +1,22 @@
+{
+  "name": "sevidmusic/darlingcms",
+  "description": "The Darling CMS aims to provide a flexible web architecture for developers to create with. It's built on a solid set of core components that serve to aide in development process without assuming to much about implementation.",
+  "type": "library",
+  "require-dev": {},
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Sevi Donnelly Foreman",
+      "email": "sdmwebsdm@gmail.com",
+      "homepage": "https://github.com/sevidmusic/DarlingCms"
+    }
+  ],
+  "minimum-stability": "dev",
+  "require": {},
+  "autoload": {
+    "psr-4": {
+      "DarlingCms\\": "core/",
+      "Apps\\": "apps/"
+    }
+  }
+}
