@@ -23,6 +23,49 @@ darlingCms_0.1_dev: This is the current development branch of the Darling Cms. I
                     clear documentation throughout core. When complete, this version will be more in line with
                     S.O.L.I.D design principals, and therefore easier to maintain.
 
-
 # Codacy Badge
 [![Codacy Badge](https://api.codacy.com/project/badge/grade/5b4c6fabcebe47d2bd7648823c073156)](https://www.codacy.com/app/sdmwebsdm/DarlingCms)
+
+---------------------------------------------------
+--------- darlingCms_0.1_dev Architecture ---------
+---------------------------------------------------
+
+-----------------------
+--- Base Interfaces ---
+-----------------------
+
+IStartup: Defines the basic contract of an object that handles startup, shutdown, and restart logic.
+- startup():bool - True if startup was successful, false otherwise.
+- shutdown():bool - True if shutdown was successful, false otherwise.
+- restart():bool - True if restart was successful, false otherwise.
+
+ICrud: Defines the contract of an object that can create, read, update, and delete data associated with an id.
+- create(string $dataId, $data):bool - True if data was created under the specified id, false otherwise.
+- read(string $dataId):mixed - The data associated with the specified id.
+- update(string $dataId, $newData):bool - True if data associated with the specified id was updated, false otherwise.
+- delete(string $dataId):bool - True if data associated with the specified id was deleted, false otherwise.
+
+IPathMap: Defines the contract of an object that defines an array of paths.
+- getPaths():array - Array of paths, or an empty array if there are no paths.
+
+IAccessController: Defines the basic contract of an object that validates access.
+- validateAccess():bool - True if access is valid, false otherwise.​
+
+------------------------
+--- Niche Interfaces ---
+------------------------
+
+IAppConfig extends IAccessController: Defines the basic contract of an object that can be used to get the configuration settings of a Darling Cms App.
+- getName():string - The name of the app.
+- getThemeNames():array - Array of the names of the Darling Cms themes assigned to the app.
+- getJsLibraryNames(): array - Array of the names of the javascript libraries assigned to the app.
+- IAccessController::validateAccess():bool - True if access is valid, false otherwise.​
+
+​IAppStartup extends IStartup, IPathMap: Defines the  basic contract of an object that is responsible for handling the startup, shutdown, and restart logic of a Darling Cms app.
+- getCssPaths():array - Array of paths to css files assigned to the app.
+- getJsPaths():array - Array of paths to javascript files assigned to the app.
+- getAppOutput(): string - The app's output as a string.
+- IStarup::startup(): bool - True if startup was successful, false otherwise.
+- IStarup::shutdown: boo - True if shutdown was successful, false otherwise.
+- IStarup::restart: bool : True if restart was successful, false otherwise.
+- IPathMap::getPaths():array - Array of paths, or an empty array if there are no paths.
