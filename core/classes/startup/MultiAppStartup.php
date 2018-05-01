@@ -185,9 +185,9 @@ class MultiAppStartup implements IAppStartup
     private function setAppConfigObjects(): void
     {
         foreach ($this->appNamespaces as $appNamespace) {
-            $appConfigImplementation = $appNamespace . 'AppConfig';
-            if (class_exists($appConfigImplementation) === true && in_array('DarlingCms\interfaces\accessControl\IAppConfig', class_implements($appConfigImplementation), true) === true) {
-                array_push($this->appConfigObjects, new $appConfigImplementation);
+            $appConfig = $appNamespace . 'AppConfig';
+            if (class_exists($appConfig) === true && in_array('DarlingCms\interfaces\accessControl\IAppConfig', class_implements($appConfig), true) === true) {
+                array_push($this->appConfigObjects, new $appConfig);
             }
         }
     }
