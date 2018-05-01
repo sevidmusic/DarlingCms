@@ -53,7 +53,7 @@ class AppStartup implements IAppStartup
         $rootDir = str_replace('core/classes/startup', '', __DIR__);
         $this->paths = array(
             'rootDir' => $rootDir,
-            'rootUrl' => $root = (!empty($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . '/DarlingCms/',
+            'rootUrl' => (!empty($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . '/DarlingCms/',
             'appsDir' => $rootDir . 'apps/',
             'themesDir' => 'themes/',
             'jsDir' => 'js/',
