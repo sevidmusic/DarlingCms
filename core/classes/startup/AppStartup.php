@@ -107,11 +107,11 @@ class AppStartup implements IAppStartup
      *
      * 'rootUrl' : The site's root url.
      *
-     * 'appsDir' : The path to the apps directory.
+     * 'appsDir' : The path to the Darling Cms apps directory.
      *
-     * 'themesDir' : The relative path to the themes directory, i.e., '/themes'.
+     * 'themesDir' : The relative path to the Darling Cms themes directory, i.e., '/themes'.
      *
-     * 'jsDir' : The relative path to the js directory, i.e., '/js'.
+     * 'jsDir' : The relative path to the Darling Cms js directory, i.e., '/js'.
      *
      * 'cssPaths' : Array of paths to the css files belonging to the themes assigned to the app, or an empty array if
      *              the app is not assigned any themes, or startup failed.
@@ -128,6 +128,18 @@ class AppStartup implements IAppStartup
     /**
      * Handles startup logic. Specifically, loads the app's output, and sets the paths to the css files, and
      * javascript files, belonging to the themes and javascript libraries assigned to the app, respectively.
+     *
+     * WARNING: If the app's IAppConfig implementation's validateAccess() method returns false, the app will not
+     * be started up, the paths to the css files, and javascript files, belonging to the themes and javascript
+     * libraries assigned to the app will not be set, and this method will return false.
+     *
+     * WARNING: If the app's APPNAME.php file does not exist, this method will log an error and return false.
+     * e.g., if an attempt is made to startup an app named helloWorld, and helloWorld does not provide a
+     * helloWorld.php file, this method will log an error and return false.
+     *
+     * WARNING: If the app's APPNAME.php file does not exist, the paths to the css files, and javascript files,
+     * belonging to the themes and javascript libraries assigned to the app will not be set.
+     *
      * @return bool True if startup was successful, false otherwise.
      * @see IAppConfig::validateAccess()
      * @see IAppConfig::getName()
@@ -137,8 +149,13 @@ class AppStartup implements IAppStartup
     public function startup(): bool
     {
         if ($this->appConfig->validateAccess() === true) {
+            $appFilePath = $this->paths['appsDir'] . $this->appConfig->getName() . '/' . $this->appConfig->getName() . '.php';
             ob_start();
-            require $this->paths['appsDir'] . $this->appConfig->getName() . '/' . $this->appConfig->getName() . '.php';
+            if (file_exists($appFilePath) === false) {
+                error_log('Darling Cms Startup Error: Failed to start app ' . $this->appConfig->getName() . '. The ' . str_replace('core/classes/startup', 'apps/' . $this->appConfig->getName() . '/', __DIR__) . $this->appConfig->getName() . '.php file does not exist.');
+                return false;
+            }
+            include $appFilePath;
             $this->appOutput = ob_get_clean();
             $this->setCssPaths();
             $this->setJsPaths();
