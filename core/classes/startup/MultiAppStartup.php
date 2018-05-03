@@ -176,10 +176,13 @@ class MultiAppStartup implements IAppStartup
     }
 
     /**
-     * Instantiates each app in the apps directory's IAppConfig implementation.
-     * WARNING: If the app does not define an AppConfig class, or an app defines an AppConfig class that does not
-     * implement the IAppConfig implementation, an instance will not be created, and the app will be excluded
-     * from the startup process.
+     * Instantiates each app in the apps directory's DarlingCms\interfaces\accessControl\IAppConfig implementation.
+     *
+     * WARNING: This method will not perform instantiation, and will log an error for any apps that do not define
+     * an AppConfig class, or any app's that define an AppConfig class that does not implement the
+     * DarlingCms\interfaces\accessControl\IAppConfig interface. Consequently, any app that does not define an
+     * AppConfig class, or defines a AppConfig class that does not implement the
+     * DarlingCms\interfaces\accessControl\IAppConfig interface, will be excluded from the startup process.
      * @see IAppConfig
      */
     private function setAppConfigObjects(): void
@@ -188,6 +191,9 @@ class MultiAppStartup implements IAppStartup
             $appConfig = $appNamespace . 'AppConfig';
             if (class_exists($appConfig) === true && in_array('DarlingCms\interfaces\accessControl\IAppConfig', class_implements($appConfig), true) === true) {
                 array_push($this->appConfigObjects, new $appConfig);
+            } else {
+                $appName = str_replace(array('\\', 'Apps'), '', $appNamespace);
+                error_log('Darling Cms Startup Error: Failed to start app ' . $appName . '. The ' . $appName . ' app\'s AppConfig.php file does not define an implementation of the DarlingCms\interfaces\accessControl\IAppConfig interface.');
             }
         }
     }
@@ -204,8 +210,12 @@ class MultiAppStartup implements IAppStartup
     }
 
     /**
-     * Determines the path to each app's AppConfig.php file and assigns it to the the $appConfigPaths property's array.
-     * WARNING: Apps that do not provide an AppConfig.php file will be excluded from the startup process.
+     * Determines the path to each app's AppConfig.php file, and assigns it to the the $appConfigPaths property's array.
+     *
+     * WARNING: This method will not assign a path to the $appConfigPaths property's array for any apps that do not
+     * provide an AppConfig.php file. Furthermore, this method will log an error for any apps that do not provide
+     * an AppConfig.php file. Consequently, any apps that do not provide an AppConfig.php file will be excluded
+     * from the startup process.
      * @see \DirectoryIterator
      * @see \DirectoryIterator::getRealPath()
      * @see \DirectoryIterator::isDir()
@@ -216,8 +226,15 @@ class MultiAppStartup implements IAppStartup
         $appDirIterator = new \DirectoryIterator($this->appDirPath);
         foreach ($appDirIterator as $directoryIterator) {
             $appConfigPath = $directoryIterator->getRealPath() . '/AppConfig.php';
-            if ($directoryIterator->isDir() === true && $directoryIterator->isDot() === false && file_exists($appConfigPath) === true) {
-                array_push($this->appConfigPaths, $appConfigPath);
+            if ($directoryIterator->isDir() === true && $directoryIterator->isDot() === false) {
+                switch (file_exists($appConfigPath)) {
+                    case false:
+                        error_log('Darling Cms Startup Error: Failed to start app ' . $directoryIterator->getFilename() . '. The app does not provide an AppConfig.php file.');
+                        break;
+                    default:
+                        array_push($this->appConfigPaths, $appConfigPath);
+                        break;
+                }
             }
         }
     }
