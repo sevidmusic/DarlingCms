@@ -191,10 +191,10 @@ class MultiAppStartup implements IAppStartup
             $appConfig = $appNamespace . 'AppConfig';
             if (class_exists($appConfig) === true && in_array('DarlingCms\interfaces\accessControl\IAppConfig', class_implements($appConfig), true) === true) {
                 array_push($this->appConfigObjects, new $appConfig);
-            } else {
-                $appName = str_replace(array('\\', 'Apps'), '', $appNamespace);
-                error_log('Darling Cms Startup Error: Failed to start app ' . $appName . '. The ' . $appName . ' app\'s AppConfig.php file does not define an implementation of the DarlingCms\interfaces\accessControl\IAppConfig interface.');
+                continue;
             }
+            $appName = str_replace(array('\\', 'Apps'), '', $appNamespace);
+            error_log('Darling Cms Startup Error: Failed to start app ' . $appName . '. The ' . $appName . ' app\'s AppConfig.php file does not define an implementation of the DarlingCms\interfaces\accessControl\IAppConfig interface.');
         }
     }
 
