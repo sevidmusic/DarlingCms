@@ -42,8 +42,8 @@ class CoreHtmlUserInterface extends \DOMDocument implements IHtmlPage, IUserInte
 
     /**
      * CoreHtmlUserInterface constructor. Injects the IAppStartup instance used by this object, and calls the
-     * IAppStartup implementation's startup() method. Additionally, if startup is successful, calls the
-     * setCssLinkTags() method, and the setJsScriptTags() method.
+     * IAppStartup implementation's startup() method. Additionally, calls the setCssLinkTags() method, and the
+     * setJsScriptTags() method.
      * @param IAppStartup $appStartup Instance of an object that implements the IAppStartup interface.
      * @see IAppStartup::startup()
      * @see CoreHtmlUserInterface::setCssLinkTags()
@@ -52,10 +52,9 @@ class CoreHtmlUserInterface extends \DOMDocument implements IHtmlPage, IUserInte
     public function __construct(IAppStartup $appStartup)
     {
         $this->appStartup = $appStartup;
-        if ($this->appStartup->startup() === true) {
-            $this->setCssLinkTags();
-            $this->setJsLinkTags();
-        }
+        $this->appStartup->startup();
+        $this->setCssLinkTags();
+        $this->setJsLinkTags();
     }
 
     /**
@@ -151,5 +150,4 @@ class CoreHtmlUserInterface extends \DOMDocument implements IHtmlPage, IUserInte
          */
         return str_replace(array('<![CDATA[ ]]>', '<?xml version="1.0" standalone="yes"?>' . PHP_EOL), '', $this->saveXML());
     }
-
 }
