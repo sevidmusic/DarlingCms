@@ -56,6 +56,11 @@ class MultiAppStartup implements IAppStartup
     private $appStartupObjects = array();
 
     /**
+     * @var array Array of apps that will be excluded from startup.
+     */
+    private $excludedApps = array();
+
+    /**
      * MultiAppStartup constructor. Determines the path to the Darling Cms apps directory and assigns it to the
      * $appDirPath property.
      */
@@ -216,6 +221,11 @@ class MultiAppStartup implements IAppStartup
      * provide an AppConfig.php file. Furthermore, this method will log an error for any apps that do not provide
      * an AppConfig.php file. Consequently, any apps that do not provide an AppConfig.php file will be excluded
      * from the startup process.
+     *
+     * WARNING: This method will not assign a path to the $appConfigPaths property's array for any apps that are
+     * assigned to the $excludedApps property's array. Consequently, any apps that are assigned to the $excludedApps
+     * property's array will be excluded from the startup process.
+     *
      * @see \DirectoryIterator
      * @see \DirectoryIterator::getRealPath()
      * @see \DirectoryIterator::isDir()
@@ -226,7 +236,7 @@ class MultiAppStartup implements IAppStartup
         $appDirIterator = new \DirectoryIterator($this->appDirPath);
         foreach ($appDirIterator as $directoryIterator) {
             $appConfigPath = $directoryIterator->getRealPath() . '/AppConfig.php';
-            if ($directoryIterator->isDir() === true && $directoryIterator->isDot() === false) {
+            if (in_array($directoryIterator->getFilename(), $this->excludedApps, true) === false && $directoryIterator->isDir() === true && $directoryIterator->isDot() === false) {
                 switch (file_exists($appConfigPath)) {
                     case false:
                         error_log('Darling Cms Startup Error: Failed to start app ' . $directoryIterator->getFilename() . '. The app does not provide an AppConfig.php file.');
@@ -236,6 +246,18 @@ class MultiAppStartup implements IAppStartup
                         break;
                 }
             }
+        }
+    }
+
+    /**
+     * Exclude specified app(s) from the startup process.
+     * @param string ...$appName The name of the app to exclude from startup. To set more then one app to be
+     *                           excluded from startup pass additional app names as additional parameters.
+     */
+    public function excludeApp(string ...$appName): void
+    {
+        foreach ($appName as $app) {
+            array_push($this->excludedApps, $app);
         }
     }
 
