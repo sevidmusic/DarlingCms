@@ -118,10 +118,21 @@ class CoreHtmlUserInterface extends \DOMDocument implements IHtmlPage, IUserInte
     private function setJsLinkTags(): void
     {
         foreach ($this->appStartup->getJsPaths() as $jsPath) {
-            /* Space added between script tags to prevent formatting from replacing closing script tag with />,
+            /* Html comment added between script tags to prevent formatting from replacing closing script tag with />,
              * this is a hack till a workaround is found. */
-            array_push($this->headCssLinksTags, '<script src="' . $jsPath . '" type="text/javascript" charset="utf-8"> </script>');
+            array_push($this->headCssLinksTags, '<script src="' . $jsPath . '"><!-- --></script>');
         }
+    }
+
+    /**
+     * Prep html for formatting. This method transforms a string of html that spans multiple lines into
+     * a single line of html, removing excessive or unnecessary whitespace, tabs, and new lines.
+     * @param string $html The html to prep.
+     * @return string The prepped html.
+     */
+    private function prepHtml(string $html): string
+    {
+        return str_replace(array('> '), '>', preg_replace('/\s+/', ' ', $html));
     }
 
     /**
@@ -139,15 +150,25 @@ class CoreHtmlUserInterface extends \DOMDocument implements IHtmlPage, IUserInte
         /* Make sure whitespace is ignored. */
         $this->preserveWhiteSpace = false;
         /* Load $html into the $dom. */
-        $this->loadHTML($html);
+        $this->loadHTML($this->prepHtml($html));
         /* Make sure html will be formatted. */
         $this->formatOutput = true;
         /*
          * Return the formatted html by calling the DOMDocument::saveXml() method to insure elements are formatted with
-         * tabs, not just new lines. Also, remove the unnecessary strings added by saveXML() from the formatted string.
+         * tabs, not just new lines.
          * @see https://stackoverflow.com/questions/768215/php-pretty-print-html-not-tidy for further explanation of
          * why the DOMDocument::saveXml() method is used instead of the DOMDocument::saveHtml() method.
          */
-        return str_replace(array('<![CDATA[ ]]>', '<?xml version="1.0" standalone="yes"?>' . PHP_EOL), '', $this->saveXML());
+        return $this->cleanHtml($this->saveXML());
+    }
+
+    /**
+     * This method removes the unnecessary strings added by saveXML().
+     * @param string $html The string returned by saveXml().
+     * @return string The cleansed string.
+     */
+    private function cleanHtml(string $html): string
+    {
+        return str_replace(array('<![CDATA[ ]]>', '<![CDATA[<!-- -->]]>', '<?xml version="1.0" standalone="yes"?>' . PHP_EOL, '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . PHP_EOL), '', $html);
     }
 }
