@@ -27,6 +27,13 @@ use DarlingCms\interfaces\startup\IAppStartup;
  * @see MultiAppStartup::setAppNamespaces()
  * @see MultiAppStartup::shutdown()
  * @see MultiAppStartup::restart()
+ * @see MultiAppStartup::getAppDirPath()
+ * @see MultiAppStartup::getAppConfigPaths()
+ * @see MultiAppStartup::getAppNamespaces()
+ * @see MultiAppStartup::getAppConfigObjects()
+ * @see MultiAppStartup::getAppStartupObjects()
+ * @see MultiAppStartup::getExcludedApps()
+ * @see MultiAppStartup::excludeApp()
  */
 class MultiAppStartup implements IAppStartup
 {
@@ -117,6 +124,69 @@ class MultiAppStartup implements IAppStartup
             $output .= $startupObject->getAppOutput();
         }
         return $output;
+    }
+
+    /**
+     * Returns the path to the apps directory.
+     * @return string The path to the apps directory.
+     */
+    public function getAppDirPath(): string
+    {
+        return $this->appDirPath;
+    }
+
+    /**
+     * Returns an array of paths to the AppConfig.php files defined by each app in the apps directory.
+     * Note: The returned array will not include paths to AppConfig.php files that belong to apps assigned
+     * to the $excludedApps property's array, i.e., apps that were passed to the excludeApp() method.
+     * @return array An array of paths to the AppConfig.php files defined by each app in the apps directory.
+     */
+    public function getAppConfigPaths(): array
+    {
+        return $this->appConfigPaths;
+    }
+
+    /**
+     * Returns an array of namespaces for each app in the apps directory.
+     * Note: The returned array will not include namespaces that belong to apps assigned to the
+     * $excludedApps property's array, i.e., apps that were passed to the excludeApp() method.
+     * @return array An array of namespaces for each app in the apps directory.
+     */
+    public function getAppNamespaces(): array
+    {
+        return $this->appNamespaces;
+    }
+
+    /**
+     * Returns an array of IAppConfig implementations defined by each app in the apps directory.
+     * Note: The returned array will not include IAppConfig implementations defined by apps assigned
+     * to the $excludedApps property's array, i.e., apps that were passed to the excludeApp() method.
+     * @return array An array of IAppConfig implementations defined by each app in the apps directory.
+     */
+    public function getAppConfigObjects(): array
+    {
+        return $this->appConfigObjects;
+    }
+
+    /**
+     * Returns an array of IAppStartup implementations instantiated for each app in the apps directory.
+     * Note: The returned array will not include IAppStartup implementation instances for apps assigned
+     * to the $excludedApps property's array, i.e. apps that were passed to the excludeApp() method.
+     * @return array An array of IAppStartup implementations instantiated for each app in the apps directory.
+     */
+    public function getAppStartupObjects(): array
+    {
+        return $this->appStartupObjects;
+    }
+
+    /**
+     * Returns an array of the apps that will be excluded from startup, i.e., apps that were passed to
+     * the excludeApp() method.
+     * @return array An array of the apps that will be excluded from startup.
+     */
+    public function getExcludedApps(): array
+    {
+        return $this->excludedApps;
     }
 
     /**
