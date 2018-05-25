@@ -26,6 +26,11 @@ use DarlingCms\interfaces\userInterface\IUserInterface;
 class CoreHtmlUserInterface extends \DOMDocument implements IHtmlPage, IUserInterface
 {
     /**
+     * @var string String used to preserve empty elements during formatting.
+     */
+    const PRESERVE_EMPTY_ELEMENTS = '<!-- CORE_UI_PRESERVE_EMPTY_ELEMENT -->';
+
+    /**
      * @var IAppStartup $appStartup Local instance of an object that implements the IAppStartup interface.
      */
     private $appStartup;
@@ -126,13 +131,17 @@ class CoreHtmlUserInterface extends \DOMDocument implements IHtmlPage, IUserInte
 
     /**
      * Prep html for formatting. This method transforms a string of html that spans multiple lines into
-     * a single line of html, removing excessive or unnecessary whitespace, tabs, and new lines.
+     * a single line of html, removing excessive or unnecessary whitespace, tabs, and new lines. It also
+     * inserts the PRESERVE_EMPTY_ELEMENTS string between occurrences of ></ in order
+     * to insure empty elements are preserved when html is processed by the formatHtml() method.
      * @param string $html The html to prep.
      * @return string The prepped html.
      */
     private function prepHtml(string $html): string
     {
-        return str_replace(array('> '), '>', preg_replace('/\s+/', ' ', $html));
+        $html = str_replace(array('> '), '>', preg_replace('/\s+/', ' ', $html));
+        $html = str_replace('></', '>' . $this::PRESERVE_EMPTY_ELEMENTS . '</', $html);
+        return $html;
     }
 
     /**
@@ -163,12 +172,19 @@ class CoreHtmlUserInterface extends \DOMDocument implements IHtmlPage, IUserInte
     }
 
     /**
-     * This method removes the unnecessary strings added by saveXML().
+     * This method removes the unnecessary strings added by the DOMDocument::saveXML() method and the
+     * CoreHtmlUserInterface::prepHtml() method. This method will also remove empty lines.
      * @param string $html The string returned by saveXml().
      * @return string The cleansed string.
+     * @see https://stackoverflow.com/questions/709669/how-do-i-remove-blank-lines-from-text-in-php?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
      */
     private function cleanHtml(string $html): string
     {
-        return str_replace(array('<![CDATA[ ]]>', '<![CDATA[<!-- -->]]>', '<?xml version="1.0" standalone="yes"?>' . PHP_EOL, '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . PHP_EOL), '', $html);
+        $html = str_replace(array($this::PRESERVE_EMPTY_ELEMENTS, '<![CDATA[ ]]>', '<![CDATA[<!-- -->]]>', '<?xml version="1.0" standalone="yes"?>' . PHP_EOL, '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . PHP_EOL), '', $html);
+        /**
+         * Solution for removing empty lines via preg_replace() found on stack overflow at the following url:
+         * @see https://stackoverflow.com/questions/709669/how-do-i-remove-blank-lines-from-text-in-php?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
+         */
+        return preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $html);
     }
 }
