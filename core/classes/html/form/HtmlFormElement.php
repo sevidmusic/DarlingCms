@@ -5,9 +5,10 @@
  * Time: 11:58 PM
  */
 
-namespace DarlingCms\classes\html;
+namespace DarlingCms\classes\html\form;
 
 use DarlingCms\interfaces\html\IHtmlFormElement;
+use DarlingCms\classes\html\HtmlTag;
 
 /**
  * Class HtmlFormElement. Defines an extension of the HtmlTag class that implements the IHtmlFormElement interface
