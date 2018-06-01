@@ -7,6 +7,8 @@
 
 namespace DarlingCms\interfaces\processor;
 
+use DarlingCms\interfaces\html\IHtmlForm;
+
 /**
  * Interface IFormProcessor. Defines the basic contract of an object that processes a form.
  * @package DarlingCms\interfaces\processor
@@ -38,4 +40,10 @@ interface IFormProcessor
      *               if no values were processed.
      */
     public function getProcessedValues(): array;
+
+    /**
+     * Returns the IHtmlForm implementation instance processed by this IFormProcessor implementation.
+     * @return IHtmlForm The IHtmlForm implementation instance processed by this IFormProcessor implementation.
+     */
+    public function getForm(): IHtmlForm;
 }
