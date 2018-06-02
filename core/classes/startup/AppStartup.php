@@ -155,7 +155,7 @@ class AppStartup implements IAppStartup
                 error_log('Darling Cms Startup Error: Failed to start app ' . $this->appConfig->getName() . '. The ' . str_replace('core/classes/startup', 'apps/' . $this->appConfig->getName() . '/', __DIR__) . $this->appConfig->getName() . '.php file does not exist.');
                 return false;
             }
-            include $appFilePath;
+            include_once $appFilePath;
             $this->appOutput = ob_get_clean();
             $this->setCssPaths();
             $this->setJsPaths();
