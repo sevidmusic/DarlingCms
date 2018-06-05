@@ -149,19 +149,30 @@ class AppStartup implements IAppStartup
     public function startup(): bool
     {
         if ($this->appConfig->validateAccess() === true) {
-            $appFilePath = $this->paths['appsDir'] . $this->appConfig->getName() . '/' . $this->appConfig->getName() . '.php';
-            ob_start();
-            if (file_exists($appFilePath) === false) {
-                error_log('Darling Cms Startup Error: Failed to start app ' . $this->appConfig->getName() . '. The ' . str_replace('core/classes/startup', 'apps/' . $this->appConfig->getName() . '/', __DIR__) . $this->appConfig->getName() . '.php file does not exist.');
-                return false;
-            }
-            include_once $appFilePath;
-            $this->appOutput = ob_get_clean();
+            $this->includeOutput();
             $this->setCssPaths();
             $this->setJsPaths();
             return true;
         }
         return false;
+    }
+
+    /**
+     * Includes the app's APP_NAME.php file to get the app's output. Once included, the output
+     * is assigned to the AppStartup class's $appOutput property.
+     * @return bool True if app output was included successfully, false otherwise.
+     */
+    private function includeOutput(): bool
+    {
+        $appFilePath = $this->paths['appsDir'] . $this->appConfig->getName() . '/' . $this->appConfig->getName() . '.php';
+        ob_start();
+        if (file_exists($appFilePath) === false) {
+            error_log('Darling Cms Startup Error: Failed to start app ' . $this->appConfig->getName() . '. The ' . str_replace('core/classes/startup', 'apps/' . $this->appConfig->getName() . '/', __DIR__) . $this->appConfig->getName() . '.php file does not exist.');
+            return false;
+        }
+        include_once $appFilePath;
+        $this->appOutput = ob_get_clean();
+        return $this->appOutput !== '';
     }
 
     /**
