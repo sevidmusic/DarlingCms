@@ -19,8 +19,14 @@ use DarlingCms\interfaces\startup\IAppStartup;
  * @see AppStartup::getAppOutput()
  * @see AppStartup::getPaths()
  * @see AppStartup::startup()
+ * @see AppStartup::compileAppOutput()
+ * @see AppStartup::includeOutput()
+ * @see AppStartup::includeCachedOutput()
+ * @see AppStartup::cacheAppOutput()
+ * @see AppStartup::loadCache()
  * @see AppStartup::setCssPaths()
  * @see AppStartup::setJsPaths()
+ * @see AppStartup::getDirectoryListing()
  * @see AppStartup::shutdown()
  * @see AppStartup::restart()
  */
@@ -59,6 +65,7 @@ class AppStartup implements IAppStartup
             'jsDir' => 'js/',
             'cssPaths' => array(),
             'jsPaths' => array(),
+            'cachePath' => $rootDir . '/AppOutput.json',
         );
     }
 
@@ -96,9 +103,11 @@ class AppStartup implements IAppStartup
 
     /**
      * Returns an array of the following paths: The path to the Darling Cms root directory, the root url, the path
-     * to the apps directory, the relative path to the themes directory, and the relative path to the js directory.
-     * Additionally this array is assigned an array of css file paths, and an array of javascript file paths,
-     * belonging to the themes and javascript libraries assigned to the app, respectively.
+     * to the apps directory, the relative path to the themes directory, the relative path to the js directory, and
+     * the absolute path to the file used to cache app output. Additionally this array is assigned an array of css
+     * file paths, and an array of javascript file paths, belonging to the themes and javascript libraries assigned
+     * to the app, respectively.
+     *
      * Note: If startup is not successful, the cssPaths and jsPaths arrays will be empty.
      *
      * The paths are indexed by the following indexes:
@@ -118,6 +127,9 @@ class AppStartup implements IAppStartup
      *
      * 'jsPaths' : Array of paths to the javascript files belonging to the javascript libraries assigned to the app,
      *             or an empty array if the app is not assigned any javascript libraries, or startup failed.
+     *
+     * 'cachePath' : The absolute path to the file used to cache app output.
+     *
      * @return array The array of paths assigned to the $paths property's array.
      */
     public function getPaths(): array
@@ -126,7 +138,7 @@ class AppStartup implements IAppStartup
     }
 
     /**
-     * Handles startup logic. Specifically, loads the app's output, and sets the paths to the css files, and
+     * Handles startup logic. Specifically, compiles the app's output, and sets the paths to the css files, and
      * javascript files, belonging to the themes and javascript libraries assigned to the app, respectively.
      *
      * WARNING: If the app's IAppConfig implementation's validateAccess() method returns false, the app will not
@@ -142,14 +154,13 @@ class AppStartup implements IAppStartup
      *
      * @return bool True if startup was successful, false otherwise.
      * @see IAppConfig::validateAccess()
-     * @see IAppConfig::getName()
+     * @see AppStartup::compileAppOutput()
      * @see AppStartup::setCssPaths()
      * @see AppStartup::setJsPaths()
      */
     public function startup(): bool
     {
-        if ($this->appConfig->validateAccess() === true) {
-            $this->includeOutput();
+        if ($this->appConfig->validateAccess() === true && $this->compileAppOutput() === true) {
             $this->setCssPaths();
             $this->setJsPaths();
             return true;
@@ -158,9 +169,23 @@ class AppStartup implements IAppStartup
     }
 
     /**
-     * Includes the app's APP_NAME.php file to get the app's output. Once included, the output
-     * is assigned to the AppStartup class's $appOutput property.
-     * @return bool True if app output was included successfully, false otherwise.
+     * Compiles the app's output. If the output is already cached, the cached output will be used, otherwise
+     * the output will be compiled by including the app. This method will return true if the app output was
+     * compiled successfully either from the cache or by including the app, false otherwise.
+     * @return bool True if app was compiled successfully, false otherwise.
+     */
+    private function compileAppOutput(): bool
+    {
+        if ($this->includeCachedOutput() === true) {
+            return true;
+        }
+        return $this->includeOutput();
+    }
+
+    /**
+     * Includes the app's APP_NAME.php file to get the app's output. If include is successful, the output
+     * is assigned to the $appOutput property and cached.
+     * @return bool True if app output was included and cached successfully, false otherwise.
      */
     private function includeOutput(): bool
     {
@@ -172,7 +197,46 @@ class AppStartup implements IAppStartup
         }
         include_once $appFilePath;
         $this->appOutput = ob_get_clean();
-        return $this->appOutput !== '';
+        return $this->cacheAppOutput();
+    }
+
+    /**
+     * Assigns the cached app output to the $appOutput property.
+     * @return bool True if cached output was assigned to the $appOutput property, false otherwise.
+     */
+    private function includeCachedOutput(): bool
+    {
+        $cache = $this->loadCache();
+        if (isset($cache[time()][$this->appConfig->getName()]) === true) {
+            $this->appOutput = strval($cache[time()][$this->appConfig->getName()]);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Caches the app output assigned to the $appOutput property.
+     * @return bool True if app output was cached, false otherwise.
+     */
+    private function cacheAppOutput(): bool
+    {
+        $cache = $this->loadCache();
+        $cache[time()][$this->appConfig->getName()] = $this->appOutput;
+        file_put_contents($this->paths['cachePath'], json_encode($cache));
+        return true;
+    }
+
+    /**
+     * Returns an array of cached data, or an empty array if there is no cached data.
+     * @return array The cache array, or an empty array if there is no cached data.
+     */
+    private function loadCache(): array
+    {
+        if (file_exists($this->paths['cachePath']) === true) {
+            $cache = json_decode(file_get_contents($this->paths['cachePath']), true);
+            return is_array($cache) === true ? $cache : array();
+        }
+        return array();
     }
 
     /**
