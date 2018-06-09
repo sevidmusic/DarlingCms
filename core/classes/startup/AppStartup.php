@@ -67,6 +67,7 @@ class AppStartup implements IAppStartup
             'jsPaths' => array(),
             'cachePath' => $rootDir . '/AppOutput.json',
         );
+        $this->cleanCache();
     }
 
     /**
@@ -224,6 +225,25 @@ class AppStartup implements IAppStartup
         $cache[time()][$this->appConfig->getName()] = $this->appOutput;
         file_put_contents($this->paths['cachePath'], json_encode($cache));
         return true;
+    }
+
+
+    /**
+     * Removes outdated app output from the cache.
+     * Note: Any cached app output that is older than 15 seconds will be removed.
+     * Note: If there is no cached app output to remove, this method will return false.
+     * @return bool True cache was cleaned, false otherwise.
+     */
+    private function cleanCache(): bool
+    {
+        $cache = $this->loadCache();
+        foreach (array_keys($cache) as $time) {
+            if ($time <= (time() - 15)) {
+                unset($cache[$time]);
+            }
+        }
+        file_put_contents($this->paths['cachePath'], json_encode($cache));
+        return false;
     }
 
     /**
