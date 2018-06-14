@@ -65,7 +65,7 @@ class AppStartup implements IAppStartup
             'jsDir' => 'js/',
             'cssPaths' => array(),
             'jsPaths' => array(),
-            'cachePath' => $rootDir . '/AppOutput.json',
+            'cachePath' => $rootDir . 'AppOutput.json',
         );
         $this->cleanCache();
     }
@@ -300,10 +300,12 @@ class AppStartup implements IAppStartup
     private function getDirectoryListing(string $path, string $type): array
     {
         $directoryListing = array();
-        $directoryIterator = new \DirectoryIterator($path);
-        foreach ($directoryIterator as $directory) {
-            if ($directory->isFile() === true && $directory->isDot() === false && $directory->getExtension() === $type) {
-                array_push($directoryListing, $directory->getFilename());
+        if (is_dir($path) === true) {
+            $directoryIterator = new \DirectoryIterator($path);
+            foreach ($directoryIterator as $directory) {
+                if ($directory->isFile() === true && $directory->isDot() === false && $directory->getExtension() === $type) {
+                    array_push($directoryListing, $directory->getFilename());
+                }
             }
         }
         return $directoryListing;
