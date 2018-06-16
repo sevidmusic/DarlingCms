@@ -111,7 +111,10 @@ class CoreHtmlUserInterface extends \DOMDocument implements IHtmlPage, IUserInte
     private function setCssLinkTags(): void
     {
         foreach ($this->appStartup->getCssPaths() as $cssPath) {
-            array_push($this->headCssLinksTags, "<link rel=\"stylesheet\" type=\"text/css\" href=\"{$cssPath}\">");
+            $linkTag = "<link rel=\"stylesheet\" type=\"text/css\" href=\"{$cssPath}\">";
+            if (in_array($linkTag, $this->headCssLinksTags) === false) {
+                array_push($this->headCssLinksTags, $linkTag);
+            }
         }
     }
 
@@ -125,7 +128,10 @@ class CoreHtmlUserInterface extends \DOMDocument implements IHtmlPage, IUserInte
         foreach ($this->appStartup->getJsPaths() as $jsPath) {
             /* Html comment added between script tags to prevent formatting from replacing closing script tag with />,
              * this is a hack till a workaround is found. */
-            array_push($this->headCssLinksTags, '<script src="' . $jsPath . '"><!-- --></script>');
+            $scriptTag = '<script src="' . $jsPath . '"><!-- --></script>';
+            if (in_array($scriptTag, $this->headScriptsTags) === false) {
+                array_push($this->headScriptsTags, $scriptTag);
+            }
         }
     }
 
