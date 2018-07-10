@@ -17,9 +17,10 @@ class Hidden extends Input
      * Hidden constructor. Sets the hidden input element's name, and value.
      * @param string $name The hidden input element's name attribute's value.
      * @param string $value The hidden input element's value attribute's value.
+     * @param array $attributes Array of additional attributes to assign to the hidden input element.
      */
-    public function __construct(string $name, string $value)
+    public function __construct(string $name, string $value, $attributes = array())
     {
-        parent::__construct('hidden', $name, $value, array());
+        parent::__construct('hidden', $name, $value, $attributes);
     }
 }
