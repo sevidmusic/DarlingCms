@@ -38,6 +38,16 @@ use DarlingCms\interfaces\startup\IAppStartup;
 class MultiAppStartup implements IAppStartup
 {
     /**
+     * Constants for the values of the keys/indexes of the $paths property's array.
+     * These constants can be used to specify a the index of the value to get from the $paths
+     * property array.
+     */
+    const APP_DIR_PATH_KEY = 'appDirPath';
+    const APP_CONFIG_PATHS_KEY = 'appConfigPaths';
+    const CSS_PATHS_KEY = 'cssPaths';
+    const JS_PATHS_KEY = 'jsPaths';
+
+    /**
      * @var string The path to the Darling Cms apps directory.
      */
     private $appDirPath = '';
@@ -195,22 +205,23 @@ class MultiAppStartup implements IAppStartup
      * belonging to the themes assigned to each app in the apps directory, an array of paths to the javascript
      * files belonging to the javascript libraries assigned to each app in the apps directory.
      *
-     * The paths are indexed by the following indexes:
+     * The paths are indexed using the class constants defined for each index:
      *
-     * 'appDirPath' : The path to the apps directory.
+     * MultiAppStartup::APP_DIR_PATH_KEY : The path to the apps directory.
      *
-     * 'appConfigPaths' : An array of paths to the AppConfig.php files defined by each app in the apps directory.
+     * MultiAppStartup::APP_CONFIG_PATHS_KEY : An array of paths to the AppConfig.php files defined by each app
+     *                                         in the apps directory.
      *
-     * 'cssPaths' : An array of paths to the css files belonging to the themes assigned to each app in the
-     *              apps directory. This array will be empty if there are no themes assigned to any apps,
-     *              or if startup failed. Also note, paths to css files will only exist for the apps that
-     *              started up successfully.
+     * MultiAppStartup::CSS_PATHS_KEY  : An array of paths to the css files belonging to the themes assigned to
+     *              each app in the apps directory. This array will be empty if there are no themes assigned to
+     *              any apps, or if startup failed. Also note, paths to css files will only exist for the apps
+     *              that started up successfully.
      *
-     * 'jsPaths' : An array of paths to the javascript files belonging to the javascript libraries assigned
-     *             to each app in the apps directory. This array will be empty if there are no javascript
-     *             libraries assigned to any apps, or if startup failed. Also note, paths to javascript files
-     *             will only exist for the apps that started up successfully.
-     *
+     * MultiAppStartup::JS_PATHS_KEY : An array of paths to the javascript files belonging to the javascript
+     *                                 libraries assigned to each app in the apps directory. This array will
+     *                                 be empty if there are no javascript libraries assigned to any apps,
+     *                                 or if startup failed. Also note, paths to javascript files will only
+     *                                 exist for the apps that started up successfully.
      * @return array An array of paths available to this object.
      * @see MultiAppStartup::getCssPaths()
      * @see MultiAppStartup::getJsPaths()
@@ -218,10 +229,10 @@ class MultiAppStartup implements IAppStartup
     public function getPaths(): array
     {
         return array(
-            'appDirPath' => $this->appDirPath,
-            'appConfigPaths' => $this->appConfigPaths,
-            'cssPaths' => $this->getCssPaths(),
-            'jsPaths' => $this->getJsPaths(),
+            self::APP_DIR_PATH_KEY => $this->appDirPath,
+            self::APP_CONFIG_PATHS_KEY => $this->appConfigPaths,
+            self::CSS_PATHS_KEY => $this->getCssPaths(),
+            self::JS_PATHS_KEY => $this->getJsPaths(),
         );
     }
 
