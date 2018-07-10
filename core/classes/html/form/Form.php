@@ -46,7 +46,11 @@ class Form extends HtmlContainer implements IHtmlForm
      */
     public function addFormElement(IHtmlFormElement $formElement): bool
     {
-        if (!isset($this->formElements[$formElement->getName()]) === true) {
+        /**
+         * If form element's name contains [], or an element with the same name is not already set, add the
+         * form element. @todo Should really check if name ends in [] to prevent matching name like bad[]match
+         */
+        if (empty(strpos($formElement->getName(), '[]')) === false || !isset($this->formElements[$formElement->getName()]) === true) {
             $this->formElements[$formElement->getName()] = $formElement;
             $this->addHtml($formElement);
             return true;
