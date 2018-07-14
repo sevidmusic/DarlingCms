@@ -119,7 +119,7 @@ class MultiAppStartup implements IAppStartup
                 array_push($jsPaths, $jsPath);
             }
         }
-        return $jsPaths;
+        return array_unique($jsPaths);
     }
 
     /**
