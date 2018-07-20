@@ -9,7 +9,7 @@ namespace DarlingCms\interfaces\html;
 
 /**
  * Interface IHtmlFormElement. Defines the basic contract of an implementation of the IHtmlTag interface
- * that generates the html for a form element.
+ * that constructs the html for a form element.
  * @package DarlingCms\interfaces\html
  */
 interface IHtmlFormElement extends IHtmlTag
@@ -24,7 +24,8 @@ interface IHtmlFormElement extends IHtmlTag
      * Returns an array of attribute name/value pairs assigned to the form element, where names are keys and
      * values are values. Note: This method will return an empty array if the form element is not assigned
      * any attributes.
-     * @return array An array of attributes assigned to the form element.
+     * @return array An array of attributes assigned to the form element, or an empty array if the form element
+     *               is not assigned any attributes.
      */
     public function getAttributes(): array;
 

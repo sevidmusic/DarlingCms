@@ -9,7 +9,7 @@
 namespace DarlingCms\interfaces\html;
 
 /**
- * Interface IHtmlTag. Defines the basic contract of an object that defines a string of html based on tag type,
+ * Interface IHtmlTag. Defines the basic contract of an object that constructs a string of html based on tag type,
  * attributes, and content.
  * @package DarlingCms\interfaces\html
  */
@@ -23,8 +23,9 @@ interface IHtmlTag extends IHtml
 
     /**
      * Returns an array of attribute name/value pairs assigned to the html tag where names are keys and
-     * values are values.
-     * @return array An array of attributes assigned to the html tag.
+     * values are values, or an empty array if the html tag is not assigned any attributes.
+     * @return array An array of attributes assigned to the html tag, or an empty array if the html tag is not
+     *               assigned any attributes.
      */
     public function getAttributes(): array;
 

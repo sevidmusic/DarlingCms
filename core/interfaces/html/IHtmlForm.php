@@ -9,7 +9,7 @@
 namespace DarlingCms\interfaces\html;
 
 /**
- * Interface IHtmlForm. Defines the basic contract of an interface that implements the IHtmlContainer interface
+ * Interface IHtmlForm. Defines the basic contract of a class that implements the IHtmlContainer interface
  * to generate the html for an html form.
  * @package DarlingCms\interfaces\html
  */
@@ -25,29 +25,33 @@ interface IHtmlForm extends IHtmlContainer
     /**
      * Returns an array of the IHtml implementation instances assigned to the form, or an empty array
      * if the form is not assigned any IHtml implementation instances.
-     * @return array An array of the IHtml implementations assigned to the form.
+     * @return array An array of the IHtml implementations assigned to the form, or an empty array
+     *               if the form is not assigned any IHtml implementation instances.
      */
     public function getHtmlArray(): array;
 
     /**
      * Returns the tag type of the form.
      * WARNING: Implementations that do not return the string 'form' will not generate an Html compliant form.
-     * @return string The tag type of the form.
+     * @return string The tag type of the form. Implementations MUST return the string 'form' or the html generated
+     *                will not reflect an Html compliant form.
      */
     public function getTagType(): string;
 
     /**
      * Returns an array of attribute name/value pairs assigned to the form, i.e., the attributes
-     * assigned to the form tag, or an empty array if the form is not assigned any attributes.
-     * @return array An array of attribute name/value pairs assigned to the form, or an empty
-     *               array if the form is not assigned any attributes.
+     * assigned to the form's outermost tag, or an empty array if the form's outermost tag is not
+     * assigned any attributes.
+     * @return array An array of attribute name/value pairs assigned to the form, i.e., the attributes
+     *               assigned to the form's outermost tag, or an empty array if the form's outermost
+     *               tag is not assigned any attributes.
      */
     public function getAttributes(): array;
 
     /**
      * Returns the html string constructed from the IHtml and IHtmlFormElement implementation instances assigned
      * to the form, or an empty string if the form is not assigned any IHtml or IHtmlFormElement implementation
-     * instances.
+     * instances. i.e., The form's html excluding the outermost tags.
      * @return string The html string constructed from the IHtml and IHtmlFormElement implementation instances
      *                assigned to the form, or an empty string if the form is not assigned any IHtml or
      *                IHtmlFormElement implementation instances.
@@ -55,8 +59,8 @@ interface IHtmlForm extends IHtmlContainer
     public function getContent(): string;
 
     /**
-     * Returns the forms html.
-     * @return string The forms html.
+     * Returns the form's html.
+     * @return string The form's html.
      */
     public function getHtml(): string;
 
@@ -75,9 +79,13 @@ interface IHtmlForm extends IHtmlContainer
 
     /**
      * Returns the name of the http method this form uses upon submission.
-     * Note: Implementations should either return the string 'get', or return the string 'post'.
-     * WARNING: Implementations that return a string other than 'get' or 'post' may not be submittable.
-     * @return string The name of the http method this form uses to submit it's form element values.
+     *
+     * Note: Implementations MUST either return the string 'get', or return the string 'post'.
+     *
+     * WARNING: Implementations that return a string other than 'get' or 'post' will not be submittable.
+     *
+     * @return string The name of the http method this form uses to submit it's form element values. Implementations
+     *                MUST return either the string 'get' or the string 'post' or the form will not be submittable.
      */
     public function getMethod(): string;
 }
