@@ -12,16 +12,20 @@ use DarlingCms\interfaces\startup\IAppStartup;
 use DarlingCms\interfaces\userInterface\IUserInterface;
 
 /**
- * Class CoreHtmlUserInterface. Defines an implementation of the IUserInterface and IHtmlPage interfaces that extends
- * the DOMDocument class. This class is responsible for generating the html user interface for the Darling Cms.
+ * Class CoreHtmlUserInterface. Defines an implementation of the IUserInterface and IHtmlPage interfaces
+ * that extends the DOMDocument class. This implementation is responsible for generating the html for the
+ * Darling Cms user interface.
  * @package DarlingCms\classes\userInterface
+ * @see CoreHtmlUserInterface::PRESERVE_EMPTY_ELEMENTS
  * @see CoreHtmlUserInterface::getDoctype()
  * @see CoreHtmlUserInterface::getHead()
  * @see CoreHtmlUserInterface::getBody()
  * @see CoreHtmlUserInterface::getUserInterface()
  * @see CoreHtmlUserInterface::setCssLinkTags()
  * @see CoreHtmlUserInterface::setJsLinkTags()
+ * @see CoreHtmlUserInterface::prepHtml()
  * @see CoreHtmlUserInterface::formatHtml()
+ * @see CoreHtmlUserInterface::cleanHtml()
  */
 class CoreHtmlUserInterface extends \DOMDocument implements IHtmlPage, IUserInterface
 {
@@ -41,14 +45,15 @@ class CoreHtmlUserInterface extends \DOMDocument implements IHtmlPage, IUserInte
     private $headCssLinksTags = array();
 
     /**
-     * @var array Array of script tags to assign to the head.
+     * @var array Array of script tags to assign to the end of the body.
      */
     private $headScriptsTags = array();
 
     /**
      * CoreHtmlUserInterface constructor. Injects the IAppStartup instance used by this object, and calls the
      * IAppStartup implementation's startup() method. Additionally, calls the setCssLinkTags() method, and the
-     * setJsScriptTags() method.
+     * setJsScriptTags() method in order to populate the $headCssLinksTags property's array and the $headScriptsTags
+     * property's array, respectively.
      * @param IAppStartup $appStartup Instance of an object that implements the IAppStartup interface.
      * @see IAppStartup::startup()
      * @see CoreHtmlUserInterface::setCssLinkTags()
@@ -63,7 +68,7 @@ class CoreHtmlUserInterface extends \DOMDocument implements IHtmlPage, IUserInte
     }
 
     /**
-     * Returns the Doctype.
+     * Returns the Doctype string.
      * @return string The Doctype.
      */
     public function getDoctype(): string
@@ -72,23 +77,29 @@ class CoreHtmlUserInterface extends \DOMDocument implements IHtmlPage, IUserInte
     }
 
     /**
-     * Returns the head.
-     * @return string The head.
+     * Returns the string of html for the html head.
+     * @return string The head's html.
      */
     public function getHead(): string
     {
-        return '<head><title>Darling Cms</title>' . implode('', $this->headCssLinksTags) . implode('', $this->headScriptsTags) . '</head>';
+        $viewport = '<meta name="viewport" content="width=device-width, initial-scale=1.0">';
+        return '<head><title>Darling Cms</title>' . $viewport . implode('', $this->headCssLinksTags) . '</head>';
     }
 
     /**
-     * Returns the body. The body's content is determined by the string returned by the IAppStartup instance's
-     * getAppOutput() method.
-     * @return string The body.
+     * Returns the string of html for the html body.
+     *
+     * Note: The body's content is determined by the string returned by the IAppStartup
+     * instance's getAppOutput() method.
+     *
+     * Note: The $headScriptsTags property's array is imploded and appended to the end of the body's content.
+     *
+     * @return string The body's html.
      * @see IAppStartup::getAppOutput()
      */
     public function getBody(): string
     {
-        return '<body>' . $this->appStartup->getAppOutput() . '</body>';
+        return '<body>' . $this->appStartup->getAppOutput() . implode('', $this->headScriptsTags) . '</body>';
     }
 
     /**
@@ -105,7 +116,8 @@ class CoreHtmlUserInterface extends \DOMDocument implements IHtmlPage, IUserInte
     }
 
     /**
-     * Set the link tags for any css file paths returned by the IAppStartup implementation's getCssPaths() method.
+     * Set the link tags for any css file paths returned by the IAppStartup implementation's getCssPaths() method
+     * in the $headCssLinks property's array.
      * @see IAppStartup::getCssPaths()
      */
     private function setCssLinkTags(): void
@@ -120,7 +132,7 @@ class CoreHtmlUserInterface extends \DOMDocument implements IHtmlPage, IUserInte
 
     /**
      * Set the script tags for any javascript file paths returned by the IAppStartup implementation's getJsPaths()
-     * method.
+     * method in the $headScriptsTags property's array.
      * @see IAppStartup::getJsPaths()
      */
     private function setJsLinkTags(): void
@@ -142,6 +154,7 @@ class CoreHtmlUserInterface extends \DOMDocument implements IHtmlPage, IUserInte
      * to insure empty elements are preserved when html is processed by the formatHtml() method.
      * @param string $html The html to prep.
      * @return string The prepped html.
+     * @see CoreHtmlUserInterface::PRESERVE_EMPTY_ELEMENTS
      */
     private function prepHtml(string $html): string
     {
@@ -155,9 +168,11 @@ class CoreHtmlUserInterface extends \DOMDocument implements IHtmlPage, IUserInte
      * @param string $html The html to be formatted.
      * @return string The formatted html.
      * @see \DOMDocument::loadHTML()
+     * @see CoreHtmlUserInterface::prepHtml()
+     * @see CoreHtmlUserInterface::cleanHtml()
      * @see \DOMDocument::saveXML()
-     * @credit Html formatting solution using DOMDocument::saveXml() instead of DOMDocument::saveHtml() was found
-     *         on Stack Overflow:
+     * @credit Html formatting solution using DOMDocument::saveXml() instead of DOMDocument::saveHtml() was adopted
+     *         from an answer found on Stack Overflow:
      * @see https://stackoverflow.com/questions/768215/php-pretty-print-html-not-tidy
      */
     private function formatHtml(string $html)
@@ -169,7 +184,9 @@ class CoreHtmlUserInterface extends \DOMDocument implements IHtmlPage, IUserInte
         /* Make sure html will be formatted. */
         $this->formatOutput = true;
         /*
-         * Return the formatted html by calling the DOMDocument::saveXml() method to insure elements are formatted with
+         * Return the formatted html by passing the value returned by saveXML() to the cleanHtml() method, and
+         * returning the value returned by cleanHtml().
+         * Note: The DOMDocument::saveXml() method is used to insure elements are formatted with
          * tabs, not just new lines.
          * @see https://stackoverflow.com/questions/768215/php-pretty-print-html-not-tidy for further explanation of
          * why the DOMDocument::saveXml() method is used instead of the DOMDocument::saveHtml() method.
@@ -183,6 +200,7 @@ class CoreHtmlUserInterface extends \DOMDocument implements IHtmlPage, IUserInte
      * @param string $html The string returned by saveXml().
      * @return string The cleansed string.
      * @see https://stackoverflow.com/questions/709669/how-do-i-remove-blank-lines-from-text-in-php?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
+     * @see CoreHtmlUserInterface::PRESERVE_EMPTY_ELEMENTS
      */
     private function cleanHtml(string $html): string
     {
