@@ -11,16 +11,20 @@ use DarlingCms\interfaces\crud\ICrud;
 
 /**
  * Class SessionCrud. Defines an implementation of the ICrud interface that is responsible for creating, reading,
- * updating, and deleting data from the current $_SESSION.
+ * updating, and deleting data from the current session.
  * @package DarlingCms\classes\crud
+ * @see SessionCrud::create()
+ * @see SessionCrud::read()
+ * @see SessionCrud::update()
+ * @see SessionCrud::delete()
  */
 class SessionCrud implements ICrud
 {
     /**
-     * Create data associated with an id.
-     * @param string $dataId The id to associate with the data.
+     * Create data in the current session.
+     * @param string $dataId The index to associate the data with in the current session.
      * @param mixed $data The data.
-     * @return bool True if data was created successfully, false otherwise.
+     * @return bool True if data was successfully stored in the current session, false otherwise.
      */
     public function create(string $dataId, $data): bool
     {
@@ -32,9 +36,9 @@ class SessionCrud implements ICrud
     }
 
     /**
-     * Read data associated with an id.
+     * Read data associated with an id from the current session.
      * Note: null is returned if the data does not exist in the session, or the data has the value null.
-     * @param string $dataId The id associated with the data to be read.
+     * @param string $dataId The index associated with the data to be read from the current session.
      * @return mixed The data.
      */
     public function read(string $dataId)
@@ -44,8 +48,8 @@ class SessionCrud implements ICrud
     }
 
     /**
-     * Update data associated with an id.
-     * @param string $dataId The id associated with the data to be updated.
+     * Update data associated in the current session.
+     * @param string $dataId The index associated with the data to be updated in the current session.
      * @param mixed $newData The new data.
      * @return bool True if update was successful, false otherwise.
      */
@@ -55,9 +59,9 @@ class SessionCrud implements ICrud
     }
 
     /**
-     * Delete data associated with an id.
-     * @param string $dataId The id associated with the data to be deleted.
-     * @return bool True if data was deleted, false otherwise.
+     * Delete data from the current session.
+     * @param string $dataId The index associated with the data to be deleted from the current session.
+     * @return bool True if data was deleted from the current session, false otherwise.
      */
     public function delete(string $dataId): bool
     {
