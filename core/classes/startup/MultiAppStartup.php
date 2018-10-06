@@ -291,7 +291,7 @@ class MultiAppStartup implements IAppStartup
     private function setAppStartupObjects(): void
     {
         foreach ($this->appConfigObjects as $appConfigObject) {
-            array_push($this->appStartupObjects, new AppStartup($appConfigObject));
+            array_push($this->appStartupObjects, new AppStartupJsonCache($appConfigObject));
         }
     }
 

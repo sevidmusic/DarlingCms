@@ -19,33 +19,33 @@ use DarlingCms\interfaces\startup\IAppStartup;
  * constant in seconds for the cached app output to be considered valid.
  *
  * @package DarlingCms\classes\startup
- * @see AppStartup::CACHE_LIFETIME
- * @see AppStartup::ROOT_DIR_INDEX
- * @see AppStartup::ROOT_URL_INDEX
- * @see AppStartup::APPS_DIR_INDEX
- * @see AppStartup::THEMES_DIR_INDEX
- * @see AppStartup::JS_DIR_INDEX
- * @see AppStartup::CSS_PATHS_INDEX
- * @see AppStartup::JS_PATHS_INDEX
- * @see AppStartup::CACHE_PATH_INDEX
- * @see AppStartup::getCssPaths()
- * @see AppStartup::getJsPaths()
- * @see AppStartup::getAppOutput()
- * @see AppStartup::getPaths()
- * @see AppStartup::startup()
- * @see AppStartup::compileAppOutput()
- * @see AppStartup::includeOutput()
- * @see AppStartup::includeCachedOutput()
- * @see AppStartup::cacheAppOutput()
- * @see AppStartup::cleanCache()
- * @see AppStartup::loadCache()
- * @see AppStartup::setCssPaths()
- * @see AppStartup::setJsPaths()
- * @see AppStartup::getDirectoryListing()
- * @see AppStartup::shutdown()
- * @see AppStartup::restart()
+ * @see AppStartupJsonCache::CACHE_LIFETIME
+ * @see AppStartupJsonCache::ROOT_DIR_INDEX
+ * @see AppStartupJsonCache::ROOT_URL_INDEX
+ * @see AppStartupJsonCache::APPS_DIR_INDEX
+ * @see AppStartupJsonCache::THEMES_DIR_INDEX
+ * @see AppStartupJsonCache::JS_DIR_INDEX
+ * @see AppStartupJsonCache::CSS_PATHS_INDEX
+ * @see AppStartupJsonCache::JS_PATHS_INDEX
+ * @see AppStartupJsonCache::CACHE_PATH_INDEX
+ * @see AppStartupJsonCache::getCssPaths()
+ * @see AppStartupJsonCache::getJsPaths()
+ * @see AppStartupJsonCache::getAppOutput()
+ * @see AppStartupJsonCache::getPaths()
+ * @see AppStartupJsonCache::startup()
+ * @see AppStartupJsonCache::compileAppOutput()
+ * @see AppStartupJsonCache::includeOutput()
+ * @see AppStartupJsonCache::includeCachedOutput()
+ * @see AppStartupJsonCache::cacheAppOutput()
+ * @see AppStartupJsonCache::cleanCache()
+ * @see AppStartupJsonCache::loadCache()
+ * @see AppStartupJsonCache::setCssPaths()
+ * @see AppStartupJsonCache::setJsPaths()
+ * @see AppStartupJsonCache::getDirectoryListing()
+ * @see AppStartupJsonCache::shutdown()
+ * @see AppStartupJsonCache::restart()
  */
-class AppStartup implements IAppStartup
+class AppStartupJsonCache implements IAppStartup
 {
     /**
      * @var int The number of seconds cached app output is considered valid.
@@ -115,15 +115,15 @@ class AppStartup implements IAppStartup
      * method to insure the cache is clean.
      * @param IAppConfig $appConfig An instance of an object that implements the IAppConfig interface. This will most
      *                              likely be the App's implementation of the IAppConfig interface.
-     * @see AppStartup::ROOT_DIR_INDEX
-     * @see AppStartup::ROOT_URL_INDEX
-     * @see AppStartup::APPS_DIR_INDEX
-     * @see AppStartup::THEMES_DIR_INDEX
-     * @see AppStartup::JS_DIR_INDEX
-     * @see AppStartup::CSS_PATHS_INDEX
-     * @see AppStartup::JS_PATHS_INDEX
-     * @see AppStartup::CACHE_PATH_INDEX
-     * @see AppStartup::cleanCache()
+     * @see AppStartupJsonCache::ROOT_DIR_INDEX
+     * @see AppStartupJsonCache::ROOT_URL_INDEX
+     * @see AppStartupJsonCache::APPS_DIR_INDEX
+     * @see AppStartupJsonCache::THEMES_DIR_INDEX
+     * @see AppStartupJsonCache::JS_DIR_INDEX
+     * @see AppStartupJsonCache::CSS_PATHS_INDEX
+     * @see AppStartupJsonCache::JS_PATHS_INDEX
+     * @see AppStartupJsonCache::CACHE_PATH_INDEX
+     * @see AppStartupJsonCache::cleanCache()
      */
     public function __construct(IAppConfig $appConfig)
     {
@@ -147,7 +147,7 @@ class AppStartup implements IAppStartup
      * if the app is not assigned any themes, or startup failed.
      * @return array Array of paths to the css files belonging to the themes assigned to the app, or an empty array
      *               if the app is not assigned any themes, or startup failed.
-     * @see AppStartup::CSS_PATHS_INDEX
+     * @see AppStartupJsonCache::CSS_PATHS_INDEX
      */
     public function getCssPaths(): array
     {
@@ -159,7 +159,7 @@ class AppStartup implements IAppStartup
      * or an empty array if the app is not assigned any javascript libraries, or startup failed.
      * @return array Array of paths to the javascript files belonging to the javascript libraries assigned to the app,
      *               or an empty array if the app is not assigned any javascript libraries, or startup failed.
-     * @see AppStartup::JS_PATHS_INDEX
+     * @see AppStartupJsonCache::JS_PATHS_INDEX
      */
     public function getJsPaths(): array
     {
@@ -208,14 +208,14 @@ class AppStartup implements IAppStartup
      * AppStartup::CACHE_PATH_INDEX : The absolute path to the file used to cache app output.
      *
      * @return array The array of paths assigned to the $paths property's array.
-     * @see AppStartup::ROOT_DIR_INDEX
-     * @see AppStartup::ROOT_URL_INDEX
-     * @see AppStartup::APPS_DIR_INDEX
-     * @see AppStartup::THEMES_DIR_INDEX
-     * @see AppStartup::JS_DIR_INDEX
-     * @see AppStartup::CSS_PATHS_INDEX
-     * @see AppStartup::JS_PATHS_INDEX
-     * @see AppStartup::CACHE_PATH_INDEX
+     * @see AppStartupJsonCache::ROOT_DIR_INDEX
+     * @see AppStartupJsonCache::ROOT_URL_INDEX
+     * @see AppStartupJsonCache::APPS_DIR_INDEX
+     * @see AppStartupJsonCache::THEMES_DIR_INDEX
+     * @see AppStartupJsonCache::JS_DIR_INDEX
+     * @see AppStartupJsonCache::CSS_PATHS_INDEX
+     * @see AppStartupJsonCache::JS_PATHS_INDEX
+     * @see AppStartupJsonCache::CACHE_PATH_INDEX
      */
     public function getPaths(): array
     {
@@ -239,9 +239,9 @@ class AppStartup implements IAppStartup
      *
      * @return bool True if startup was successful, false otherwise.
      * @see IAppConfig::validateAccess()
-     * @see AppStartup::compileAppOutput()
-     * @see AppStartup::setCssPaths()
-     * @see AppStartup::setJsPaths()
+     * @see AppStartupJsonCache::compileAppOutput()
+     * @see AppStartupJsonCache::setCssPaths()
+     * @see AppStartupJsonCache::setJsPaths()
      */
     public function startup(): bool
     {
@@ -258,8 +258,8 @@ class AppStartup implements IAppStartup
      * the output will be compiled by including the app. This method will return true if the app output was
      * compiled successfully either from the cache or by including the app, false otherwise.
      * @return bool True if app's output was compiled successfully, false otherwise.
-     * @see AppStartup::includeCachedOutput()
-     * @see AppStartup::includeOutput()
+     * @see AppStartupJsonCache::includeCachedOutput()
+     * @see AppStartupJsonCache::includeOutput()
      */
     private function compileAppOutput(): bool
     {
@@ -273,9 +273,9 @@ class AppStartup implements IAppStartup
      * Includes the app's APP_NAME.php file to get the app's output. If include is successful, the output
      * is assigned to the $appOutput property and cached.
      * @return bool True if app output was included and cached successfully, false otherwise.
-     * @see AppStartup::APPS_DIR_INDEX
+     * @see AppStartupJsonCache::APPS_DIR_INDEX
      * @see IAppConfig::getName()
-     * @see AppStartup::cacheAppOutput()
+     * @see AppStartupJsonCache::cacheAppOutput()
      */
     private function includeOutput(): bool
     {
@@ -293,7 +293,7 @@ class AppStartup implements IAppStartup
     /**
      * Assigns the cached app output to the $appOutput property.
      * @return bool True if cached output was assigned to the $appOutput property, false otherwise.
-     * @see AppStartup::loadCache()
+     * @see AppStartupJsonCache::loadCache()
      * @see IAppConfig::getName()
      */
     private function includeCachedOutput(): bool
@@ -309,9 +309,9 @@ class AppStartup implements IAppStartup
     /**
      * Caches the app output assigned to the $appOutput property.
      * @return bool True if app output was cached, false otherwise.
-     * @see AppStartup::loadCache()
+     * @see AppStartupJsonCache::loadCache()
      * @see IAppConfig::getName()
-     * @see AppStartup::CACHE_PATH_INDEX
+     * @see AppStartupJsonCache::CACHE_PATH_INDEX
      */
     private function cacheAppOutput(): bool
     {
@@ -334,9 +334,9 @@ class AppStartup implements IAppStartup
      * WARNING: If the cache fails to update itself, this method will return false.
      *
      * @return bool True if cache was cleaned and updated, false otherwise.
-     * @see AppStartup::loadCache()
-     * @see AppStartup::CACHE_LIFETIME
-     * @see AppStartup::CACHE_PATH_INDEX
+     * @see AppStartupJsonCache::loadCache()
+     * @see AppStartupJsonCache::CACHE_LIFETIME
+     * @see AppStartupJsonCache::CACHE_PATH_INDEX
      */
     private function cleanCache(): bool
     {
@@ -355,7 +355,7 @@ class AppStartup implements IAppStartup
     /**
      * Returns an array of cached data, or an empty array if there is no cached data.
      * @return array An array of cached data, or an empty array if there is no cached data.
-     * @see AppStartup::CACHE_PATH_INDEX
+     * @see AppStartupJsonCache::CACHE_PATH_INDEX
      */
     private function loadCache(): array
     {
@@ -370,11 +370,11 @@ class AppStartup implements IAppStartup
      * Assigns the paths to the css files belonging to the themes assigned to the app to the array assigned to
      * the CSS_PATHS_INDEX in the $paths property's array.
      * @see IAppConfig::getThemeNames()
-     * @see AppStartup::getDirectoryListing()
-     * @see AppStartup::ROOT_DIR_INDEX
-     * @see AppStartup::THEMES_DIR_INDEX
-     * @see AppStartup::ROOT_URL_INDEX
-     * @see AppStartup::CSS_PATHS_INDEX
+     * @see AppStartupJsonCache::getDirectoryListing()
+     * @see AppStartupJsonCache::ROOT_DIR_INDEX
+     * @see AppStartupJsonCache::THEMES_DIR_INDEX
+     * @see AppStartupJsonCache::ROOT_URL_INDEX
+     * @see AppStartupJsonCache::CSS_PATHS_INDEX
      */
     private function setCssPaths(): void
     {
@@ -391,11 +391,11 @@ class AppStartup implements IAppStartup
      * Assigns the paths to the javascript files belonging to the javascript libraries assigned to the app to
      * the array assigned to the JS_PATHS_INDEX in the $paths property's array.
      * @see IAppConfig::getJsLibraryNames()
-     * @see AppStartup::getDirectoryListing()
-     * @see AppStartup::ROOT_DIR_INDEX
-     * @see AppStartup::JS_DIR_INDEX
-     * @see AppStartup::ROOT_URL_INDEX
-     * @see AppStartup::JS_PATHS_INDEX
+     * @see AppStartupJsonCache::getDirectoryListing()
+     * @see AppStartupJsonCache::ROOT_DIR_INDEX
+     * @see AppStartupJsonCache::JS_DIR_INDEX
+     * @see AppStartupJsonCache::ROOT_URL_INDEX
+     * @see AppStartupJsonCache::JS_PATHS_INDEX
      */
     private function setJsPaths(): void
     {
@@ -438,8 +438,8 @@ class AppStartup implements IAppStartup
      * and resets the array assigned to the AppStartup::JS_PATHS_INDEX index in the $paths property's array back
      * to an empty array.
      * @return bool True if shutdown was successful, false otherwise.
-     * @see AppStartup::CSS_PATHS_INDEX
-     * @see AppStartup::JS_PATHS_INDEX
+     * @see AppStartupJsonCache::CSS_PATHS_INDEX
+     * @see AppStartupJsonCache::JS_PATHS_INDEX
      */
     public function shutdown(): bool
     {
@@ -452,8 +452,8 @@ class AppStartup implements IAppStartup
     /**
      * Handles restart logic. Calls the shutdown() method, and then the startup() method.
      * @return bool True if restart was successful, i.e. shutdown and startup were both successful, false otherwise.
-     * @see AppStartup::shutdown()
-     * @see AppStartup::startup()
+     * @see AppStartupJsonCache::shutdown()
+     * @see AppStartupJsonCache::startup()
      */
     public function restart(): bool
     {
