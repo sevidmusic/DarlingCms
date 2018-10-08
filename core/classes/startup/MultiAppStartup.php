@@ -38,14 +38,32 @@ use DarlingCms\interfaces\startup\IAppStartup;
 class MultiAppStartup implements IAppStartup
 {
     /**
-     * Constants for the values of the keys/indexes of the $paths property's array.
-     * These constants can be used to specify a the index of the value to get from the $paths
-     * property array.
+     * @var string Index assigned to the value of the path to the apps directory in the $paths property's array.
      */
     const APP_DIR_PATH_KEY = 'appDirPath';
+    /**
+     * @var string Index assigned to the array of paths to the respective AppConfig.php files in the $paths
+     *             property's array.
+     */
     const APP_CONFIG_PATHS_KEY = 'appConfigPaths';
+    /**
+     * @var string Index assigned to the array of css paths in the $paths property's array.
+     */
     const CSS_PATHS_KEY = 'cssPaths';
+    /**
+     * @var string Index assigned to the array of js paths in the $paths property's array.
+     */
     const JS_PATHS_KEY = 'jsPaths';
+
+    /**
+     * @var string Default startup mode, utilizes the AppStartup implementation of the IAppStartup interface.
+     */
+    const STARTUP_DEFAULT = 2;
+
+    /**
+     * @var string Startup mode that utilizes the AppStartupJsonCache implementation of the IAppStartup interface.
+     */
+    const STARTUP_JSON_CACHE = 4;
 
     /**
      * @var string The path to the Darling Cms apps directory.
@@ -78,12 +96,33 @@ class MultiAppStartup implements IAppStartup
     private $excludedApps = array();
 
     /**
+     * @var int The mode to use for startup. This determines which IAppStartup implementation is used.
+     *          Supported modes are represented by the following class constants:
+     *          - self::STARTUP_DEFAULT    Startup using the AppStartup implementation of the IAppStartup interface
+     *                                     which does not use a caching mechanism.
+     *          - self::STARTUP_JSON_CACHE Startup using the AppStartupJsonCache implementation of the IAppStartup
+     *                                     interface which uses JSON as a caching mechanism.
+     */
+    private $startupMode = self::STARTUP_DEFAULT;
+
+    /**
      * MultiAppStartup constructor. Determines the path to the Darling Cms apps directory and assigns it to the
      * $appDirPath property.
+     * @param int $startupMode The mode to use for startup. This determines which IAppStartup implementation is used.
+     *          Supported modes are represented by the following class constants:
+     *          - self::STARTUP_DEFAULT    Startup using the AppStartup implementation of the IAppStartup interface
+     *                                     which does not use a caching mechanism.
+     *          - self::STARTUP_JSON_CACHE Startup using the AppStartupJsonCache implementation of the IAppStartup
+     *                                     interface which uses JSON as a caching mechanism.
      */
-    public function __construct()
+    public function __construct(int $startupMode = 2)
     {
+        $this->startupMode = $startupMode;
         $this->appDirPath = str_replace('core/classes/startup', 'apps', __DIR__);
+        $this->setAppConfigPaths();
+        $this->setAppNamespaces();
+        $this->setAppConfigObjects();
+        $this->setAppStartupObjects();
     }
 
     /**
@@ -250,10 +289,6 @@ class MultiAppStartup implements IAppStartup
      */
     public function startup(): bool
     {
-        $this->setAppConfigPaths();
-        $this->setAppNamespaces();
-        $this->setAppConfigObjects();
-        $this->setAppStartupObjects();
         $status = array();
         foreach ($this->appStartupObjects as $startupObject) {
             array_push($status, $startupObject->startup());
@@ -291,7 +326,16 @@ class MultiAppStartup implements IAppStartup
     private function setAppStartupObjects(): void
     {
         foreach ($this->appConfigObjects as $appConfigObject) {
-            array_push($this->appStartupObjects, new AppStartup($appConfigObject));
+            switch ($this->startupMode) {
+                case self::STARTUP_DEFAULT:
+                    var_dump('using no cache');
+                    array_push($this->appStartupObjects, new AppStartup($appConfigObject));
+                    break;
+                case self::STARTUP_JSON_CACHE:
+                    var_dump('using json cache');
+                    array_push($this->appStartupObjects, new AppStartupJsonCache($appConfigObject));
+                    break;
+            }
         }
     }
 
