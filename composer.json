@@ -12,7 +12,10 @@
     }
   ],
   "minimum-stability": "dev",
-  "require": {},
+  "require": {
+    "ext-json": "*",
+    "ext-bcmath": "*"
+  },
   "autoload": {
     "psr-4": {
       "DarlingCms\\": "core/",

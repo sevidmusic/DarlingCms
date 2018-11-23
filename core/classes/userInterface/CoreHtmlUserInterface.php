@@ -180,7 +180,7 @@ class CoreHtmlUserInterface extends \DOMDocument implements IHtmlPage, IUserInte
         /* Make sure whitespace is ignored. */
         $this->preserveWhiteSpace = false;
         /* Load $html into the $dom. */
-        $this->loadHTML($this->prepHtml($html));
+        @$this->loadHTML($this->prepHtml($html)); // @todo: Figure out better way to handle syntax errors like "PHP Warning: DOMDocument::loadHTML(): Tag a-scene invalid in Entity..."
         /* Make sure html will be formatted. */
         $this->formatOutput = true;
         /*
