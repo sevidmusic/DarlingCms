@@ -90,7 +90,7 @@ class ZipCrud extends \ZipArchive
     /**
      * @param $path
      * @return bool
-     * @todo: IMPORTANT -> Resolve partial delete on internal error. If this method fails, any items successfully removed prior to failure should be restored!!!
+     * @todo ! Resolve partial delete on internal error. If this method fails, any items successfully removed prior to failure should be restored!!!
      * @todo: This method should NOT be static, it is for now because this method will eventually be a public method of the FileCrud class once it is created.
      * @todo: Move this method into the FileCrud class once it is created.
      */

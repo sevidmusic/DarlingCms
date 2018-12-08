@@ -83,7 +83,7 @@ class CoreHtmlUserInterface extends \DOMDocument implements IHtmlPage, IUserInte
     public function getHead(): string
     {
         $viewport = '<meta name="viewport" content="width=device-width, initial-scale=1.0">';
-        return '<head><title>Darling Cms</title>' . $viewport . implode('', $this->headCssLinksTags) . '</head>';
+        return '<head><title>Darling Cms</title>' . $viewport . implode('', $this->headCssLinksTags) . implode('', $this->headScriptsTags) . '</head>';
     }
 
     /**
@@ -99,7 +99,7 @@ class CoreHtmlUserInterface extends \DOMDocument implements IHtmlPage, IUserInte
      */
     public function getBody(): string
     {
-        return '<body>' . $this->appStartup->getAppOutput() . implode('', $this->headScriptsTags) . '</body>';
+        return '<body>' . $this->appStartup->getAppOutput() . '</body>';
     }
 
     /**
@@ -112,7 +112,7 @@ class CoreHtmlUserInterface extends \DOMDocument implements IHtmlPage, IUserInte
      */
     public function getUserInterface(): string
     {
-        return $this->formatHtml($this->getDoctype() . '<html lang="en">' . $this->getHead() . $this->getBody() . '</html>');
+        return trim($this->formatHtml($this->getDoctype() . '<html lang="en">' . $this->getHead() . $this->getBody() . '</html>'));
     }
 
     /**
@@ -140,7 +140,7 @@ class CoreHtmlUserInterface extends \DOMDocument implements IHtmlPage, IUserInte
         foreach ($this->appStartup->getJsPaths() as $jsPath) {
             /* Html comment added between script tags to prevent formatting from replacing closing script tag with />,
              * this is a hack till a workaround is found. */
-            $scriptTag = '<script src="' . $jsPath . '"><!-- --></script>';
+            $scriptTag = '<script src="' . $jsPath . '" defer><!-- --></script>';
             if (in_array($scriptTag, $this->headScriptsTags) === false) {
                 array_push($this->headScriptsTags, $scriptTag);
             }
