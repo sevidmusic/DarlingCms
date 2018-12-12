@@ -10,6 +10,8 @@
 
 namespace DarlingCms\interfaces\database;
 
+use \PDO as PDO;
+
 /**
  * Interface IPDO. This interface serves to define the contract of a PDO object reflective of the PDO
  * object made available by PHP. Sadly, PHP does not define such an interface, or at least I have not
@@ -31,7 +33,7 @@ interface IPDO
      * @param string $passwd [optional]
      * @param array $options [optional]
      */
-    public function __construct($dsn, $username, $passwd, $options);
+    public function __construct(string $dsn, string $username, string $passwd, array $options);
 
     /**
      * (PHP 5 &gt;= 5.1.0, PHP 7, PECL pdo &gt;= 0.1.0)<br/>
@@ -152,31 +154,6 @@ interface IPDO
      */
     public function exec($statement);
 
-    /**
-     * (PHP 5 &gt;= 5.1.0, PHP 7, PECL pdo &gt;= 0.2.0)<br/>
-     * Executes an SQL statement, returning a result set as a PDOStatement object
-     * @link https://php.net/manual/en/pdo.query.php
-     * @param string $statement <p>
-     * The SQL statement to prepare and execute.
-     * </p>
-     * <p>
-     * Data inside the query should be properly escaped.
-     * </p>
-     * @param int $mode <p>
-     * The fetch mode must be one of the PDO::FETCH_* constants.
-     * </p>
-     * @param mixed $arg3 <p>
-     * The second and following parameters are the same as the parameters for PDOStatement::setFetchMode.
-     * </p>
-     * @param array $ctorargs [optional] <p>
-     * Arguments of custom class constructor when the <i>mode</i>
-     * parameter is set to <b>PDO::FETCH_CLASS</b>.
-     * </p>
-     * @return PDOStatement|false <b>PDO::query</b> returns a PDOStatement object, or <b>FALSE</b>
-     * on failure.
-     * @see PDOStatement::setFetchMode For a full description of the second and following parameters.
-     */
-    public function query($statement, $mode = PDO::ATTR_DEFAULT_FETCH_MODE, $arg3 = null, array $ctorargs = array());
 
     /**
      * (PHP 5 &gt;= 5.1.0, PHP 7, PECL pdo &gt;= 0.1.0)<br/>
@@ -347,5 +324,45 @@ interface IPDO
      * </p>
      * @return bool <b>TRUE</b> on success or <b>FALSE</b> on failure.
      */
-    public function sqliteCreateFunction($function_name, $callback, $num_args = -1, $flags = 0);
+    /**
+     * WARNNING: Defining the following methods as part of the interface causes the following error when
+     * implementing this interface:
+     * PHP Fatal error: Class IMPLEMENTER contains 1 abstract method and must therefore be declared abstract
+     * or implement the remaining methods (IMPLEMENTER::sqliteCreateFunction)...
+     * @todo ! Find a way to properly define this method as part of this interface.
+     */
+    //public function sqliteCreateFunction($function_name, $callback, $num_args = -1, $flags = 0);
+
+    /**
+     * (PHP 5 &gt;= 5.1.0, PHP 7, PECL pdo &gt;= 0.2.0)<br/>
+     * Executes an SQL statement, returning a result set as a PDOStatement object
+     * @link https://php.net/manual/en/pdo.query.php
+     * @param string $statement <p>
+     * The SQL statement to prepare and execute.
+     * </p>
+     * <p>
+     * Data inside the query should be properly escaped.
+     * </p>
+     * @param int $mode <p>
+     * The fetch mode must be one of the PDO::FETCH_* constants.
+     * </p>
+     * @param mixed $arg3 <p>
+     * The second and following parameters are the same as the parameters for PDOStatement::setFetchMode.
+     * </p>
+     * @param array $ctorargs [optional] <p>
+     * Arguments of custom class constructor when the <i>mode</i>
+     * parameter is set to <b>PDO::FETCH_CLASS</b>.
+     * </p>
+     * @return PDOStatement|false <b>PDO::query</b> returns a PDOStatement object, or <b>FALSE</b>
+     * on failure.
+     * @see PDOStatement::setFetchMode For a full description of the second and following parameters.
+     */
+    /**
+     * WARNNING: Defining the following methods as part of the interface causes the following error when
+     * implementing this interface:
+     * PHP Fatal error: Interface function IMPLEMENTER::query() cannot contain body
+     * in IMPLEMENTER...
+     * @todo ! Find a way to properly define this method as part of this interface.
+     */
+    //public function query ($statement, $mode = PDO::ATTR_DEFAULT_FETCH_MODE, $arg3 = null, array $ctorargs = array()) {}
 }
