@@ -5,10 +5,8 @@
  * Time: 15:07
  */
 
-namespace DarlingCms\interfaces\accessControl;
+namespace DarlingCms\interfaces\privilege;
 
-
-use DarlingCms\interfaces\privilege\IAction;
 
 interface IPermission
 {

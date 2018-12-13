@@ -5,7 +5,7 @@
  * Time: 15:08
  */
 
-namespace DarlingCms\interfaces\accessControl;
+namespace DarlingCms\interfaces\privilege;
 
 
 interface IRole
@@ -27,5 +27,5 @@ interface IRole
      * @param IPermission $permission The permission to check for.
      * @return bool True if the role is assigned the specified permission, false otherwise.
      */
-    public function hasRole(IPermission $permission): bool;
+    public function hasPermission(IPermission $permission): bool;
 }

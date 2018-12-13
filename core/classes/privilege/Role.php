@@ -8,8 +8,8 @@
 namespace DarlingCms\classes\privilege;
 
 
-use DarlingCms\interfaces\accessControl\IPermission;
-use DarlingCms\interfaces\accessControl\IRole;
+use DarlingCms\interfaces\privilege\IPermission;
+use DarlingCms\interfaces\privilege\IRole;
 
 /**
  * Class Role. Defines a simple implementation of the IRole interface.
@@ -55,7 +55,7 @@ class Role implements IRole
      * @param IPermission $permission The permission to check for.
      * @return bool True if the role is assigned the specified permission, false otherwise.
      */
-    public function hasRole(IPermission $permission): bool
+    public function hasPermission(IPermission $permission): bool
     {
         return in_array($permission, $this->permissions, true);
     }

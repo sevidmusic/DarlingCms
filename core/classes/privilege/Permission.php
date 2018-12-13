@@ -8,8 +8,8 @@
 namespace DarlingCms\classes\privilege;
 
 
-use DarlingCms\interfaces\accessControl\IPermission;
 use DarlingCms\interfaces\privilege\IAction;
+use DarlingCms\interfaces\privilege\IPermission;
 
 /**
  * Class Permission. Simple implementation of the IPermission interface.
