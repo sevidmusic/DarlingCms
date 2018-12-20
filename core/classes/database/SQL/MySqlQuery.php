@@ -53,7 +53,7 @@ class MySqlQuery extends PDO implements ISQLQuery
     public function __construct(string $dsn, string $username = '', string $passwd = '', array $options = array())
     {
         if (empty($options) === true) {
-            $options = $this->defaultOptions;
+            $options = self::DEFAULT_OPTIONS;
         }
         parent::__construct($dsn, $username, $passwd, $options);
     }
@@ -62,10 +62,22 @@ class MySqlQuery extends PDO implements ISQLQuery
     /**
      * Query the database.
      * @param string $sql The SQL statement to run.
-     * @param array $params (optional) Any parameters that should be included in the query.
-     * @return \PDOStatement A PDOStatement object representing the query's prepared statement.
+     * @param array $params (optional) An array of values with as many elements as there are bound parameters
+     * in the SQL statement being executed. All values are treated as PDO::PARAM_STR. Multiple values cannot
+     * be bound to a single parameter; for example, it is not allowed to bind two values to a single named
+     * parameter in an IN() clause. Binding more values than specified is not possible; if more keys exist
+     * in input_parameters than in the SQL specified in the PDO::prepare(), then the statement will fail
+     * and an error is emitted.
+     * @return \PDOStatement If the database server successfully prepares the statement, PDO::prepare()
+     *                       returns a PDOStatement object. If the database server cannot successfully
+     *                       prepare the statement, PDO::prepare() returns FALSE or emits PDOException
+     *                       (depending on error handling)...
+     * @see \PDO::prepare()
+     * @see https://secure.php.net/manual/en/pdo.prepare.php
+     * @see \PDOStatement::execute()
+     * @see https://secure.php.net/manual/en/pdostatement.execute.php
      */
-    public function runQuery(string $sql, array $params = array()): \PDOStatement
+    public function executeQuery(string $sql, array $params = array()): \PDOStatement
     {
         $stmt = $this->prepare($sql);
         $stmt->execute($params);
@@ -86,15 +98,16 @@ class MySqlQuery extends PDO implements ISQLQuery
     }
 
     /**
-     * Gets an instance of a specified class using data from the specified table to
+     * Gets an instance of a specified class using data returned by the specified SQL query to
      * construct the instance.
+     * @param string $sql The SQL query to run.
      * @param string $className The name of the class to return an instance of.
-     * @param string $tableName The name of the table whose data will be used to construct the instance.
+     * @param array $params Array of query parameters.
      * @return mixed An instance of the specified class constructed from the data in the specified table.
      */
-    public function getObject(string $className, string $tableName)
+    public function getClass(string $sql, string $className, array $params = array())
     {
-        return $this->runQuery("SELECT * FROM {$tableName} LIMIT ?", ['14'])->fetchAll(PDO::FETCH_CLASS, $className);
+        return $this->executeQuery($sql, $params)->fetchAll(PDO::FETCH_CLASS | PDO::FETCH_PROPS_LATE, $className);
     }
 
 }
