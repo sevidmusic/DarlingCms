@@ -13,9 +13,9 @@ interface IUserCrud
 {
     public function create(IUser $user, IUserPassword $password): bool;
 
-    public function read(string $userName);
+    public function read(string $userName): IUser;
 
-    public function update(string $userName, IUser $user, IUserPassword $password, array $options = array());
+    public function update(string $userName, string $currentPassword, IUser $newUser, IUserPassword $newPassword): bool;
 
-    public function delete(string $userName);
+    public function delete(string $userName, string $currentPassword): bool;
 }
