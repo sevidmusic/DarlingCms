@@ -23,21 +23,22 @@ use DarlingCms\interfaces\database\IPDO;
 interface ISQLQuery extends IPDO
 {
     /**
-     * Query the database.
+     * Execute an SQL query.
      * @param string $sql The SQL statement to run.
      * @param array $params (optional) Any parameters that should be included in the query.
      * @return \PDOStatement A PDOStatement object representing the query's prepared statement.
      */
-    public function runQuery(string $sql, array $params = array()): \PDOStatement;
+    public function executeQuery(string $sql, array $params = array()): \PDOStatement;
 
     /**
-     * Gets an instance of a specified class using data from the specified table to
+     * Gets an instance of a specified class using data from the specified SQL query to
      * construct the instance.
+     * @param string $sql The SQL query to run.
      * @param string $className The name of the class to return an instance of.
-     * @param string $tableName The name of the table whose data will be used to construct the instance.
+     * @param array $params Array of parameters to pass to the query.
      * @return mixed An instance of the specified class constructed from the data in the specified table.
      */
-    public function getObject(string $className, string $tableName);
+    public function getClass(string $sql, string $className, array $params = array());
 
     /**
      * Generate a DSN string based on specified parameters.
