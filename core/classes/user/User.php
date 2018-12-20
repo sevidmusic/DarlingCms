@@ -189,7 +189,7 @@ class User implements IUser
 
     final private function unpackMeta(string $packedMeta)
     {
-        $meta = json_decode($packedMeta, true); // @todo ! Validate json!!!
+        $meta = json_decode($packedMeta, true); // @todo ! Validate json before trying to decode it!!!
         // @todo ! Important: Document to  behavior of the logic below as it may have security implications when false|default|: condition is met, i.e. when array_shift() is used.
         $this->meta[self::USER_PUBLIC_META_INDEX] = (isset($meta[self::USER_PUBLIC_META_INDEX]) === true ? $meta[self::USER_PUBLIC_META_INDEX] : array_shift($meta));
         $this->meta[self::USER_PRIVATE_META_INDEX] = (isset($meta[self::USER_PRIVATE_META_INDEX]) === true ? $meta[self::USER_PRIVATE_META_INDEX] : array_shift($meta));

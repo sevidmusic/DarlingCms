@@ -329,7 +329,7 @@ interface IPDO
      * implementing this interface:
      * PHP Fatal error: Class IMPLEMENTER contains 1 abstract method and must therefore be declared abstract
      * or implement the remaining methods (IMPLEMENTER::sqliteCreateFunction)...
-     * @todo ! Find a way to properly define this method as part of this interface.
+     * @todo ! Find a way to properly define the query() method as part of the IPDO interface.
      */
     //public function sqliteCreateFunction($function_name, $callback, $num_args = -1, $flags = 0);
 
@@ -360,7 +360,8 @@ interface IPDO
     /**
      * WARNNING: Defining the query() method as part of the interface causes the following error when
      * implementing this interface:
-     * PHP Fatal error: Declaration of PDO::query() must be compatible with IMPLEMENTER @todo ! fix/figure this out.
+     * PHP Fatal error: Declaration of PDO::query() must be compatible with IMPLEMENTER
+     * @bug please fix
      */
     //public function query($statement, $mode = PDO::ATTR_DEFAULT_FETCH_MODE, $arg3 = null, array $ctorargs = array());
 

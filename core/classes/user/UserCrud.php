@@ -147,7 +147,7 @@ class UserCrud implements IUserCrud
             $this->updateUserData($userName, $newUser);
             // update password
             $this->updateUserPasswordData($currentPassword, $newPassword);
-            return true; // @todo ! check db to see if new user credentials match, only then return true
+            return true; // @todo ! update() method: check db to see if new user credentials match, only then return true.
         }
         return false;
     }
@@ -251,32 +251,32 @@ class UserCrud implements IUserCrud
     /**
      * @var string The name of the table that user password data is stored in.
      */
-    const PASSWORD_TABLE_NAME = 'passwords'; // @todo ! *ACTIVE* Move to UserPasswordCrud
+    const PASSWORD_TABLE_NAME = 'passwords'; // @todo Move to UserPasswordCrud
 
     /**
      * @var string The name of the field where the user's id is stored in the passwords table.
      */
-    const PASSWORD_UID_FIELD = 'userId'; // @todo ! *ACTIVE* Move to UserPasswordCrud
+    const PASSWORD_UID_FIELD = 'userId'; // @todo Move to UserPasswordCrud
 
     /**
      * @var string The name of the field where the user's password is stored in the passwords table.
      */
-    const PASSWORD_PASS_FIELD = 'password'; // @todo ! *ACTIVE* Move to UserPasswordCrud
+    const PASSWORD_PASS_FIELD = 'password'; // @todo Move to UserPasswordCrud
 
     /**
      * @var string The name of the field where the password's id is stored in the passwords table.
      */
-    const PASSWORD_ID_FIELD = 'tableId'; // @todo ! *ACTIVE* Move to UserPasswordCrud
+    const PASSWORD_ID_FIELD = 'tableId'; // @todo Move to UserPasswordCrud
 
 
-// @todo ! *ACTIVE* Move to UserPasswordCrud
+// @todo Move to UserPasswordCrud
     private function generateUserPasswordTable(): bool
     {
         $this->mySqlQuery->executeQuery('CREATE TABLE ' . self::PASSWORD_TABLE_NAME . ' (' . self::PASSWORD_ID_FIELD . ' int auto_increment primary key, ' . self::PASSWORD_UID_FIELD . ' TEXT NOT NULL, ' . self::PASSWORD_PASS_FIELD . ' TEXT NOT NULL)');
         return $this->tableExists(self::PASSWORD_TABLE_NAME);
     }
 
-    // @todo ! *ACTIVE* Move to PasswordsCrud
+    // @todo Move to PasswordsCrud
     private function updateUserPasswordData(IUserPassword $currentPassword, IUserPassword $newPassword): void // @todo :bool
     {
         $this->mySqlQuery->executeQuery(
@@ -289,7 +289,7 @@ class UserCrud implements IUserCrud
         );
     }
 
-    // @todo ! *ACTIVE* Move to UserPasswordCrud
+    // @todo Move to UserPasswordCrud
     private function getUserPassword(string $userName, string $currentPassword): IUserPassword
     {
         // get user password
