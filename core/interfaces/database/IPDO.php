@@ -358,11 +358,11 @@ interface IPDO
      * @see PDOStatement::setFetchMode For a full description of the second and following parameters.
      */
     /**
-     * WARNNING: Defining the following methods as part of the interface causes the following error when
+     * WARNNING: Defining the query() method as part of the interface causes the following error when
      * implementing this interface:
-     * PHP Fatal error: Interface function IMPLEMENTER::query() cannot contain body
-     * in IMPLEMENTER...
-     * @todo ! Find a way to properly define this method as part of this interface.
+     * PHP Fatal error: Declaration of PDO::query() must be compatible with IMPLEMENTER @todo ! fix/figure this out.
      */
-    //public function query ($statement, $mode = PDO::ATTR_DEFAULT_FETCH_MODE, $arg3 = null, array $ctorargs = array()) {}
+    //public function query($statement, $mode = PDO::ATTR_DEFAULT_FETCH_MODE, $arg3 = null, array $ctorargs = array());
+
+
 }
