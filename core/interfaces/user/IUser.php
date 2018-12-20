@@ -9,6 +9,8 @@
 namespace DarlingCms\interfaces\user;
 
 
+use DarlingCms\interfaces\privilege\IRole;
+
 interface IUser
 {
     public function getUserName(): string;
@@ -19,7 +21,8 @@ interface IUser
 
     public function getPrivateMeta(): array;
 
-    public function userHasRole(/* @todo ! *ACTIVE* Implement $role parameter. | IRole $role | */): bool;
+    public function getRoles(): array;
 
+    public function userHasRole(IRole $role): bool;
 
 }
