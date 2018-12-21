@@ -19,7 +19,7 @@ use DarlingCms\interfaces\user\IUserPassword;
 class UserPassword implements IUserPassword
 {
     private $password;
-    private $userId;
+    private $passwordId;
 
     /**
      * UserPassword constructor. Constructs a UserPassword instance for the specified User.
@@ -35,7 +35,7 @@ class UserPassword implements IUserPassword
          */
         if (isset($user) === true && isset($password) === true) { // @todo should check !empty() instead of isset()
             $this->password = password_hash($password, PASSWORD_DEFAULT);
-            $this->userId = password_hash($user->getUserId(), PASSWORD_DEFAULT);
+            $this->passwordId = password_hash($user->getUserId(), PASSWORD_DEFAULT);
         }
     }
 
@@ -47,7 +47,7 @@ class UserPassword implements IUserPassword
      */
     public function validatePassword(IUser $user, string $password): bool
     {
-        if (password_verify($user->getUserId(), $this->userId) === true && password_verify($password, $this->password) === true) {
+        if (password_verify($user->getUserId(), $this->passwordId) === true && password_verify($password, $this->password) === true) {
             return true;
         }
         return false;
@@ -58,9 +58,9 @@ class UserPassword implements IUserPassword
         return $this->password;
     }
 
-    public function getHashedUserId(): string
+    public function getHashedPasswordId(): string
     {
-        return $this->userId;
+        return $this->passwordId;
     }
 
 
