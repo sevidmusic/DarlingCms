@@ -24,5 +24,5 @@ interface IUserPassword
 
     public function getHashedPassword():string ;
 
-    public function getHashedUserId():string ;
+    public function getHashedPasswordId():string ;
 }
