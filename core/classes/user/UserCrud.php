@@ -110,7 +110,7 @@ class UserCrud implements IUserCrud
         // create user
         $this->mySqlQuery->executeQuery('INSERT INTO ' . self::USER_TABLE_NAME . ' (' . self::USER_ID_FIELD . ', ' . self::USER_NAME_FIELD . ', ' . self::USER_META_FIELD . ', ' . self::USER_ROLES_FIELD . ') VALUES (?,?,?,?)', [$user->getUserId(), $user->getUserName(), $this->packMeta($user), $this->packRoles($user)]);
         // create user password
-        $this->mySqlQuery->executeQuery('INSERT INTO ' . self::PASSWORD_TABLE_NAME . ' (' . self::PASSWORD_UID_FIELD . ', ' . self::PASSWORD_PASS_FIELD . ') VALUES (?,?)', [$password->getHashedUserId(), $password->getHashedPassword()]);
+        $this->mySqlQuery->executeQuery('INSERT INTO ' . self::PASSWORD_TABLE_NAME . ' (' . self::PASSWORD_UID_FIELD . ', ' . self::PASSWORD_PASS_FIELD . ') VALUES (?,?)', [$password->getHashedPasswordId(), $password->getHashedPassword()]);
         return $this->userExists($user->getUserName());
     }
 
@@ -157,7 +157,7 @@ class UserCrud implements IUserCrud
         if ($this->userExists($userName) === true) {
             $userPass = $this->getUserPassword($userName, $currentPassword);
             $this->mySqlQuery->executeQuery('DELETE FROM ' . self::USER_TABLE_NAME . ' WHERE ' . self::USER_NAME_FIELD . '=?', [$userName]);
-            $this->mySqlQuery->executeQuery('DELETE FROM ' . self::PASSWORD_TABLE_NAME . ' WHERE ' . self::PASSWORD_UID_FIELD . '=?', [$userPass->getHashedUserId()]);
+            $this->mySqlQuery->executeQuery('DELETE FROM ' . self::PASSWORD_TABLE_NAME . ' WHERE ' . self::PASSWORD_UID_FIELD . '=?', [$userPass->getHashedPasswordId()]);
             return $this->userExists($userName) === false;
         }
         return false;
@@ -282,9 +282,9 @@ class UserCrud implements IUserCrud
         $this->mySqlQuery->executeQuery(
             'UPDATE ' . self::PASSWORD_TABLE_NAME . ' SET ' . self::PASSWORD_UID_FIELD . '=?, ' . self::PASSWORD_PASS_FIELD . '=? WHERE ' . self::PASSWORD_UID_FIELD . '=?',
             [
-                $newPassword->getHashedUserId(),
+                $newPassword->getHashedPasswordId(),
                 $newPassword->getHashedPassword(),
-                $currentPassword->getHashedUserId(),
+                $currentPassword->getHashedPasswordId(),
             ]
         );
     }
