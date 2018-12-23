@@ -9,6 +9,7 @@
 namespace DarlingCms\classes\user;
 
 
+use DarlingCms\abstractions\user\APDOCompatibleUser;
 use DarlingCms\interfaces\privilege\IRole;
 use DarlingCms\interfaces\user\IUser;
 
@@ -23,7 +24,7 @@ use DarlingCms\interfaces\user\IUser;
  *
  * @package DarlingCms\classes\user
  */
-class AnonymousUser implements IUser
+class AnonymousUser extends APDOCompatibleUser implements IUser
 {
     final public function getUserName(): string
     {
