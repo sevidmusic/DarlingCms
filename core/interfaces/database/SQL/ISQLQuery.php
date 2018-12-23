@@ -36,9 +36,11 @@ interface ISQLQuery extends IPDO
      * @param string $sql The SQL query to run.
      * @param string $className The name of the class to return an instance of.
      * @param array $params Array of parameters to pass to the query.
+     * @param array $ctor_args (Optional) Array of parameters to pass to the class's __construct() method.
+     *                                 This is only used if the array is not empty.
      * @return mixed An instance of the specified class constructed from the data in the specified table.
      */
-    public function getClass(string $sql, string $className, array $params = array());
+    public function getClass(string $sql, string $className, array $params = array(), array $ctor_args = array());
 
     /**
      * Generate a DSN string based on specified parameters.
