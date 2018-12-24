@@ -134,17 +134,25 @@ class MySqlUserCrud extends AMySqlQueryCrud implements IUserCrud
         return $roles;
     }
 
+    /**
+     * Update a specified user's data from an IUser implementation instance.
+     * NOTE: This method will not perform update if new user's username does not match the specified user's username.
+     * @param string $userName The user to update's user name.
+     * @param IUser $newUser The IUser implementation instance that represents the new user data.
+     * @return bool True if update succeeded, false otherwise.
+     */
     public function update(string $userName, IUser $newUser): bool
     {
-        if ($this->userExists($userName) === true) {
+        if ($this->userExists($userName) === true && $userName === $newUser->getUserName()) {
             if ($this->delete($userName) === true) {
                 return $this->create($newUser);
             }
         }
         /**
+         * @devNote:
          * The following code has the potential to cause duplicate entry violations... so until a way to
          * use SQL's UPDATE that does not have this risk is found, rows will always be deleted and then
-         * re-created when updateing a user.
+         * re-created when updating a user.
          * if ($this->userExists($userName) === true) {
          * $params = $this->packUserData($newUser);
          * array_push($params, $userName);

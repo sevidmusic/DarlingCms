@@ -21,6 +21,9 @@ interface IUser
 
     public function getPrivateMeta(): array;
 
+    /**
+     * @return array|IRole[]
+     */
     public function getRoles(): array;
 
     public function userHasRole(IRole $role): bool;
