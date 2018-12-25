@@ -105,7 +105,7 @@ abstract class APDOCompatibleUser implements IUser
         if (isset($meta[self::USER_PRIVATE_META_INDEX]) === true && !empty($meta[self::USER_PRIVATE_META_INDEX]) === true) {
             $this->meta[self::USER_PRIVATE_META_INDEX] = $meta[self::USER_PRIVATE_META_INDEX];
         }
-        if(!empty($roles) === true) {
+        if (!empty($roles) === true) {
             foreach ($roles as $role) {
                 $this->addRole($role);
             }
