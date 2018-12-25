@@ -16,16 +16,23 @@ use DarlingCms\interfaces\user\IUser;
 /**
  * Class User. Defines a simple implementation of th IUser interface. This implementation
  * is designed to play nice with PDO, and can be easily instantiated from the results of
- * a call to the PDO::fetchAll() method that uses the PDO::FETCH_CLASS | PDO::FETCH_PROPS_LATE
- * options.
+ * a call to the PDOStatement::fetchAll() method that uses the PDO::FETCH_CLASS option.
  *
- * i.e.: fetchAll(PDO::FETCH_CLASS | PDO::FETCH_PROPS_LATE, ''\\DarlingCms\\classes\\user\\User'')
+ * i.e.: PDOStatement::fetchAll(PDO::FETCH_CLASS, '\\DarlingCms\\classes\\user\\User', $ctor_args)
  *
- * WARNING: This class will only play nice with PDO if the PDO::FETCH_CLASS and PDO::FETCH_PROPS_LATE
- * options are set!
- * Note: Implementations of this class that wish to modify the property values set by PDO from the query results
- * should provide their own implementation of the __set() method.
+ * WARNING: Do not set the and PDO::FETCH_PROPS_LATE fetch style options. This class expects PDO to
+ * instantiate using the $ctor_args parameter to pass the appropriate values to the __construct()* method!
+ *
+ * i.e.
+ *
+ * Good : PDOStatement::fetchAll(PDO::FETCH_CLASS, '\\DarlingCms\\classes\\user\\User', [$userName, $userMeta, $userRoles])
+ *
+ * Bad : PDOStatement::fetchAll(PDO::FETCH_CLASS | PDO::FETCH_PROPS_LATE, '\\DarlingCms\\classes\\user\\User')
+ *
+ * *See the APDOCompatibleUser::__construct() method documentation for what parameters are expected.
+ *
  * @package DarlingCms\classes\user
+ * @see APDOCompatibleUser::__construct()
  */
 class User extends APDOCompatibleUser implements IUser
 {
