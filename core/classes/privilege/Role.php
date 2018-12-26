@@ -8,6 +8,7 @@
 namespace DarlingCms\classes\privilege;
 
 
+use DarlingCms\abstractions\privilege\APDOCompatibleRole;
 use DarlingCms\interfaces\privilege\IPermission;
 use DarlingCms\interfaces\privilege\IRole;
 
@@ -15,23 +16,8 @@ use DarlingCms\interfaces\privilege\IRole;
  * Class Role. Defines a simple implementation of the IRole interface.
  * @package DarlingCms\classes\privilege
  */
-class Role implements IRole
+class Role extends APDOCompatibleRole implements IRole
 {
-    private $roleName;
-    private $permissions = array();
-
-    /**
-     * Role constructor.
-     * @param string $roleName The name to assign to the Role.
-     * @param IPermission ...$permissions The permissions to assign to the Role.
-     */
-    public function __construct(string $roleName = 'Anonymous', IPermission ...$permissions)
-    {
-        $this->roleName = $roleName;
-        $this->permissions = $permissions;
-    }
-
-
     /**
      * Returns the name of the role.
      * @return string The name of the role.
@@ -59,39 +45,4 @@ class Role implements IRole
     {
         return in_array($permission, $this->permissions, true);
     }
-
-    private function unpackPermissions(string $packedPermissions)
-    {
-        // @todo imlement this method
-        // Implement steps
-        // 1. Unpack permissions (json_decode())
-        // 2. Find permission by name
-        // 3. Assign permission via addPermission() method
-        // foreach($permissions as $permission){$this->addPermisssion()}
-        $this->permissions = array();
-    }
-
-    private function addPermisssion(IPermission $permission)
-    {
-        array_push($this->permissions, $permission);
-    }
-
-    /**
-     * run when writing data to inaccessible members.
-     *
-     * @param $name string
-     * @param $value mixed
-     * @return void
-     * @link https://php.net/manual/en/language.oop5.overloading.php#language.oop5.overloading.members
-     */
-    public function __set($name, $value)
-    {
-        //var_dump($name);
-        // TODO: Implement __set() method.
-        if ($name === 'rolePermissions') {
-            $this->unpackPermissions($value);
-        }
-    }
-
-
 }
