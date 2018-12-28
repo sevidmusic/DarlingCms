@@ -8,6 +8,7 @@
 namespace DarlingCms\classes\privilege;
 
 
+use DarlingCms\abstractions\privilege\APDOCompatiblePermission;
 use DarlingCms\interfaces\privilege\IAction;
 use DarlingCms\interfaces\privilege\IPermission;
 
@@ -15,23 +16,8 @@ use DarlingCms\interfaces\privilege\IPermission;
  * Class Permission. Simple implementation of the IPermission interface.
  * @package DarlingCms\classes\privilege
  */
-class Permission implements IPermission
+class Permission extends APDOCompatiblePermission implements IPermission
 {
-    private $permissionName;
-    private $actions = array();
-
-    /**
-     * Permission constructor. Assigns the specified IAction implementations to the new Permission instance.
-     * @param string $permissionName The name to assign to the permission.
-     * @param IAction ...$actions IAction implementations to assign to this Permission instance.
-     */
-    public function __construct(string $permissionName, IAction ...$actions)
-    {
-        $this->permissionName = $permissionName;
-        $this->actions = $actions;
-    }
-
-
     /**
      * Returns the permission's name.
      * @return string The permission's name.

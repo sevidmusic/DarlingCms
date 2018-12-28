@@ -29,7 +29,7 @@ class Role extends APDOCompatibleRole implements IRole
 
     /**
      * Returns an array of the permissions assigned to the role.
-     * @return array Array of the permissions assigned to the role.
+     * @return array|IPermission[] Array of the permissions assigned to the role.
      */
     public function getPermissions(): array
     {
