@@ -7,29 +7,15 @@
 
 namespace DarlingCms\classes\privilege;
 
+use DarlingCms\abstractions\privilege\APDOCompatibleAction;
 use DarlingCms\interfaces\privilege\IAction;
 
 /**
  * Class Action. Defines a simple implementation of the IAction interface.
  * @package DarlingCms\classes\privilege
  */
-class Action implements IAction
+class Action extends APDOCompatibleAction implements IAction
 {
-    private $actionName;
-    private $actionDescription;
-
-    /**
-     * Action constructor.
-     * @param $actionName
-     * @param $actionDescription
-     */
-    public function __construct(string $actionName, string $actionDescription)
-    {
-        $this->actionName = $actionName;
-        $this->actionDescription = $actionDescription;
-    }
-
-
     /**
      * Return's the action's name.
      * @return string The action's name.
