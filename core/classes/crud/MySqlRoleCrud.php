@@ -107,7 +107,7 @@ class MySqlRoleCrud extends AMySqlQueryCrud implements IRoleCrud
      */
     public function delete(string $roleName): bool
     {
-        $this->MySqlQuery->executeQuery('DELETE FROM roles WHERE roleName=? LIMIT 1', [$roleName]);
+        $this->MySqlQuery->executeQuery('DELETE FROM ' . $this->tableName . ' WHERE roleName=? LIMIT 1', [$roleName]);
         return $this->roleExists($roleName) === false;
     }
 
@@ -123,7 +123,7 @@ class MySqlRoleCrud extends AMySqlQueryCrud implements IRoleCrud
             rolePermissions JSON NOT NULL,
             IRoleType VARCHAR(256) NOT NULL
         );') === false) {
-            error_log('User Crud Error: Failed to create ' . $this->tableName . ' table');
+            error_log('Role Crud Error: Failed to create ' . $this->tableName . ' table');
         }
         return $this->tableExists($this->tableName);
     }
