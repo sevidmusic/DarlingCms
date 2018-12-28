@@ -35,7 +35,7 @@ abstract class AMySqlQueryCrud
         $this->tableName = $tableName;
         if ($this->tableExists($this->tableName) === false) {
             if ($this->generateTable() === false) {
-                error_log('MySqlQueryCrud implementation error: Unable to create table' . $this->tableName);
+                error_log('MySqlQueryCrud implementation error: Unable to create table ' . $this->tableName);
             }
         }
     }
