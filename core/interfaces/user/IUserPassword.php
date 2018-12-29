@@ -25,4 +25,10 @@ interface IUserPassword
     public function getHashedPassword():string ;
 
     public function getHashedPasswordId():string ;
+
+    /**
+     * Returns the user name of the user this password belongs to.
+     * @return string The user name of the user this password belongs to.
+     */
+    public function getUserName(): string ;
 }
