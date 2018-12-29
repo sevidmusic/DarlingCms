@@ -8,6 +8,7 @@
 
 namespace DarlingCms\interfaces\crud;
 
+use DarlingCms\interfaces\user\IUser;
 use DarlingCms\interfaces\user\IUserPassword;
 
 /**
@@ -21,9 +22,13 @@ interface IUserPasswordCrud
 
     public function create(IUserPassword $userPassword): bool;
 
-    public function read(string $passwordId): IUserPassword;
+    /**
+     * @param IUser $user The user the password belongs to.
+     * @return IUserPassword
+     */
+    public function read(IUser $user): IUserPassword;
 
-    public function update(string $passwordId, IUserPassword $newUserPassword): bool;
+    public function update(IUser $user, IUserPassword $newUserPassword): bool;
 
-    public function delete(string $passwordId): bool;
+    public function delete(IUser $user): bool;
 }
