@@ -9,6 +9,7 @@
 namespace DarlingCms\classes\user;
 
 
+use DarlingCms\abstractions\user\APDOCompatibleUserPassword;
 use DarlingCms\interfaces\user\IUser;
 use DarlingCms\interfaces\user\IUserPassword;
 
@@ -16,29 +17,8 @@ use DarlingCms\interfaces\user\IUserPassword;
  * Class UserPassword. Defines a simple implementation of the IUserPassword interface.
  * @package DarlingCms\classes\user
  */
-class UserPassword implements IUserPassword
+class UserPassword extends APDOCompatibleUserPassword implements IUserPassword
 {
-    private $password;
-    private $passwordId;
-
-    /**
-     * UserPassword constructor. Constructs a UserPassword instance for the specified User.
-     * @param IUser|null $user The User will password belongs to.
-     * @param string|null $password The password.
-     * Note: null defaults are used to prevent any errors when instantiating from a PDO query. When
-     * using this class in a typical new User() context it is best to supply both parameters.
-     */
-    public function __construct(IUser $user = null, string $password = null)// @todo parameters should default to empty strings
-    {
-        /**
-         * Check if properties were already set, for instance, by PDO.
-         */
-        if (isset($user) === true && isset($password) === true) { // @todo should check !empty() instead of isset()
-            $this->password = password_hash($password, PASSWORD_DEFAULT);
-            $this->passwordId = password_hash($user->getUserId(), PASSWORD_DEFAULT);
-        }
-    }
-
     /**
      * Validate a the supplied password matches the user's actual password.
      * @param IUser $user The User.
@@ -61,6 +41,15 @@ class UserPassword implements IUserPassword
     public function getHashedPasswordId(): string
     {
         return $this->passwordId;
+    }
+
+    /**
+     * Returns the user name of the user this password belongs to.
+     * @return string The user name of the user this password belongs to.
+     */
+    public function getUserName(): string
+    {
+        return $this->userName;
     }
 
 
