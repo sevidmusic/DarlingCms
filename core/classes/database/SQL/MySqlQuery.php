@@ -29,6 +29,12 @@ class MySqlQuery extends PDO implements ISQLQuery
     const DEFAULT_CHARSET = 'utf8mb4';
 
     /**
+     * @var string Unique id that can be used to identify MySqlQuery instances when debugging.
+     *             Note: This property is specifically intended for use when debugging.
+     */
+    private $uid;
+
+    /**
      * (PHP 5 &gt;= 5.1.0, PHP 7, PECL pdo &gt;= 0.1.0)<br/>
      * Creates a PDO instance representing a connection to a database
      * @link https://php.net/manual/en/pdo.construct.php
@@ -58,6 +64,7 @@ class MySqlQuery extends PDO implements ISQLQuery
      */
     public function __construct(string $dsn, string $username = '', string $passwd = '', array $options = array())
     {
+        $this->uid = password_hash(base64_encode(serialize(bcadd(rand(1000000, 9999999), rand(1000000, 9999999)))), PASSWORD_DEFAULT);
         if (empty($options) === true) {
             $options = self::DEFAULT_OPTIONS;
         }
