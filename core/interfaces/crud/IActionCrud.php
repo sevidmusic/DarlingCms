@@ -23,6 +23,8 @@ interface IActionCrud
 
     public function read(string $actionName): IAction;
 
+    public function readAll():array;
+
     public function update(string $actionName, IAction $newAction): bool;
 
     public function delete(string $actionName): bool;

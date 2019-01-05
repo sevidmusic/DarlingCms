@@ -82,6 +82,19 @@ class MySqlActionCrud extends AMySqlQueryCrud implements IActionCrud
     }
 
     /**
+     * @return array|IAction[]
+     */
+    public function readAll(): array
+    {
+        $actionNames = $this->MySqlQuery->executeQuery('SELECT actionName FROM ' . $this->tableName)->fetchAll(\PDO::FETCH_ASSOC);
+        $actions = array();
+        foreach ($actionNames as $actionName) {
+            array_push($actions, $this->read($actionName['actionName']));
+        }
+        return $actions;
+    }
+
+    /**
      * Update the specified action.
      * @param string $actionName The name of the action to update.
      * @param IAction $newAction The IAction implementation instance that represents the new action.
