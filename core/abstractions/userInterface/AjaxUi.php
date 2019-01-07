@@ -16,7 +16,7 @@ use DarlingCms\interfaces\userInterface\IUserInterface;
  * by apps that use ajax to generate their user interface's content from  defined "views".
  * @package DarlingCms\abstractions\userInterface
  */
-abstract class AjaxUi implements IUserInterface
+abstract class AjaxUi implements IUserInterface // @todo ! Rename to AjaxUI
 {
     /**
      * Name of the url parameter that specifies the view when user is directed via url. This allows the ajax requests to be saved, i.e. someurl.com/index.php?ajaxUiView=view1 should display view 1.

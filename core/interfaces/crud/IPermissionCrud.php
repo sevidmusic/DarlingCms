@@ -23,6 +23,12 @@ interface IPermissionCrud
 
     public function read(string $permissionName): IPermission;
 
+    /**
+     * @param string $permissionName
+     * @return array|IPermission[]
+     */
+    public function readAll(): array;
+
     public function update(string $permissionName, IPermission $newPermission): bool;
 
     public function delete(string $permissionName): bool;

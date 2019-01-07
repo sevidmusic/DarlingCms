@@ -108,6 +108,19 @@ class MySqlPermissionCrud extends AMySqlQueryCrud implements IPermissionCrud
     }
 
     /**
+     * @return array|IPermission[]
+     */
+    public function readAll(): array
+    {
+        $permissionNames = $this->MySqlQuery->executeQuery('SELECT permissionName FROM ' . $this->tableName)->fetchAll(\PDO::FETCH_ASSOC);
+        $permissions = array();
+        foreach ($permissionNames as $permissionName) {
+            array_push($permissions, $this->read($permissionName['permissionName']));
+        }
+        return $permissions;
+    }
+
+    /**
      * Update the specified permission.
      * @param string $permissionName The name of the permission to update.
      * @param IPermission $newPermission The IPermission implementation instance that represents
