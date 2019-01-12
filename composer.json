@@ -15,7 +15,8 @@
   "require": {
     "ext-json": "*",
     "ext-bcmath": "*",
-    "ext-pdo": "*"
+    "ext-pdo": "*",
+    "ext-dom": "*"
   },
   "autoload": {
     "psr-4": {
