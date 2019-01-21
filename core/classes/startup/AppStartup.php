@@ -9,6 +9,7 @@
 namespace DarlingCms\classes\startup;
 
 
+use DarlingCms\classes\staticClasses\core\CoreValues;
 use DarlingCms\interfaces\accessControl\IAppConfig;
 use DarlingCms\interfaces\startup\IAppStartup;
 
@@ -107,7 +108,7 @@ class AppStartup implements IAppStartup
         $rootDir = str_replace('core/classes/startup', '', __DIR__);
         $this->paths = array(
             self::ROOT_DIR_INDEX => $rootDir,
-            self::ROOT_URL_INDEX => (!empty($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . '/DarlingCms/',
+            self::ROOT_URL_INDEX => CoreValues::getSiteRootUrl(),//(!empty($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . '/DarlingCms/',
             self::APPS_DIR_INDEX => $rootDir . 'apps/',
             self::THEMES_DIR_INDEX => 'themes/',
             self::JS_DIR_INDEX => 'js/',
