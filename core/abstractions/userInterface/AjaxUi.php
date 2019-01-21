@@ -116,7 +116,7 @@ abstract class AjaxUi implements IUserInterface // @todo ! Rename to AjaxUI
      *
      * 'contentType' // application/x-www-form-urlencoded, multipart/form-data, or text/plain (html 5 only)
      *
-     * 'additionalParam // url parameter string, e.g., "someParam=someVal&someOtherParam=Val2"
+     * 'additionalParams' // url parameter string, e.g., "someParam=someVal&someOtherParam=Val2"
      *
      * 'ajaxDirName' // name of the handler's parent directory, defaults to ajax
      *
