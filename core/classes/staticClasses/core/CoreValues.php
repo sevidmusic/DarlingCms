@@ -24,7 +24,7 @@ use DarlingCms\interfaces\database\SQL\ISQLQuery;
  */
 class CoreValues
 {
-    private static $dev;
+    private static $MySqlQuery;
 
     const CORE_DB_NAME = 'PDOPlaygroundDev1';
     const CORE_DB_HOST = 'localhost';
@@ -46,10 +46,10 @@ class CoreValues
      */
     public static function getISqlQueryInstance(string $host, string $databaseName, string $dbUser, string $dbPass, string $charset = MySqlQuery::DEFAULT_CHARSET): ISQLQuery
     {
-        if (isset(CoreValues::$dev) === false) {
-            CoreValues::$dev = new MySqlQuery(MySqlQuery::getDsn($host, $databaseName, $charset), $dbUser, $dbPass);
+        if (isset(CoreValues::$MySqlQuery) === false) {
+            CoreValues::$MySqlQuery = new MySqlQuery(MySqlQuery::getDsn($host, $databaseName, $charset), $dbUser, $dbPass);
         }
-        return CoreValues::$dev;
+        return CoreValues::$MySqlQuery;
     }
 
     public static function getSiteRootDirPath(): string
@@ -59,7 +59,11 @@ class CoreValues
 
     public static function getSiteRootUrl(): string
     {
-        return 'http://localhost:8888/DarlingCms';
+        $rootUrlPieces = parse_url((!empty($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
+        $rootUrl = $rootUrlPieces['scheme'] . '://' . $rootUrlPieces['host'] . (!empty($rootUrlPieces['port']) ? ':' . $rootUrlPieces['port'] : '') . $rootUrlPieces['path'];
+        $replace = substr($rootUrl, strrpos($rootUrl, '/'));
+        $siteRootUrl = ($replace !== '/' ? str_replace($replace, '', $rootUrl) . '/' : $rootUrl);
+        return $siteRootUrl;
     }
 
     public static function getAppsRootDirPath(): string
