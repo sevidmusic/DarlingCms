@@ -16,7 +16,8 @@
     "ext-json": "*",
     "ext-bcmath": "*",
     "ext-pdo": "*",
-    "ext-dom": "*"
+    "ext-dom": "*",
+    "ext-ctype": "*"
   },
   "autoload": {
     "psr-4": {
