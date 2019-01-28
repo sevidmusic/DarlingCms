@@ -29,7 +29,7 @@ class Permission extends APDOCompatiblePermission implements IPermission
 
     /**
      * Returns an array of the actions assigned to the permission.
-     * @return array An array of the actions assigned to the permission.
+     * @return IAction[] An array of the actions assigned to the permission.
      */
     public function getActions(): array
     {
