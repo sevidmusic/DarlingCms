@@ -10,6 +10,7 @@ namespace DarlingCms\interfaces\crud;
 
 
 use DarlingCms\interfaces\privilege\IRole;
+
 /**
  * Interface IRoleCrud. Defines the contract of an object that is responsible for
  * mapping IRole implementation instances so they can be created in, read from,
@@ -21,6 +22,8 @@ interface IRoleCrud
     public function create(IRole $role): bool;
 
     public function read(string $roleName): IRole;
+
+    public function readAll(): array;
 
     public function update(string $roleName, IRole $newRole): bool;
 

@@ -189,4 +189,18 @@ class MySqlRoleCrud extends AMySqlQueryCrud implements IRoleCrud
     {
         return $this->MySqlQuery->executeQuery('SELECT IRoleType FROM roles WHERE roleName=? LIMIT 1', [$roleName])->fetchAll(\PDO::FETCH_ASSOC)[0]['IRoleType'];
     }
+
+    /**
+     * @return IRole[]
+     */
+    public function readAll(): array
+    {
+        $roleNames = $this->MySqlQuery->executeQuery('SELECT roleName FROM roles')->fetchAll(\PDO::FETCH_ASSOC);
+        $roles = array();
+        foreach ($roleNames as $roleName) {
+            array_push($roles, $this->read($roleName['roleName']));
+        }
+        return $roles;//$this->MySqlQuery->executeQuery('SELECT * FROM roles')->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
 }
