@@ -10,7 +10,6 @@ namespace DarlingCms\classes\staticClasses\core;
 
 
 use DarlingCms\classes\database\SQL\MySqlQuery;
-use DarlingCms\interfaces\database\SQL\ISQLQuery;
 
 /**
  * Class CoreValues. This class defines various static methods which can be used to retrieve core values
@@ -27,25 +26,47 @@ class CoreValues
     private static $MySqlQuery;
 
     const CORE_DB_NAME = 'PDOPlaygroundDev1';
+    const APPS_DB_NAME = 'PDOPlaygroundDev1';
+    const USERS_DB_NAME = 'PDOPlaygroundDev1';
+    const PRIVILEGES_DB_NAME = 'PDOPlaygroundDev1';
     const CORE_DB_HOST = 'localhost';
 
 
     /**
-     * Returns the core ISqlQuery implementation instance. It is recommended this static method be used
+     * Returns the core MySqlQuery implementation instance.
      *
-     * @param int $databaseName The name of the database this ISqlQuery implementation instance will query. MUST be
+     * WARNING:
+     * It is recommended this static method be used to avoid multiple database connections from being opened by
+     * instantiating multiple MySqlQuery instances. Using this method insures that only one database connection
+     * will be opened as only the single Core MySqlQuery instance will be used.
+     *
+     * @param string $databaseName The name of the database this MySqlQuery implementation instance will query. MUST be
      *                          one of the following constants:
-     *                          CORE_DB_NAME
+     *
+     *                          CORE_DB_NAME (default if provided $databaseName is not valid)
+     *
      *                          APPS_DB_NAME
+     *
      *                          USERS_DB_NAME
+     *
      *                          PRIVILEGES_DB_NAME
-     * @param string $dbUser The username of the user this ISqlQuery instance will act as when querying the database.
-     * @param string $dbPass Th user's password.
+     *
+     * @param string $dbUser The username of the user this MySqlQuery instance will act as when querying the database.
+     * @param string $dbPass The user's password.
      * @param string $charset (optional) The charset. Defaults to MySqlQuery::DEFAULT_CHARSET.
-     * @return ISQLQuery The core ISqlQuery implementation instance.
+     * @return MySqlQuery The core MySqlQuery implementation instance.
+     * @see MySqlQuery::DEFAULT_CHARSET
+     * @see CoreValues::CORE_DB_NAME
+     * @see CoreValues::APPS_DB_NAME
+     * @see CoreValues::USERS_DB_NAME
+     * @see CoreValues::PRIVILEGES_DB_NAME
      */
-    public static function getISqlQueryInstance(string $host, string $databaseName, string $dbUser, string $dbPass, string $charset = MySqlQuery::DEFAULT_CHARSET): ISQLQuery
+    public static function getMySqlQueryInstance(string $host, string $databaseName, string $dbUser, string $dbPass, string $charset = MySqlQuery::DEFAULT_CHARSET): MySqlQuery
     {
+        $dbWhitelist = array(self::CORE_DB_NAME, self::APPS_DB_NAME, self::USERS_DB_NAME, self::PRIVILEGES_DB_NAME);
+        if (in_array($databaseName, $dbWhitelist, true) === false) {
+            $databaseName = self::CORE_DB_NAME;
+        }
         if (isset(CoreValues::$MySqlQuery) === false) {
             CoreValues::$MySqlQuery = new MySqlQuery(MySqlQuery::getDsn($host, $databaseName, $charset), $dbUser, $dbPass);
         }
