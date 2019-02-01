@@ -19,11 +19,38 @@ use DarlingCms\interfaces\user\IUser;
  */
 interface IUserCrud
 {
+    /**
+     * Create a new user.
+     * @param IUser $user The IUser implementation instance that represents the user.
+     * @return bool True if user was created, false otherwise.
+     */
     public function create(IUser $user): bool;
 
+    /**
+     * Read a specified user's data.
+     * @param string $userName The user's username.
+     * @return IUser The IUser implementation instance that represents the user.
+     */
     public function read(string $userName): IUser;
 
+    /**
+     * Return all stored Users.
+     * @return array|IUser[] Array of all stored users.
+     */
+    public function readAll(): array;
+
+    /**
+     * Update a specified user's data.
+     * @param string $userName The user's username.
+     * @param IUser $newUser The IUser implementation instance that represents the user's new data.
+     * @return bool True if user was update, false otherwise.
+     */
     public function update(string $userName, IUser $newUser): bool;
 
+    /**
+     * Delete a specified user's data.
+     * @param string $userName The user's username.
+     * @return bool True if user was deleted, false otherwise.
+     */
     public function delete(string $userName): bool;
 }

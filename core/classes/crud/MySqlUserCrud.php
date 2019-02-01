@@ -107,6 +107,20 @@ class MySqlUserCrud extends AMySqlQueryCrud implements IUserCrud
     }
 
     /**
+     * @return array|IUser[]
+     */
+    public function readAll(): array
+    {
+        $userNames = $this->MySqlQuery->executeQuery('SELECT userName FROM ' . $this->tableName)->fetchAll(\PDO::FETCH_ASSOC);
+        $users = array();
+        foreach ($userNames as $userName) {
+            array_push($users, $this->read($userName['userName']));
+        }
+        return $users;
+    }
+
+
+    /**
      * Unpack the user's meta data.
      * @param string $packedMeta The packed meta data.
      * @return array Array of user's public and private meta data indexed by the strings 'public' and
