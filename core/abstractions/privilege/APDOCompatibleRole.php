@@ -80,15 +80,16 @@ abstract class APDOCompatibleRole implements IRole
     abstract public function hasPermission(IPermission $permission): bool;
 
     /**
-     * run when writing data to inaccessible members.
-     *
-     * @param $name string
-     * @param $value mixed
-     * @return void
-     * @link https://php.net/manual/en/language.oop5.overloading.php#language.oop5.overloading.members
+     * Implement empty set method since this object may be instantiated from a PDO query result, leaving
+     * this method empty will prevent PDO from automatically setting undefined properties as public properties.
      */
-    final public function __set($name, $value)
+    public function __set($name, $value)
     {
+        /**
+         * IMPORTANT! THIS METHOD MUST REMAIN EMPTY UNLESS YOU ARE COMPLETELY SURE YOU KNOW WHAT YOU ARE DOING
+         * AND ARE WILLING TO ACCEPT THE CONSEQUENCES OF WHAT YOU ARE DOING!!! THE REASON THIS METHOD IS EMPTY
+         * IS TO PREVENT ANY UNDECLARED PROPERTIES FROM BEING CREATED AND SET BY ACTORS OTHER THAN THIS CLASS.
+         */
     }
 
 }

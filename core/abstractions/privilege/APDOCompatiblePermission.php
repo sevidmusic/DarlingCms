@@ -34,19 +34,6 @@ abstract class APDOCompatiblePermission implements IPermission
     }
 
     /**
-     * run when writing data to inaccessible members.
-     *
-     * @param $name string
-     * @param $value mixed
-     * @return void
-     * @link https://php.net/manual/en/language.oop5.overloading.php#language.oop5.overloading.members
-     */
-    public function __set($name, $value)
-    {
-        // Leave empty to prevent PDO from writing undeclared properties.
-    }
-
-    /**
      * Returns the permission's name.
      * @return string The permission's name.
      */
@@ -65,4 +52,16 @@ abstract class APDOCompatiblePermission implements IPermission
      */
     abstract public function hasAction(IAction $action): bool;
 
+    /**
+     * Implement empty set method since this object may be instantiated from a PDO query result, leaving
+     * this method empty will prevent PDO from automatically setting undefined properties as public properties.
+     */
+    public function __set($name, $value)
+    {
+        /**
+         * IMPORTANT! THIS METHOD MUST REMAIN EMPTY UNLESS YOU ARE COMPLETELY SURE YOU KNOW WHAT YOU ARE DOING
+         * AND ARE WILLING TO ACCEPT THE CONSEQUENCES OF WHAT YOU ARE DOING!!! THE REASON THIS METHOD IS EMPTY
+         * IS TO PREVENT ANY UNDECLARED PROPERTIES FROM BEING CREATED AND SET BY ACTORS OTHER THAN THIS CLASS.
+         */
+    }
 }
