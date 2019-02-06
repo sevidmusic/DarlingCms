@@ -74,7 +74,7 @@ class User extends APDOCompatibleUser implements IUser
 
     /**
      * Returns an array of the roles assigned to the user.
-     * @return array An array of roles assigned to the User.
+     * @return array|IRole[] An array of roles assigned to the User.
      */
     public function getRoles(): array
     {
