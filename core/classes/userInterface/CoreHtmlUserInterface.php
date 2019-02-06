@@ -122,7 +122,9 @@ class CoreHtmlUserInterface extends \DOMDocument implements IHtmlPage, IUserInte
      */
     private function setCssLinkTags(): void
     {
-        foreach ($this->appStartup->getCssPaths() as $cssPath) {
+        $cssPaths = $this->appStartup->getCssPaths();
+        sort($cssPaths); // sort alphabetically so files are loaded alphabetically.
+        foreach ($cssPaths as $cssPath) {
             $linkTag = "<link rel=\"stylesheet\" type=\"text/css\" href=\"{$cssPath}\">";
             if (in_array($linkTag, $this->headCssLinksTags) === false) {
                 array_push($this->headCssLinksTags, $linkTag);
@@ -137,7 +139,9 @@ class CoreHtmlUserInterface extends \DOMDocument implements IHtmlPage, IUserInte
      */
     private function setJsLinkTags(): void
     {
-        foreach ($this->appStartup->getJsPaths() as $jsPath) {
+        $jsPaths = $this->appStartup->getJsPaths();
+        sort($jsPaths); // sort alphabetically so files are loaded alphabetically.
+        foreach ($jsPaths as $jsPath) {
             /* Html comment added between script tags to prevent formatting from replacing closing script tag with />,
              * this is a hack till a workaround is found. */
             $scriptTag = '<script src="' . $jsPath . '" defer><!-- --></script>';
