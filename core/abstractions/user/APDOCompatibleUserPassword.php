@@ -36,7 +36,8 @@ abstract class APDOCompatibleUserPassword implements IUserPassword
          */
         if (!isset($this->password) === true && !isset($this->passwordId) === true) {
             $this->password = password_hash($password, PASSWORD_DEFAULT);
-            $this->passwordId = password_hash($user->getUserId(), PASSWORD_DEFAULT);
+            $this->passwordId = $user->getUserId();
+            // @devNote : Until the problem caused by user update is solved, passwordId in no longer a hashed version of the user's id, instead it is set to the user's id | $this->passwordId = password_hash($user->getUserId(), PASSWORD_DEFAULT);// @todo : DO NOT HASH USER ID, IT IS COMPLICATING THINGS.
             $this->userName = $user->getUserName();
         }
     }

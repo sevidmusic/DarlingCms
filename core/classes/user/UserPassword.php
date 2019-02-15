@@ -27,9 +27,10 @@ class UserPassword extends APDOCompatibleUserPassword implements IUserPassword
      */
     public function validatePassword(IUser $user, string $password): bool
     {
+        /*
         if (password_verify($password, $this->password) === true) {
             return true;
-        }
+        }*/
         /**
          * NOTE: Checking the password id as well as the password is ideal however, this behavior currently breaks
          * if user has been modified. This is because the passwordId is just a hashed version of the userId, which
@@ -48,6 +49,22 @@ class UserPassword extends APDOCompatibleUserPassword implements IUserPassword
          * which does not changed whenever a stored User is updated.
          * if (password_verify($user->getUserId(), $this->passwordId) === true && password_verify($password, $this->password) === true) {return true;}
          */
+        /*
+         *
+         *
+         * var_dump(
+            [
+                'User Name' => $user->getUserName(),
+                'User Id' => $user->getUserId(),
+                'passwordId' => $this->passwordId,
+                'supplied password' => $password,
+                'hashed password' => $this->password,
+                'passwordId is valid' => ($user->getUserId() === $this->passwordId ? 'TRUE' : 'FALSE')
+            ]
+        );*/
+        if (password_verify($password, $this->password) === true && $user->getUserId() === $this->passwordId) {
+            return true;
+        }
         return false;
     }
 

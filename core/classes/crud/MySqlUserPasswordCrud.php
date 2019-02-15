@@ -43,10 +43,10 @@ class MySqlUserPasswordCrud extends AMySqlQueryCrud implements IUserPasswordCrud
     {
         if ($this->MySqlQuery->executeQuery('CREATE TABLE ' . $this->tableName . ' (
             tableId INT NOT NULL AUTO_INCREMENT PRIMARY KEY UNIQUE,
-            userName VARCHAR(256) NOT NULL UNIQUE,
-            password VARCHAR(256) NOT NULL UNIQUE,
-            passwordId VARCHAR(256) NOT NULL UNIQUE,
-            IPasswordType VARCHAR(256) NOT NULL
+            userName VARCHAR(242) NOT NULL UNIQUE,
+            password VARCHAR(242) NOT NULL UNIQUE,
+            passwordId VARCHAR(242) NOT NULL UNIQUE,
+            IPasswordType VARCHAR(242) NOT NULL
         );') === false) {
             error_log('Password Crud Error: Failed to create ' . $this->tableName . ' table');
         }
@@ -84,7 +84,7 @@ class MySqlUserPasswordCrud extends AMySqlQueryCrud implements IUserPasswordCrud
             $results = $this->MySqlQuery->getClass('SELECT * FROM ' . $this->tableName . ' WHERE userName=? LIMIT 1', $this->getClassName($user->getUserName()), [$user->getUserName()], $ctor_args);
             return array_shift($results);
         }
-        return new UserPassword(new AnonymousUser(), password_hash(base64_encode(serialize($this)), PASSWORD_DEFAULT)); // @todo Implement default UserPassword, i.e., class AnonymousPassword()...
+        return new UserPassword(new AnonymousUser(), password_hash(base64_encode(json_encode($this)), PASSWORD_DEFAULT)); // @todo Implement default UserPassword, i.e., class AnonymousPassword()...
     }
 
     public function update(IUser $user, IUserPassword $newUserPassword): bool
