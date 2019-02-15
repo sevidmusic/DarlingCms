@@ -55,9 +55,9 @@ class MySqlPermissionCrud extends AMySqlQueryCrud implements IPermissionCrud
     {
         if ($this->MySqlQuery->executeQuery('CREATE TABLE ' . $this->tableName . ' (
             tableId INT NOT NULL AUTO_INCREMENT PRIMARY KEY UNIQUE,
-            permissionName VARCHAR(256) NOT NULL UNIQUE,
-            permissionActions JSON NOT NULL,
-            IPermissionType VARCHAR(256) NOT NULL
+            permissionName VARCHAR(242) NOT NULL UNIQUE,
+            permissionActions TEXT NOT NULL,
+            IPermissionType VARCHAR(242) NOT NULL
         );') === false) {
             error_log('Permission Crud Error: Failed to create ' . $this->tableName . ' table');
         }

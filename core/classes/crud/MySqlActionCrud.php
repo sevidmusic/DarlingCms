@@ -133,9 +133,9 @@ class MySqlActionCrud extends AMySqlQueryCrud implements IActionCrud
     {
         if ($this->MySqlQuery->executeQuery('CREATE TABLE ' . $this->tableName . ' (
             tableId INT NOT NULL AUTO_INCREMENT PRIMARY KEY UNIQUE,
-            actionName VARCHAR(256) NOT NULL UNIQUE,
-            actionDescription VARCHAR(256) NOT NULL UNIQUE,
-            IActionType VARCHAR(256) NOT NULL
+            actionName VARCHAR(242) NOT NULL UNIQUE,
+            actionDescription VARCHAR(242) NOT NULL UNIQUE,
+            IActionType VARCHAR(242) NOT NULL
         );') === false) {
             error_log('Action Crud Error: Failed to create ' . $this->tableName . ' table');
         }

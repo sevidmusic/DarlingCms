@@ -119,9 +119,9 @@ class MySqlRoleCrud extends AMySqlQueryCrud implements IRoleCrud
     {
         if ($this->MySqlQuery->executeQuery('CREATE TABLE ' . $this->tableName . ' (
             tableId INT NOT NULL AUTO_INCREMENT PRIMARY KEY UNIQUE,
-            roleName VARCHAR(256) NOT NULL UNIQUE,
-            rolePermissions JSON NOT NULL,
-            IRoleType VARCHAR(256) NOT NULL
+            roleName VARCHAR(242) NOT NULL UNIQUE,
+            rolePermissions TEXT NOT NULL,
+            IRoleType VARCHAR(242) NOT NULL
         );') === false) {
             error_log('Role Crud Error: Failed to create ' . $this->tableName . ' table');
         }
