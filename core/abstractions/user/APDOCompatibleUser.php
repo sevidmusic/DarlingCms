@@ -125,7 +125,14 @@ abstract class APDOCompatibleUser implements IUser
      */
     final protected function generateUserId(): string
     {
-        return substr(str_replace(array('\\', '/', '"', "'", '|', '?', '=', '*', '.', ',', '$'), '', password_hash(serialize($this), PASSWORD_DEFAULT)), 3, -4);
+        $randString = substr(str_replace(array('\\', '/', '"', "'", '|', '?', '=', '*', '.', ',', '$'), '', password_hash(serialize($this), PASSWORD_DEFAULT)), 3, -4);
+        try {
+            $randInt = random_int(PHP_INT_MIN, PHP_INT_MAX);
+        } catch (\Exception $e) {
+            error_log('WARNING: Failed to generate cryptographically secure unique id for user ' . $this->getUserName() . '. A non cryptographically secure unique id has been assigned instead.');
+            $randInt = rand(PHP_INT_MIN, PHP_INT_MAX);
+        }
+        return $randString . str_replace('-', '', strval($randInt));
     }
 
     final public function __set($name, $value)

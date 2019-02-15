@@ -9,13 +9,11 @@
 namespace DarlingCms\classes\crud;
 
 
-use DarlingCms\abstractions\crud\AMySqlQueryCrud;
-use DarlingCms\classes\database\SQL\MySqlQuery;
+use DarlingCms\abstractions\crud\AMySqlUserCrud;
 use DarlingCms\classes\user\AnonymousUser;
-use DarlingCms\interfaces\crud\IRoleCrud;
 use DarlingCms\interfaces\crud\IUserCrud;
-use DarlingCms\interfaces\privilege\IRole;
 use DarlingCms\interfaces\user\IUser;
+use SplSubject;
 
 /**
  * Class MySqlUserCrud. Defines an implementation of the IUserCrud interface
@@ -23,31 +21,10 @@ use DarlingCms\interfaces\user\IUser;
  * to perform CRUD operations on user data in a MySql database.
  * @package DarlingCms\classes\crud
  * @see
+ * @todo Define abstract class AMySqlUserCrud which will define the SPL Observer/Subject related methods, properties, and constants
  */
-class MySqlUserCrud extends AMySqlQueryCrud implements IUserCrud
+class MySqlUserCrud extends AMySqlUserCrud implements IUserCrud, SplSubject
 {
-    /**
-     * @var string Name of the table this class performs CRUD operations on.
-     */
-    const USER_TABLE_NAME = 'users';
-
-    /**
-     * @var IRoleCrud Injected IRoleCrud implementation instance. This object is used to perform CRUD
-     *                operations on the user's assigned IRole implementation data in the database.
-     */
-    private $roleCrud;
-
-    /**
-     * AMySqlQueryCrud constructor. Injects the MySqlQuery instance used for CRUD operations on user data.
-     * Sets the RoleCrud instance used for CRUD operations on role data.
-     * @param MySqlQuery $MySqlQuery The MySqlQuery instance that will handle CRUD operations.
-     */
-    public function __construct(MySqlQuery $MySqlQuery, IRoleCrud $roleCrud)
-    {
-        parent::__construct($MySqlQuery, self::USER_TABLE_NAME);
-        $this->roleCrud = $roleCrud;
-    }
-
     /**
      * Create a new user.
      * Note: This method will return false if the user already exists.
@@ -65,17 +42,6 @@ class MySqlUserCrud extends AMySqlQueryCrud implements IUserCrud
         );
         return $this->userExists($user->getUserName());
 
-    }
-
-    private function packUserData(IUser $user): array
-    {
-        return array(
-            $user->getUserId(),
-            $user->getUserName(),
-            $this->packMeta($user),
-            $this->packRoles($user),
-            $this->formatClassName(get_class($user))
-        );
     }
 
     /**
@@ -119,35 +85,6 @@ class MySqlUserCrud extends AMySqlQueryCrud implements IUserCrud
         return $users;
     }
 
-
-    /**
-     * Unpack the user's meta data.
-     * @param string $packedMeta The packed meta data.
-     * @return array Array of user's public and private meta data indexed by the strings 'public' and
-     *               'private', respectively.
-     */
-    final private function unpackMeta(string $packedMeta): array
-    {
-        return json_decode($packedMeta, true);
-    }
-
-    /**
-     * Unpack the user's roles.
-     * Note: This method uses the injected IRoleCrud implementation to read and assign
-     * the IRole implementations named in the $packedRoles array.
-     * @param string $packedRoles The packed roles.
-     * @return array|IRole[] Array of IRole implementation instances assigned to the user.
-     */
-    final private function unpackRoles(string $packedRoles): array
-    {
-        $roles = array();
-        $roleNames = json_decode($packedRoles, true);
-        foreach ($roleNames as $roleName) {
-            array_push($roles, $this->roleCrud->read($roleName));
-        }
-        return $roles;
-    }
-
     /**
      * Update a specified user's data from an IUser implementation instance.
      * NOTE: This method will not perform update if new user's username does not match the specified user's username.
@@ -157,9 +94,12 @@ class MySqlUserCrud extends AMySqlQueryCrud implements IUserCrud
      */
     public function update(string $userName, IUser $newUser): bool
     {
+        // if user exists, & the new user name matches the original, proceed. @devNote: If observer pattern works, it may be possible to allow username to be changed, at the moment changing the user name is prohibited @todo Once observer pattern works look into possibly allowing user name to be changed, though there are many reasons this may not be desired in a system that has many users since the user name is one of the unique identifiers that identifies a user.
         if ($this->userExists($userName) === true && $userName === $newUser->getUserName()) {
-            if ($this->delete($userName) === true) {
-                return $this->create($newUser);
+            $this->setNotice(self::MOD_TYPE_UPDATE, $userName, $newUser); // @devNote: observer/subject related logic
+            if ($this->delete($userName) === true && $this->create($newUser) === true) {
+                $this->notify(); // @devNote: observer/subject related logic
+                return true;
             }
         }
         /**
@@ -180,96 +120,16 @@ class MySqlUserCrud extends AMySqlQueryCrud implements IUserCrud
     public function delete(string $userName): bool
     {
         if ($this->userExists($userName) === true) {
+            // only set notice data if $modType is MOD_TYPE_DELETE, otherwise this could break updates as this method is called from within the update() method.
+            if ($this->modType !== self::MOD_TYPE_UPDATE) { // @devNote: observer/subject related logic
+                $this->setNotice(self::MOD_TYPE_DELETE, $userName, $this->read($userName)); // @devNote: observer/subject related logic
+            }
             $this->MySqlQuery->executeQuery('DELETE FROM ' . $this->tableName . ' WHERE userName=?', [$userName]);
-            return ($this->userExists($userName) === false);
+            if ($this->modType === self::MOD_TYPE_DELETE) { // Only notify of deletion if mod type is MOD_TYPE_DELETE, no need to do it when mod type is MOD_TYPE_UPDATE since user is not actually being permanently deleted, i.e. changes that need to happen when a delete occurs MUST NOT happen when update occurs
+                $this->notify();
+            }
+            return $this->userExists($userName) === false;
         }
         return false;
-    }
-
-    /**
-     * Creates the users table.
-     * @return bool True if users table was created, false otherwise.
-     */
-    final protected function generateTable(): bool
-    {
-        if ($this->MySqlQuery->executeQuery('CREATE TABLE ' . $this->tableName . ' (
-            tableId INT NOT NULL AUTO_INCREMENT PRIMARY KEY UNIQUE,
-            userId VARCHAR(256) NOT NULL UNIQUE,
-            userName VARCHAR(256) NOT NULL UNIQUE,
-            userMeta JSON NOT NULL,
-            userRoles JSON NOT NULL,
-            IUserType VARCHAR(256) NOT NULL
-        );') === false) {
-            error_log('User Crud Error: Failed to create ' . $this->tableName . ' table');
-        }
-        return $this->tableExists($this->tableName);
-    }
-
-    /**
-     * Determines if the specified user exists.
-     * @param string $userName The user to check for.
-     * @return bool True if user exists, false otherwise.
-     */
-    final protected function userExists(string $userName): bool
-    {
-        $userData = $this->MySqlQuery->executeQuery('SELECT * FROM ' . $this->tableName . ' WHERE userName=?', [$userName])->fetchAll();
-        if (empty($userData) === true) {
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * Pack the User's meta data for storage. This method will create
-     * an array from the user's meta data, and will then encode the
-     * generated array as json. The array is constructed as follows:
-     * array(
-     *     'public' => $user->getPublicMeta(),
-     *     'private' => $user->getPrivateMeta()
-     * )
-     * Note: This array is packed by encoding it as json via json_encode().
-     * @param IUser $user The user whose meta data is to be packed.
-     * @return string The packed meta data.
-     */
-    final private function packMeta(IUser $user): string
-    {
-        return json_encode([
-            'public' => $user->getPublicMeta(),
-            'private' => $user->getPrivateMeta()
-        ]);
-    }
-
-    /**
-     * Creates an array of the names of the IRole implementations assigned to the user,
-     * and encodes the generated array as json.
-     * For Example:
-     * {
-     *     [
-     *         'SomeRole', // when this user is read, the read method will use the IRoleCrud implementation to look for a role name SomeRole in the database, if it finds such a role it will be assigned as one of the user's roles via the $ctor_args array.
-     *         'SomeOtherRole',
-     *         'AFinalRole',
-     *     ]
-     * }
-     * @param IUser $user The user whose roles should be packed.
-     * @return string The packed roles.
-     */
-    final private function packRoles(IUser $user): string
-    {
-        $roles = array();
-        foreach ($user->getRoles() as $role) {
-            array_push($roles, $role->getRoleName());
-        }
-        return json_encode($roles);
-    }
-
-    /**
-     * Get the class name including the fully qualified namespace of the specified user in the following format:
-     * \\Some\\Name\\Spaced\\ClassName
-     * @param string $userName
-     * @return string
-     */
-    final private function getClassName(string $userName): string
-    {
-        return $this->MySqlQuery->executeQuery('SELECT IUserType FROM ' . $this->tableName . ' WHERE userName=? LIMIT 1', [$userName])->fetchAll(\PDO::FETCH_ASSOC)[0]['IUserType'];
     }
 }
