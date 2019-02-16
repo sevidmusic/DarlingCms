@@ -19,18 +19,19 @@ use DarlingCms\classes\database\SQL\MySqlQuery;
  * WARNING: Careful consideration should be taken before adding new methods to this class, especially in regards
  *          to security as this class creates a centralized global state via it's static methods.
  * @package DarlingCms\classes\staticClasses\core
- * @todo many of these values should be read from a config source so permissible values can be set/changed
+ * @todo ! many of these values should be read from a config source so permissible values can be set/changed, and so values that require care can be kept secure
  */
 class CoreValues
 {
-    private static $MySqlQuery;
-
     const CORE_DB_NAME = 'PDOPlaygroundDev1';
     const APPS_DB_NAME = 'PDOPlaygroundDev1';
     const USERS_DB_NAME = 'PDOPlaygroundDev1';
     const PRIVILEGES_DB_NAME = 'PDOPlaygroundDev1';
     const CORE_DB_HOST = 'localhost';
-
+    /**
+     * @var MySqlQuery $MySqlQuery MySqlQuery implementation instance.
+     */
+    private static $MySqlQuery;
 
     /**
      * Returns the core MySqlQuery implementation instance.
@@ -73,11 +74,6 @@ class CoreValues
         return CoreValues::$MySqlQuery;
     }
 
-    public static function getSiteRootDirPath(): string
-    {
-        return str_replace('/core/classes/staticClasses/core', '', __DIR__);
-    }
-
     public static function getSiteRootUrl(): string
     {
         $rootUrlPieces = parse_url((!empty($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
@@ -92,6 +88,11 @@ class CoreValues
         return self::getSiteRootDirPath() . '/apps';
     }
 
+    public static function getSiteRootDirPath(): string
+    {
+        return str_replace('/core/classes/staticClasses/core', '', __DIR__);
+    }
+
     public static function getAppDirPath(string $appName): string
     {
         return self::getSiteRootDirPath() . '/apps/' . $appName;
@@ -102,9 +103,9 @@ class CoreValues
         return self::getSiteRootDirPath() . '/js';
     }
 
-    public static function getJsLibDirPath(string $appName): string
+    public static function getJsLibDirPath(string $jsLibraryName): string
     {
-        return self::getSiteRootDirPath() . '/apps/' . $appName;
+        return self::getSiteRootDirPath() . '/apps/' . $jsLibraryName;
     }
 
     public static function getThemesRootDirPath(): string
