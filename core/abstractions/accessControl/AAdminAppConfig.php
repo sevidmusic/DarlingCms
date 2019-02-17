@@ -31,7 +31,7 @@ abstract class AAdminAppConfig implements IAppConfig
     /**
      * AAdminAppConfig constructor. Sets the class properties.
      */
-    final public function __construct()
+    final public function __construct()// @todo ! Consider if this should really be final! Having this be final does insure all implementations initialize the required props, but it prevents apps from defining additional validation that may be unique to the app, for instance an app may only show up on certain pages, and may wish to add such a check to it's validation logic...
     {
         $this->userLogin = new UserLogin();
         $this->crudFactory = new CoreMySqlCrudFactory();

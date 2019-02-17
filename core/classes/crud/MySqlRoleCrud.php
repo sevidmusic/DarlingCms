@@ -81,7 +81,7 @@ class MySqlRoleCrud extends AMySqlQueryCrud implements IRoleCrud
             $results = $this->MySqlQuery->getClass('SELECT * FROM ' . $this->tableName . ' WHERE roleName=? LIMIT 1', $this->getClassName($roleName), [$roleName], $ctor_args);
             return array_shift($results);
         }
-        return new Role('Anonymous', [new Permission('No Access', new Action('Inaction', 'No access!'))]); // dev value
+        return new Role('Anonymous', [new Permission('No Access', [new Action('Inaction', 'Do nothing.')])]);
     }
 
     /**
