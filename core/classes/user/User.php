@@ -88,6 +88,36 @@ class User extends APDOCompatibleUser implements IUser
      */
     public function userHasRole(IRole $role): bool
     {
-        return in_array($role, $this->roles, true);
+        /**
+         * @devNote
+         * in_array()'s strict parameter is explicitly set to false in this method because of how PHP
+         * compares objects.
+         *
+         * When objects are compared strictly, i.e., ===,  the are only equal if they are both of the
+         * same instance:
+         *
+         * $classA = new ClassA();
+         * $classACopy = $classA;
+         * var_dump($classA === $classACopy); // TRUE | same instance
+         *
+         * $classB = new ClassB();
+         * $classB2 = new ClassB();
+         * var_dump($classB === $classB2); // FALSE | same implementation, different instances | THIS IS THE ISSUE WITH STRICT COMPARISON FOR OBJECTS IN THIS METHODS CONTEXT! Same implementation, not same instance, this method should only care about implementation since the provided IRole implementation will most likely be a unique instance, and this method just need to make sure that the provided IRole implementation matches one of the User's assigned IRole implementations, NOT instances!
+         *
+         * Since this method just needs to check that the provided IRole implementation matches one of the
+         * assigned IRole implementations, i.e., same class type, not same instance, comparison must not
+         * be strict:
+         *
+         * $classA = new ClassA();
+         * $classACopy = $classA;
+         * var_dump($classA == $classACopy); // TRUE
+         *
+         * $classB = new ClassB();
+         * $classB2 = new ClassB();
+         * var_dump($classB == $classB2); // TRUE | Same implementation, different instances, this is the case that should be tested, therefore in_array()'s strict parameter MUST be set to false.
+         *
+         * @see http://php.net/manual/en/language.oop5.object-comparison.php for more on object comparsion in PHP
+         */
+        return in_array($role, $this->roles, false);
     }
 }
