@@ -8,9 +8,6 @@
 
 namespace DarlingCms\classes\staticClasses\core;
 
-
-use DarlingCms\classes\database\SQL\MySqlQuery;
-
 /**
  * Class CoreValues. This class defines various static methods which can be used to retrieve core values
  * such as the site's root url, root directory path, etc., more conveniently.
@@ -42,45 +39,81 @@ use DarlingCms\classes\database\SQL\MySqlQuery;
  */
 class CoreValues
 {
-    // @todo ! *ACTIVE* Since constants cannot be assigned a value dynamically some of the current class constants may need to be refactored into properties that can be retrieved by corresponding get*() methods
-    /** @todo ! *ACTIVE* Read from config file
-     * @var string Name of the database used by Core.
+    /**
+     * Returns the name of the database used by Core.
+     * @return string The name of the database used by Core.
      */
-    const CORE_DB_NAME = 'PDOPlaygroundDev1';
+    public static function getCoreDBName(): string
+    {
+        return 'PDOPlaygroundDev1';
+    }
 
-    /** @todo ! *ACTIVE* Read from config file
-     * @var string Name of the database used by Apps.
+    /**
+     * Returns the name of the database used by Apps.
+     * @return string The name of the database used by Apps.
      */
-    const APPS_DB_NAME = 'PDOPlaygroundDev1';
+    public static function getAppsDBName(): string
+    {
+        return 'PDOPlaygroundDev1';
+    }
 
-    /** @todo ! *ACTIVE* Read from config file
-     * @var string Name of the database used to store Users.
+    /**
+     * Returns the name of the database used by Users, i.e., the name of the database
+     * used to store users.
+     * @return string The name of the database used by Users.
      */
-    const USERS_DB_NAME = 'PDOPlaygroundDev1';
+    public static function getUsersDBName(): string
+    {
+        return 'PDOPlaygroundDev1';
+    }
 
-    /** @todo ! *ACTIVE* Read from config file
-     * @var string Name of the database used to store Users.
+
+    /**
+     * Returns the name of the database used by Passwords, i.e., the name of the database
+     * used to store passwords.
+     * @return string The name of the database used by Passwords.
      */
-    const PASSWORD_DB_NAME = 'PDOPlaygroundDev1';
+    public static function getPasswordsDBName(): string
+    {
+        return 'PDOPlaygroundDev1';
+    }
 
-    /** @todo ! *ACTIVE* Read from config file
-     * @var string Name of the database used to store Privileges, i.e., Actions, Permissions, and Roles.
+    /**
+     * Returns the name of the database used by Privileges, i.e., the name of the database
+     * used to store Actions, Permissions, and Roles.
+     * @return string The name of the database used by Privileges.
      */
-    const PRIVILEGES_DB_NAME = 'PDOPlaygroundDev1';
+    public static function getPrivilegesDBName(): string
+    {
+        return 'PDOPlaygroundDev1';
+    }
 
-    /** @todo ! *ACTIVE* Read from config file | Implement support for custom database names defined via config file
-     * @var string Name of the database used to store Privileges, i.e., Actions, Permissions, and Roles.
+    /**
+     * Returns the name of the database host.
+     * @return string The name of the database host.
      */
-    //const CUSTOM_DB_NAMES = [];
+    public static function getDBHostName(): string
+    {
+        return 'localhost';
+    }
 
-    /** @todo ! *ACTIVE* Read from config file
-     * @var string Name of the database host, e.g., localhost
+    /**
+     * Returns the database user's username.
+     * @return string The database user's username.
      */
-    const CORE_DB_HOST = 'localhost';
+    public static function getDBUserName(): string
+    {
+        return 'root';
+    }
 
-    const CORE_DB_USER = 'root'; // @todo ! This const is for dev only, live env must use a config file to obtain this value
-
-    const CORE_DB_PASS = 'root'; // @todo ! This const is for dev only, live env must use a config file to obtain this value
+    /**
+     * Returns the database user's password.
+     * @return string The database user's password.
+     */
+    public static function getDBPassword(): string
+    {
+        return 'root';
+    }
 
     /**
      * Returns the site's root url.
