@@ -10,6 +10,7 @@ namespace DarlingCms\classes\observer\crud;
 
 
 use DarlingCms\classes\crud\MySqlUserPasswordCrud;
+use DarlingCms\classes\staticClasses\core\CoreMySqlQuery;
 use DarlingCms\classes\staticClasses\core\CoreValues;
 use DarlingCms\classes\user\UserPassword;
 use SplSubject;
@@ -26,14 +27,7 @@ class MySqlUserCrudObserver implements \SplObserver
      */
     public function __construct()
     {
-        $this->mySqlQuery = CoreValues::getMySqlQueryInstance
-        (
-            CoreValues::CORE_DB_HOST,
-            CoreValues::CORE_DB_NAME,
-            'root', // @todo THIS MUST NOT BE HARDCODED IN LIVE ENVIRONMENTS
-            'root' // @todo THIS MUST NOT BE HARDCODED IN LIVE ENVIRONMENTS
-        );
-        //$this->passwordCrud = new MySqlUserPasswordCrud($this->mySqlQuery);
+        $this->mySqlQuery = CoreMySqlQuery::DbConnection(CoreValues::USERS_DB_NAME);
     }
 
 
