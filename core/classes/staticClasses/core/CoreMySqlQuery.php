@@ -19,9 +19,6 @@ use DarlingCms\classes\database\SQL\MySqlQuery;
  * static class to determine the db user, db password, and db host.
  * @package DarlingCms\classes\staticClasses\core
  * @see CoreValues
- * @see CoreValues::CORE_DB_USER
- * @see CoreValues::CORE_DB_PASS
- * @see CoreValues::CORE_DB_HOST
  */
 class CoreMySqlQuery
 {
@@ -41,7 +38,7 @@ class CoreMySqlQuery
         // Make sure a connection to the specified database has not already been initialized.
         if (isset(CoreMySqlQuery::$connections[$databaseName]) === false) {
             // Create a MySqlQuery instance for the specified database.
-            CoreMySqlQuery::$connections[$databaseName] = new MySqlQuery(MySqlQuery::getDsn(CoreValues::CORE_DB_HOST, $databaseName, $charset), CoreValues::CORE_DB_USER, CoreValues::CORE_DB_PASS);
+            CoreMySqlQuery::$connections[$databaseName] = new MySqlQuery(MySqlQuery::getDsn(CoreValues::getDBHostName(), $databaseName, $charset), CoreValues::getDBUserName(), CoreValues::getDBPassword());
         }
         // Return the MySqlQuery instance for the specified database.
         return CoreMySqlQuery::$connections[$databaseName];
