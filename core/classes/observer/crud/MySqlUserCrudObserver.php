@@ -27,7 +27,7 @@ class MySqlUserCrudObserver implements \SplObserver
      */
     public function __construct()
     {
-        $this->mySqlQuery = CoreMySqlQuery::DbConnection(CoreValues::USERS_DB_NAME);
+        $this->mySqlQuery = CoreMySqlQuery::DbConnection(CoreValues::getUsersDBName());
     }
 
 
