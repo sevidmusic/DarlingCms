@@ -208,7 +208,7 @@ class CoreHtmlUserInterface extends \DOMDocument implements IHtmlPage, IUserInte
      */
     private function cleanHtml(string $html): string
     {
-        $html = str_replace(array($this::PRESERVE_EMPTY_ELEMENTS, '<![CDATA[ ]]>', '<![CDATA[<!-- -->]]>', '<?xml version="1.0" standalone="yes"?>' . PHP_EOL, '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . PHP_EOL), '', $html);
+        $html = str_replace(array($this::PRESERVE_EMPTY_ELEMENTS, '<![CDATA[ ]]>', '<![CDATA[<!-- -->]]>', '<![CDATA[', ' ]]>', '<?xml version="1.0" standalone="yes"?>' . PHP_EOL, '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . PHP_EOL), '', $html);
         /**
          * Solution for removing empty lines via preg_replace() found on stack overflow at the following url:
          * @see https://stackoverflow.com/questions/709669/how-do-i-remove-blank-lines-from-text-in-php?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
