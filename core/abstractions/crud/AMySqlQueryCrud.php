@@ -22,7 +22,19 @@ abstract class AMySqlQueryCrud
 {
     protected $MySqlQuery;
     protected $tableName;
-
+    /**
+     * @var int A numeric value representing the type of modification currently being performed. MUST equal one
+     *          of the following class constants:
+     *
+     *              <br>AMySqlQueryCrud::MOD_TYPE_DELETE // Currently not applicable, may be in the future
+     *
+     *              <br>AMySqlQueryCrud::MOD_TYPE_READ // Currently not applicable, may be in the future
+     *
+     *              <br>AMySqlQueryCrud::MOD_TYPE_UPDATE
+     *
+     *              <br>AMySqlQueryCrud::MOD_TYPE_DELETE
+     */
+    public $modType;
     /**
      * @var string Value that can be used by implementations that need to identify or indicate that the
      *             type of query that is being performed will create new data.

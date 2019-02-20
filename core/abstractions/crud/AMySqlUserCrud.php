@@ -24,7 +24,7 @@ abstract class AMySqlUserCrud extends AMySqlQueryCrud implements IUserCrud, SplS
      * @var string Name of the table this class performs CRUD operations on.
      */
     const USER_TABLE_NAME = 'users';
-    
+
     /**
      * @var string The target user's user name.
      */
@@ -34,21 +34,6 @@ abstract class AMySqlUserCrud extends AMySqlQueryCrud implements IUserCrud, SplS
      * @var IUser The IUser implementation instance that represents the user's data.
      */
     public $user;
-
-
-    /**
-     * @var int A numeric value representing the type of modification currently being performed. MUST equal one
-     *          of the following class constants:
-     *
-     *              <br>MySqlUserCrud::MOD_TYPE_DELETE // Currently not applicable, may be in the future
-     *
-     *              <br>MySqlUserCrud::MOD_TYPE_READ // Currently not applicable, may be in the future
-     *
-     *              <br>MySqlUserCrud::MOD_TYPE_UPDATE
-     *
-     *              <br>MySqlUserCrud::MOD_TYPE_DELETE
-     */
-    public $modType; // @devNote: observer/subject related property
 
     /**
      * @var \SplObjectStorage
