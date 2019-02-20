@@ -43,7 +43,7 @@ class Permission extends APDOCompatiblePermission implements IPermission
      */
     public function hasAction(IAction $action): bool
     {
-        return in_array($action, $this->getActions(), true);
+        return in_array($action, $this->getActions(), false); // set to false b/c === is false for objects if not same instance, so strict will always equate to false.
     }
 
 }
