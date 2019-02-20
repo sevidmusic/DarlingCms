@@ -24,11 +24,7 @@ abstract class AMySqlUserCrud extends AMySqlQueryCrud implements IUserCrud, SplS
      * @var string Name of the table this class performs CRUD operations on.
      */
     const USER_TABLE_NAME = 'users';
-    const MOD_TYPE_CREATE = 2;  // @devNote: This is declared here in case it is needed in the future, at the moment it is not used.
-    const MOD_TYPE_READ = 4;  // @devNote: This is declared here in case it is needed in the future, at the moment it is not used.
-    const MOD_TYPE_UPDATE = 6;
-    const MOD_TYPE_DELETE = 8;
-
+    
     /**
      * @var string The target user's user name.
      */

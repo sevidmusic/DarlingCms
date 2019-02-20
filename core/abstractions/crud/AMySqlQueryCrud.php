@@ -24,6 +24,31 @@ abstract class AMySqlQueryCrud
     protected $tableName;
 
     /**
+     * @var string Value that can be used by implementations that need to identify or indicate that the
+     *             type of query that is being performed will create new data.
+     */
+    const MOD_TYPE_CREATE = 2;
+
+    /**
+     * @var string Value that can be used by implementations that need to identify or indicate that the
+     *             type of query that is being performed will read data.
+     */
+    const MOD_TYPE_READ = 4;
+
+    /**
+     * @var string Value that can be used by implementations that need to identify or indicate that the
+     *             type of query that is being performed will update data.
+     */
+    const MOD_TYPE_UPDATE = 6;
+
+    /**
+     * @var string Value that can be used by implementations that need to identify or indicate that the
+     *             type of query that is being performed will delete data.
+     */
+    const MOD_TYPE_DELETE = 8;
+
+
+    /**
      * AMySqlQueryCrud constructor. Injects the MySqlQuery instance used for CRUD operations. Set's the
      * name of the table CRUD operations will be performed on.
      * @param MySqlQuery $MySqlQuery The MySqlQuery instance that will handle CRUD operations.
