@@ -20,8 +20,6 @@ use SplSubject;
  * that extends the AMySqlQueryCrud abstract class. This implementation can be used
  * to perform CRUD operations on user data in a MySql database.
  * @package DarlingCms\classes\crud
- * @see
- * @todo Define abstract class AMySqlUserCrud which will define the SPL Observer/Subject related methods, properties, and constants
  */
 class MySqlUserCrud extends AMySqlUserCrud implements IUserCrud, SplSubject
 {
@@ -94,11 +92,11 @@ class MySqlUserCrud extends AMySqlUserCrud implements IUserCrud, SplSubject
      */
     public function update(string $userName, IUser $newUser): bool
     {
-        // if user exists, & the new user name matches the original, proceed. @devNote: If observer pattern works, it may be possible to allow username to be changed, at the moment changing the user name is prohibited @todo Once observer pattern works look into possibly allowing user name to be changed, though there are many reasons this may not be desired in a system that has many users since the user name is one of the unique identifiers that identifies a user.
+        /* If user exists, & the new user name matches the original, proceed. */
         if ($this->userExists($userName) === true && $userName === $newUser->getUserName()) {
-            $this->setNotice(self::MOD_TYPE_UPDATE, $userName, $newUser); // @devNote: observer/subject related logic
+            $this->setNotice(self::MOD_TYPE_UPDATE, $userName, $newUser);
             if ($this->delete($userName) === true && $this->create($newUser) === true) {
-                $this->notify(); // @devNote: observer/subject related logic
+                $this->notify();
                 return true;
             }
         }
