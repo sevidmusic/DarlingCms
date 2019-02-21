@@ -21,7 +21,7 @@ use DarlingCms\interfaces\user\IUser;
  *
  * $PDOStatement->fetchAll(PDO::FETCH_CLASS, $className, $ctor_args);
  *
- * IMPORTANT: ONLY USE THE FETCH_CLASS OPTION! DO NOT USE FETCH_PROPS_LATE OR PROPERTY VALUE SET BY
+ * IMPORTANT: ONLY USE THE FETCH_CLASS OPTION! DO NOT USE FETCH_PROPS_LATE OR PROPERTY VALUES SET BY
  * THE __construct() METHOD MAY BE OVERWRITTEN WHEN PDO SETS IT'S VALUES!!!
  *
  * The $ctor_args array should be structured to match the parameters expected by the __construct() method
@@ -137,23 +137,47 @@ abstract class APDOCompatibleUser implements IUser
 
     final public function __set($name, $value)
     {
-        // DO NOT IMPLEMENT OR PDO MAY SET UNDECLARED PROPERTY VALUES!
+        // WARNING: DO NOT IMPLEMENT OR PDO MAY SET UNDECLARED PROPERTY VALUES!!!
     }
 
+    /**
+     * Assign a role to the user.
+     * @param IRole $role The IRole implementation instance that represents the role to assign to the user.
+     */
     final private function addRole(IRole $role)
     {
         array_push($this->roles, $role);
     }
 
+    /**
+     * @return string The user's user name.
+     */
     abstract public function getUserName(): string;
 
+    /**
+     * @return string The user's id.
+     */
     abstract public function getUserId(): string;
 
+    /**
+     * @return array The user's public meta data.
+     */
     abstract public function getPublicMeta(): array;
 
+    /**
+     * @return array The user's private meta data.
+     */
     abstract public function getPrivateMeta(): array;
 
+    /**
+     * @return array The user's assigned roles.
+     */
     abstract public function getRoles(): array;
 
+    /**
+     * Determines if the user is assigned a specified role.
+     * @param IRole $role An instance of the IRole implementation that represent the role to check for.
+     * @return bool True if user is assigned the specified role, false otherwise.
+     */
     abstract public function userHasRole(IRole $role): bool;
 }
