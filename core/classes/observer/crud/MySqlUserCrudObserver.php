@@ -53,7 +53,7 @@ class MySqlUserCrudObserver implements \SplObserver
 
     /**
      * Receive update from an AMySqlUserCrud implementation instance.
-     * @param SplSubject $subject The AMySqlUserCrud implementation instance that issued the notice to update.
+     * @param SplSubject|AMySqlUserCrud $subject The AMySqlUserCrud implementation instance that issued the notice to update.
      *
      *                            WARNING: To conform the the SplObserver interface the
      *                            $subject parameter will accept any instance of an SplSubject,
