@@ -1,13 +1,13 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: sevidmusic
+ * Created by Sevi Donnelly Foreman
  * Date: 2019-02-08
  * Time: 00:44
  */
 
 namespace DarlingCms\abstractions\crud;
 
+use DarlingCms\abstractions\user\APDOCompatibleUser;
 use DarlingCms\classes\database\SQL\MySqlQuery;
 use DarlingCms\classes\observer\crud\MySqlUserCrudObserver;
 use DarlingCms\interfaces\crud\IRoleCrud;
@@ -15,10 +15,19 @@ use DarlingCms\interfaces\crud\IUserCrud;
 use DarlingCms\interfaces\privilege\IRole;
 use DarlingCms\interfaces\user\IUser;
 use SplSubject;
-use SplObserver;
-use SplObjectStorage;
 
-abstract class AMySqlUserCrud extends AMySqlQueryCrud implements IUserCrud, SplSubject
+/**
+ * Class AMySqlUserCrud. Defines an abstract implementation of the AObservableMySqlQueryCrud abstract class
+ * that can be used as a base class for AObservableMySqlQueryCrud implementations that perform CRUD
+ * operations on user data in a database via a MySqlQuery instance. Instances of this class are observed
+ * by an instance of the MySqlUserCrudObserver() class which is responsible for performing updates to
+ * the user's password whenever a user is updated or deleted.
+ * @package DarlingCms\abstractions\crud
+ * @see AObservableMySqlQueryCrud
+ * @see MySqlQuery
+ * @see MySqlUserCrudObserver
+ */
+abstract class AMySqlUserCrud extends AObservableMySqlQueryCrud implements IUserCrud, SplSubject
 {
     /**
      * @var string Name of the table this class performs CRUD operations on.
@@ -26,7 +35,7 @@ abstract class AMySqlUserCrud extends AMySqlQueryCrud implements IUserCrud, SplS
     const USER_TABLE_NAME = 'users';
 
     /**
-     * @var string The target user's user name.
+     * @var APDOCompatibleUser The target user's user name.
      */
     public $targetUser;
 
@@ -36,15 +45,10 @@ abstract class AMySqlUserCrud extends AMySqlQueryCrud implements IUserCrud, SplS
     public $user;
 
     /**
-     * @var \SplObjectStorage
-     */
-    protected $observers; // @devNote: observer/subject related property
-
-    /**
      * @var IRoleCrud Injected IRoleCrud implementation instance. This object is used to perform CRUD
      *                operations on the user's assigned IRole implementation data in the database.
      */
-    private $roleCrud; // @devNote: observer/subject related property
+    private $roleCrud;
 
     /**
      * AMySqlQueryCrud constructor. Injects the MySqlQuery instance used for CRUD operations on user data.
@@ -53,56 +57,8 @@ abstract class AMySqlUserCrud extends AMySqlQueryCrud implements IUserCrud, SplS
      */
     public function __construct(MySqlQuery $MySqlQuery, IRoleCrud $roleCrud)
     {
-        parent::__construct($MySqlQuery, self::USER_TABLE_NAME);
-        $this->observers = new SplObjectStorage();
-        $this->observers->attach(new MySqlUserCrudObserver());
+        parent::__construct($MySqlQuery, self::USER_TABLE_NAME, new MySqlUserCrudObserver());
         $this->roleCrud = $roleCrud;
-    }
-
-    /**
-     * Attach an SplObserver
-     * @link https://php.net/manual/en/splsubject.attach.php
-     * @param SplObserver $observer <p>
-     * The <b>SplObserver</b> to attach.
-     * </p>
-     * @return void
-     * @since 5.1.0
-     * @devNote: observer/subject related logic
-     */
-    public function attach(SplObserver $observer): void
-    {
-        $this->observers->attach($observer);
-    }
-
-
-    /**
-     * Detach an observer
-     * @link https://php.net/manual/en/splsubject.detach.php
-     * @param SplObserver $observer <p>
-     * The <b>SplObserver</b> to detach.
-     * </p>
-     * @return void
-     * @since 5.1.0
-     * @devNote: observer/subject related logic
-     */
-    public function detach(SplObserver $observer): void
-    {
-        $this->observers->detach($observer);
-    }
-
-    /**
-     * Notify an observer
-     * @link https://php.net/manual/en/splsubject.notify.php
-     * @return void
-     * @since 5.1.0
-     * @devNote: observer/subject related logic
-     */
-    public function notify(): void
-    {
-        /** @var \SplObserver $observer */
-        foreach ($this->observers as $observer) {
-            $observer->update($this);
-        }
     }
 
     /**
@@ -199,7 +155,7 @@ abstract class AMySqlUserCrud extends AMySqlQueryCrud implements IUserCrud, SplS
      *              MySqlUserCrud::MOD_TYPE_UPDATE
      *
      *              MySqlUserCrud::MOD_TYPE_DELETE
-     * @param string $targetUserName The user name of the user that the curd operation will be performed on.
+     * @param string $targetUserName The user name of the user that the crud operation will be performed on.
      * @devNote:
      *                               This is used to read the target user's data from storage so it can
      *                               be passed on to the observer.
@@ -216,6 +172,11 @@ abstract class AMySqlUserCrud extends AMySqlQueryCrud implements IUserCrud, SplS
         $this->user = $user; // the IUser implementation instance that represents the user's modified user data.
     }
 
+    /**
+     * Pack an IUser implementation instance for storage.
+     * @param IUser $user The IUser implementation instance to pack for storage.
+     * @return array The array of the IUser implementation instance's packed data.
+     */
     protected function packUserData(IUser $user): array
     {
         return array(
