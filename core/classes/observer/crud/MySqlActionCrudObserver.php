@@ -83,23 +83,8 @@ class MySqlActionCrudObserver implements \SplObserver
             foreach ($this->getEffectedPermissions($subject->originalAction) as $permission) {
                 switch ($subject->modType) {
                     case  MySqlActionCrud::MOD_TYPE_UPDATE:
-                        $actionsToPreserve = array();
-                        foreach ($permission->getActions() as $action) {
-                            // if same as original or modified move onto next action
-                            if ($subject->originalAction == $action || $subject->modifiedAction == $action) {
-                                continue;
-                            }
-                            array_push($actionsToPreserve, $action);
-                        }
-                        // add modified action to array of actions to preserve since this array will be used when creating new permission
-                        array_push($actionsToPreserve, $subject->modifiedAction);
-                        // create new permission, assigning actions to preserve and modified action
-                        $newPermission = new Permission($permission->getPermissionName(), $actionsToPreserve);
-                        // save new permission
-                        $this->permissionCrud->update($permission->getPermissionName(), $newPermission);
-                        break;
                     case  MySqlActionCrud::MOD_TYPE_DELETE:
-                        var_dump('UPDATING EFFECTED PERMISSIONS |  MySqlActionCrud::MOD_TYPE_DELETE | Permission Name: ' . $permission->getPermissionName());
+                        $this->updatePermission($subject, $permission);
                         break;
                     default:
                         // Log error, invalid modification type
@@ -110,6 +95,43 @@ class MySqlActionCrudObserver implements \SplObserver
         } else {
             error_log('MySqlUserCrudObserver Error: Failed to update effected permissions for action ' . $subject->originalAction->getActionName() . '. WARNING: This may corrupt effected privileges. | Subject type was not valid.');
         }
+    }
+
+    /**
+     * Performs the necessary updates to the specified permission.
+     * @param SplSubject $subject The MySqlActionCrud implementation instance that issued the notice to update.
+     *
+     *                            WARNING: To conform the the SplObserver interface the
+     *                            $subject parameter will accept any instance of an SplSubject,
+     *                            however, this method will only perform as intended if an
+     *                            instance of the MySqlActionCrud implementation is passed to
+     *                            the $subject parameter.
+     * @param APDOCompatiblePermission $permission The permission to update.
+     * @return bool True if permission was updated, false otherwise.
+     */
+    private function updatePermission(SplSubject $subject, APDOCompatiblePermission $permission): bool
+    {
+        $actionsToPreserve = array();
+        foreach ($permission->getActions() as $action) {
+            // if same as original or modified move onto next action
+            if ($subject->originalAction == $action || $subject->modifiedAction == $action) {
+                continue;
+            }
+            array_push($actionsToPreserve, $action);
+        }
+        /**
+         * If action was updated, add modified action to array of actions to preserve since this array will
+         * be used to assign the appropriate actions to the new permission. This MUST not be done if action
+         * was deleted because in that context the modified action should be removed from the permission, and
+         * therefore excluded from the array of actions to preserve.
+         */
+        if ($subject->modType === MySqlActionCrud::MOD_TYPE_UPDATE) {
+            array_push($actionsToPreserve, $subject->modifiedAction);
+        }
+        // create new permission, assigning actions to preserve and modified action
+        $newPermission = new Permission($permission->getPermissionName(), $actionsToPreserve);
+        // save new permission
+        return $this->permissionCrud->update($permission->getPermissionName(), $newPermission);
     }
 
     /**

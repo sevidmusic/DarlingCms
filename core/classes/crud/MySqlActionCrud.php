@@ -127,8 +127,34 @@ class MySqlActionCrud extends AMySqlActionCrud implements IActionCrud
      */
     public function delete(string $actionName): bool
     {
-        $this->MySqlQuery->executeQuery('DELETE FROM ' . $this->tableName . ' WHERE actionName=? LIMIT 1', [$actionName]);
-        return $this->actionExists($actionName) === false;
+        if ($this->actionExists($actionName) === true) {
+            /**
+             * Only set observer properties if mod type is not set to update, this will prevent this
+             * method from overwriting said properties if they were already set by the update method.
+             * This precaution is necessary because the update() method uses this method as part of
+             * it's logic.
+             */
+            if ($this->modType !== self::MOD_TYPE_UPDATE) {
+                $this->modType = self::MOD_TYPE_DELETE;
+                $this->originalAction = $this->read($actionName);
+                $this->modifiedAction = $this->originalAction; // in this context modified and original are the same since the action is being deleted.
+            }
+            // Delete the action
+            $this->MySqlQuery->executeQuery('DELETE FROM ' . $this->tableName . ' WHERE actionName=? LIMIT 1', [$actionName]);
+            // If action was deleted successfully notify the observer and return true.
+            if ($this->actionExists($actionName) === false) {
+                /**
+                 * Only notify observer of action deletion if mod type is set to delete, if mod type is
+                 * update DO NOT notify observer here, the update() method will notify the observer if
+                 * appropriate.
+                 */
+                if ($this->modType === self::MOD_TYPE_DELETE) {
+                    $this->notify();
+                }
+                return true;
+            }
+        }
+        return false;
     }
 
 }

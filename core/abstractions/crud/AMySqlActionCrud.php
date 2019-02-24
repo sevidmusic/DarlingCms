@@ -7,6 +7,8 @@
 
 namespace DarlingCms\abstractions\crud;
 
+use DarlingCms\abstractions\privilege\APDOCompatibleAction;
+
 /**
  * Class AMySqlActionCrud. Defines an abstract implementation of the AObservableMySqlQueryCrud abstract class
  * that can be used as a base class for AMySqlActionCrud implementations that perform CRUD
@@ -22,6 +24,16 @@ abstract class AMySqlActionCrud extends AObservableMySqlQueryCrud
      * @var string Name of the table this class performs CRUD operations on.
      */
     const ACTIONS_TABLE_NAME = 'actions';
+
+    /**
+     * @var APDOCompatibleAction The original action.
+     */
+    public $originalAction;
+
+    /**
+     * @var APDOCompatibleAction The modified action.
+     */
+    public $modifiedAction;
 
     /**
      * Creates a table named using the value of the $tableName property.
