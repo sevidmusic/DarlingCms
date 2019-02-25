@@ -8,6 +8,8 @@
 namespace DarlingCms\abstractions\crud;
 
 use DarlingCms\abstractions\privilege\APDOCompatibleAction;
+use DarlingCms\interfaces\crud\IActionCrud;
+use DarlingCms\interfaces\privilege\IAction;
 
 /**
  * Class AMySqlActionCrud. Defines an abstract implementation of the AObservableMySqlQueryCrud abstract class
@@ -17,7 +19,7 @@ use DarlingCms\abstractions\privilege\APDOCompatibleAction;
  * any permissions that would be affected by modifications of the relevant action.
  * @package DarlingCms\abstractions\crud
  */
-abstract class AMySqlActionCrud extends AObservableMySqlQueryCrud
+abstract class AMySqlActionCrud extends AObservableMySqlQueryCrud implements IActionCrud
 {
 
     /**
@@ -80,4 +82,14 @@ abstract class AMySqlActionCrud extends AObservableMySqlQueryCrud
         return $this->MySqlQuery->executeQuery('SELECT IActionType FROM actions WHERE actionName=? LIMIT 1', [$actionName])->fetchAll(\PDO::FETCH_ASSOC)[0]['IActionType'];
     }
 
+    abstract public function create(IAction $action): bool;
+
+    abstract public function read(string $actionName): IAction;
+
+    abstract public function readAll(): array;
+
+    abstract public function update(string $actionName, IAction $newAction): bool;
+
+    abstract public function delete(string $actionName): bool;
+    
 }
