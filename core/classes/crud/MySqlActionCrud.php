@@ -24,25 +24,6 @@ use DarlingCms\interfaces\privilege\IAction;
 class MySqlActionCrud extends AMySqlActionCrud implements IActionCrud
 {
     /**
-     * MySqlActionCrud constructor.
-     * @param MySqlQuery $MySqlQuery The MySqlQuery implementation instance used to connect to and
-     *                               query the database.
-     * @param bool $observe Determines whether or not this instance should be observable.
-     */
-    public function __construct(MySqlQuery $MySqlQuery, $observe = true)
-    {
-        switch ($observe) {
-            case false: // this prevents infinite loop when this class is used or injected by other classes, for example the MySqlPermission crud uses this class, and the MySqlActionCrudObserver uses a permission crud, so the MySqlActionCrudObserver's permission crud needs to be able to turn off observation for it's instance  or else  the following instantiation loop will occur: new actionCrud ---> new MySqlActionCrudObserver ---> new permissionCrud ---> new actionCrud ---> new MySqlActionCrudObserver ---> new permission crud ---> new actionCrud ----> new MySqlActionCrudObserver ---> etc.
-                parent::__construct($MySqlQuery, self::ACTIONS_TABLE_NAME);
-                break;
-            default:
-                parent::__construct($MySqlQuery, self::ACTIONS_TABLE_NAME, new MySqlActionCrudObserver());
-                break;
-
-        }
-    }
-
-    /**
      * Create a new action.
      * @param IAction $action The IAction implementation instance that represents the action.
      * @return bool True if action was created, false otherwise.
