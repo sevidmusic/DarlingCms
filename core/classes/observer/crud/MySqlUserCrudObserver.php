@@ -73,8 +73,10 @@ class MySqlUserCrudObserver implements \SplObserver
                     }
                     break;
                 case  AMySqlUserCrud::MOD_TYPE_DELETE:
-                    //var_dump('MOD TYPE DELETE');
-                    // @todo ! *ACTIVE* Implement this switch case... for user deletion...
+                    $sql = "DELETE FROM passwords WHERE userName = ?";
+                    if ($this->mySqlQuery->prepare($sql)->execute([$subject->targetUser->getUserName()]) === false) {
+                        error_log('MySqlUserCrudObserver Error: Failed to delete user ' . $subject->user->getUserName() . '\'s corresponding password data. WARNING: This may lock the user out of their account.' . ' | User Id: ' . $subject->user->getUserId());
+                    }
                     break;
                 default:
                     // Log error, invalid modification type
