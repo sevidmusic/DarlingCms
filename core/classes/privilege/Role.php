@@ -43,6 +43,6 @@ class Role extends APDOCompatibleRole implements IRole
      */
     public function hasPermission(IPermission $permission): bool
     {
-        return in_array($permission, $this->permissions, true);
+        return in_array($permission, $this->permissions, false);
     }
 }
