@@ -31,7 +31,7 @@ abstract class AAdminAppConfig implements IAppConfig
     /**
      * AAdminAppConfig constructor. Sets the class properties.
      */
-    final public function __construct()// @todo ! Consider if this should really be final! Having this be final does insure all implementations initialize the required props, but it prevents apps from defining additional validation that may be unique to the app, for instance an app may only show up on certain pages, and may wish to add such a check to it's validation logic...
+    final public function __construct()// @todo ! Consider if this should really be final! Having this be final does insure all implementations initialize the required props, but it prevents apps from defining additional validation that may be unique to the app, for instance an app may only show up on certain pages, and may wish to add such a check to it's validation logic...alternativly an abstract method called additionValidation() could be defined where implmentation specific validation could be defined. this method would be called by this class's __construct() method insuring all implementations have a chance to define their own validation...
     {
         $this->userLogin = new UserLogin();
         $this->crudFactory = new CoreMySqlCrudFactory();
@@ -46,12 +46,15 @@ abstract class AAdminAppConfig implements IAppConfig
     /**
      * Validates access. This implementation verifies that the currently logged in user is assigned
      * the correct role(s) to use this app. This method will return true only if a user is logged in,
-     * and said user is assigned the required role(s).
+     * and said user is assigned the required role(s). Also note, this method will check if the user
+     * is in the process of being logged in or out and will return false in that context.
      * @return bool True if access is valid, false otherwise.
      */
     final public function validateAccess(): bool
     {
-        if ($this->userLogin->isLoggedIn($this->userName) === true && $this->hasValidRoles() === true) {
+        $loggingIn = (empty(filter_input(INPUT_POST, $this->userLogin::LOGIN_STATE_VAR_NAME)) === true ? false : filter_input(INPUT_POST, $this->userLogin::LOGIN_STATE_VAR_NAME) === $this->userLogin::LOGIN_STATE_VAR_VALUE);
+        $loggingOut = (empty(filter_input(INPUT_POST, $this->userLogin::LOGOUT_STATE_VAR_NAME)) === true ? false : filter_input(INPUT_POST, $this->userLogin::LOGOUT_STATE_VAR_NAME) === $this->userLogin::LOGOUT_STATE_VAR_VALUE);
+        if ($loggingIn === false && $loggingOut === false && $this->userLogin->isLoggedIn($this->userName) === true && $this->hasValidRoles() === true) {
             return true;
         }
         return false;
