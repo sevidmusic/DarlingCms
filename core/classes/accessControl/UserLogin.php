@@ -18,6 +18,10 @@ class UserLogin extends SessionCrud implements IUserLogin
 {
     const CURRENT_USER_POST_VAR_NAME = 'currentUser';
     const USER_PASSWORD_VAR_NAME = 'password';
+    const LOGIN_STATE_VAR_NAME = 'loginUser';
+    const LOGIN_STATE_VAR_VALUE = 'Login';
+    const LOGOUT_STATE_VAR_NAME = 'logoutUser';
+    const LOGOUT_STATE_VAR_VALUE = 'Logout';
 
     public function login(IUser $user, IUserPassword $password): bool
     {
