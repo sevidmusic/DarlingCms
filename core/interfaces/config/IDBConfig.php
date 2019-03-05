@@ -22,11 +22,11 @@ namespace DarlingCms\interfaces\config;
  */
 interface IDBConfig
 {
-    public function getDBName();
+    public function getDBName(): string;
 
-    public function getDBHostName();
+    public function getDBHostName(): string;
 
-    public function getDBUsername();
+    public function getDBUsername(): string;
 
-    public function getDBUserPassword();
+    public function getDBUserPassword(): string;
 }
