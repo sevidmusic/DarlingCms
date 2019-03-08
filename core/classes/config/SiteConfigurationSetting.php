@@ -18,12 +18,42 @@ use DarlingCms\interfaces\config\ISiteConfigurationSetting;
 class SiteConfigurationSetting implements ISiteConfigurationSetting
 {
     /**
+     * @var string $settingName The setting's name.
+     */
+    private $settingName;
+
+    /**
+     * @var string $settingValue The setting's value.
+     */
+    private $settingValue;
+
+    /**
+     * @var string $settingDescription The setting's description.
+     */
+    private $settingDescription;
+
+    /**
+     * SiteConfigurationSetting constructor. Sets the setting's name, the setting's value, and
+     * the setting's description.
+     * @param string $settingName The setting's name.
+     * @param string $settingValue The setting's value.
+     * @param string $settingDescription The setting's description.
+     */
+    public function __construct(string $settingName, string $settingValue, string $settingDescription)
+    {
+        $this->settingName = $settingName;
+        $this->settingValue = $settingValue;
+        $this->settingDescription = $settingDescription;
+    }
+
+
+    /**
      * Returns the setting's name.
      * @return string The setting's name.
      */
     public function getSettingName(): string
     {
-        return 'devSettingName';
+        return $this->settingName;
     }
 
     /**
@@ -32,7 +62,7 @@ class SiteConfigurationSetting implements ISiteConfigurationSetting
      */
     public function getSettingValue(): string
     {
-        return 'devSettingValue';
+        return $this->settingValue;
     }
 
     /**
@@ -41,7 +71,7 @@ class SiteConfigurationSetting implements ISiteConfigurationSetting
      */
     public function getDescription(): string
     {
-        return 'Test configuration description';
+        return $this->settingDescription;
     }
 
 }
