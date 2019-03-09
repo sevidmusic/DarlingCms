@@ -110,7 +110,7 @@ class CoreValues
         if (file_exists(self::getSiteConfigPath()) === true) {
             $config = parse_ini_file(self::getSiteConfigPath());
             if (empty($config) === true) {
-                error_log('Darling Cms Core Error: A configuration file for the site could not be found, please define one.');
+                error_log('Darling Cms Core Error: A valid configuration file for the site could not be found, please define one.');
             }
         }
         return (is_array($config) === true && empty($config) === false ? $config : []);
@@ -118,6 +118,13 @@ class CoreValues
 
     /**
      * Returns the path to the site's configuration file.
+     *
+     * Note: This includes the site configuration file's name.
+     *
+     * e.g.,
+     *
+     * /path/to/config/dir/siteConfigName.config.ini
+     *
      * @return string The path to the site's configuration file.
      */
     public static function getSiteConfigPath(): string
@@ -186,7 +193,31 @@ class CoreValues
      */
     public static function siteConfigured(): bool
     {
-        return !empty(self::getSiteConfigArray());
+        return (!empty(self::getSiteConfigArray()) === true && self::verifyCoreSettings() === true);
+    }
+
+    /**
+     * Verifies if the site configuration contains all the required settings.
+     * @return bool True if site configuration has all required settings, false otherwise.
+     */
+    private static function verifyCoreSettings()
+    {
+        $status = array();
+        $config = self::getSiteConfigArray();
+        $requiredSettings = array(
+            self::CORE_DB_NAME_SETTING,
+            self::APPS_DB_NAME_SETTING,
+            self::USERS_DB_NAME_SETTING,
+            self::PASSWORD_DB_NAME_SETTING,
+            self::PRIVILEGES_DB_NAME_SETTING,
+            self::DB_HOST_NAME_SETTING,
+            self::DB_USER_NAME_SETTING,
+            self::DB_PASSWORD_SETTING,
+        );
+        foreach ($requiredSettings as $requiredSetting) {
+            array_push($status, in_array($requiredSetting, array_keys($config), true));
+        }
+        return !in_array(false, $status, true);
     }
 
     /**
