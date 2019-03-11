@@ -41,9 +41,9 @@ class SiteConfiguration implements ISiteConfiguration
      * description, and attaches the supplied ISiteConfiguration implementation instances.
      * @param string $siteConfigurationName A name to identify this SiteConfiguration
      * @param string $siteConfigurationDescription A description of this SiteConfiguration
-     * @param ISiteConfigurationSetting ...$siteConfigurationSettings The ISiteConfigurationSetting implementation
-     *                                                                instances to associate with this
-     *                                                                SiteConfiguration.
+     * @param ISiteConfigurationSetting ...$siteConfigurationSettings The ISiteConfigurationSetting
+     *                                                                implementation instances to
+     *                                                                associate with this SiteConfiguration.
      */
     public function __construct(string $siteConfigurationName, string $siteConfigurationDescription, ISiteConfigurationSetting ...$siteConfigurationSettings)
     {
@@ -88,6 +88,32 @@ class SiteConfiguration implements ISiteConfiguration
     public function getConfigurationDescription(): string
     {
         return $this->siteConfigurationDescription;
+    }
+
+    /**
+     * Add a site configuration setting to this site configuration.
+     * @param ISiteConfigurationSetting $siteConfigurationSetting The ISiteConfigurationSetting implementation
+     *                                                            instance that represents the site configuration
+     *                                                            setting.
+     */
+    // @todo ! add method to ISiteConfiguration interface
+    public function addSetting(ISiteConfigurationSetting $siteConfigurationSetting): void
+    {
+        $this->siteConfigurationSettings->attach($siteConfigurationSetting);
+    }
+
+    /**
+     * Remove a site configuration setting from this site configuration.
+     * @param string $settingName The name of the setting to remove.
+     */
+    // @todo ! add method to ISiteConfiguration interface
+    public function removeSetting(string $settingName): void
+    {
+        foreach ($this->getConfigurationSettings() as $siteConfigurationSetting) {
+            if ($siteConfigurationSetting->getSettingName() === $settingName) {
+                $this->siteConfigurationSettings->detach($siteConfigurationSetting);
+            }
+        }
     }
 
 }
