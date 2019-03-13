@@ -16,7 +16,7 @@ use SplObjectStorage;
 
 /**
  * Class SiteConfigurationFileInstaller. Defines an implementation of the IInstaller interface
- * that can be used to install and un-install site configuration files.
+ * that can be used to install and un-install site configurations in a site configuration file.
  * @package DarlingCms\classes\installer
  * @see IInstaller
  * @see SiteConfigurationSetting
@@ -26,14 +26,15 @@ use SplObjectStorage;
 class SiteConfigurationFileInstaller implements IInstaller
 {
     /**
-     * @var SiteConfigurationFileCrud The SiteConfigurationFileCrud implementation instance used to perform
-     *                                crud operations on the site configuration file.
+     * @var SiteConfigurationFileCrud The SiteConfigurationFileCrud implementation instance used
+     *                                to create, read, update, and delete site configuration data
+     *                                from the site configuration file.
      */
     private $siteConfigurationFileCrud;
 
     /**
      * @var SplObjectStorage|ISiteConfiguration[] Object map of the ISiteConfiguration implementation instances
-     *                       that will be added to the configuration file on install.
+     *                       that will be added to the site configuration file on install.
      */
     private $siteConfigurations;
 
@@ -63,17 +64,22 @@ class SiteConfigurationFileInstaller implements IInstaller
         }
     }
 
-
     /**
-     * Perform installation.
+     * Perform installation. This method will first attempt to create the site configurations
+     * in the site configuration file, if that fails, then it will attempt to update the site
+     * configurations in case create failed because one or more of the site configurations
+     * were already defined.
+     * As long as either the attempts to create or update each of the site configurations
+     * were successful, this method will return true, false otherwise.
+     * @devNote update() is used as a fail safe if create() fails to insure a fresh install whenever
+     *          this method is called.
      * @return bool True if installation was successful, false otherwise.
      */
     public function install(): bool
     {
         $status = array();
-        // create configs in site config file via site config crud
         foreach ($this->siteConfigurations as $siteConfiguration) {
-            $configInstalled = $this->siteConfigurationFileCrud->create($siteConfiguration);
+            $configInstalled = ($this->siteConfigurationFileCrud->create($siteConfiguration) === true ? true : $this->siteConfigurationFileCrud->update($siteConfiguration->getConfigurationName(), $siteConfiguration));
             if ($configInstalled === false) {
                 error_log('SiteConfigurationFileInstaller Error: Failed to install the  ' . $siteConfiguration->getConfigurationName() . ' configuration in site configuration file at ' . $this->siteConfigurationFileCrud->getSiteConfigurationFilePath());
             }
@@ -81,12 +87,17 @@ class SiteConfigurationFileInstaller implements IInstaller
         }
         if (in_array(false, $status, true) === true) {
             error_log('SiteConfigurationFileInstaller Error: Failed to complete installation of site configuration file at ' . $this->siteConfigurationFileCrud->getSiteConfigurationFilePath());
-            if ($this->uninstall() === false) { // call uninstall() to insure everything is cleaned up on failure
+            /**
+             * Call uninstall() to insure everything is cleaned up on failure
+             */
+            if ($this->uninstall() === false) {
                 error_log('SiteConfigurationFileInstaller Error: Failed to clean up after install failed for site configuration stored at ' . $this->siteConfigurationFileCrud->getSiteConfigurationFilePath());
             }
             return false;
         }
-        // return true if all site configs were saved, and no other issues occurred during install, false otherwise
+        /**
+         * All site configurations were installed successfully, return true.
+         */
         return true;
     }
 
@@ -96,7 +107,6 @@ class SiteConfigurationFileInstaller implements IInstaller
      */
     public function uninstall(): bool
     {
-        // delete the site configuration file if it exists.
         if (file_exists($this->siteConfigurationFileCrud->getSiteConfigurationFilePath()) === true && unlink($this->siteConfigurationFileCrud->getSiteConfigurationFilePath()) === true) {
             return true;
         }
