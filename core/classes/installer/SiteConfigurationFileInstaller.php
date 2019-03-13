@@ -42,10 +42,12 @@ class SiteConfigurationFileInstaller implements IInstaller
      * instance used to create, read, update, and delete site configuration data from the site configuration
      * file.
      * Attaches the provided ISiteConfiguration implementation instances to the internal object map of
-     * ISiteConfiguration implementation instances that will be added to the configuration file on install.
+     * ISiteConfiguration implementation instances that represent the site configurations that will be
+     * added to the configuration file on install.
      * @param SiteConfigurationFileCrud $siteConfigurationFileCrud The SiteConfigurationFileCrud implementation
      *                                                             instance used to create, read, update, and
-     *                                                             delete site configuration files.
+     *                                                             delete site configurations stored in the site
+     *                                                             configuration file being installed.
      * @param ISiteConfiguration ...$siteConfigurations The ISiteConfiguration implementation instances that
      *                                                  represent the site configurations to install.
      * @see SiteConfigurationFileCrud
