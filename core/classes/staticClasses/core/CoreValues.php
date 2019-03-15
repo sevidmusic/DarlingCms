@@ -555,27 +555,18 @@ class CoreValues
     {
         switch ($databaseName) {
             case CoreValues::getCoreDBName():
-                var_dump('USING CORE DB USERNAME');
-
                 return (empty(self::getSiteConfigValue(self::CORE_DB_USER_NAME_SETTING)) === false ? self::getSiteConfigValue(self::CORE_DB_USER_NAME_SETTING) : '');
                 break;
             case CoreValues::getAppsDBName():
-                var_dump('USING APPS DB USERNAME');
-
                 return (empty(self::getSiteConfigValue(self::APPS_DB_USER_NAME_SETTING)) === false ? self::getSiteConfigValue(self::APPS_DB_USER_NAME_SETTING) : '');
                 break;
             case CoreValues::getUsersDBName():
-                var_dump('USING USERS DB USERNAME');
-
                 return (empty(self::getSiteConfigValue(self::USERS_DB_USER_NAME_SETTING)) === false ? self::getSiteConfigValue(self::USERS_DB_USER_NAME_SETTING) : '');
                 break;
             case CoreValues::getPasswordsDBName():
-                var_dump('USING PASSWORD DB USERNAME');
                 return (empty(self::getSiteConfigValue(self::PASSWORDS_DB_USER_NAME_SETTING)) === false ? self::getSiteConfigValue(self::PASSWORDS_DB_USER_NAME_SETTING) : '');
                 break;
             case CoreValues::getPrivilegesDBName():
-                var_dump('USING PRIVILEGES DB USERNAME');
-
                 return (empty(self::getSiteConfigValue(self::PRIVILEGES_DB_USER_NAME_SETTING)) === false ? self::getSiteConfigValue(self::PRIVILEGES_DB_USER_NAME_SETTING) : '');
                 break;
             default:
@@ -617,23 +608,18 @@ class CoreValues
     {
         switch ($databaseName) {
             case CoreValues::getCoreDBName():
-                var_dump('USING CORE DB PASSWORD');
                 return (empty(self::getSiteConfigValue(self::CORE_DB_PASSWORD_SETTING)) === false ? self::getSiteConfigValue(self::CORE_DB_PASSWORD_SETTING) : '');
                 break;
             case CoreValues::getAppsDBName():
-                var_dump('USING APPS DB PASSWORD');
                 return (empty(self::getSiteConfigValue(self::APPS_DB_PASSWORD_SETTING)) === false ? self::getSiteConfigValue(self::APPS_DB_PASSWORD_SETTING) : '');
                 break;
             case CoreValues::getUsersDBName():
-                var_dump('USING USERS DB PASSWORD');
                 return (empty(self::getSiteConfigValue(self::USERS_DB_PASSWORD_SETTING)) === false ? self::getSiteConfigValue(self::USERS_DB_PASSWORD_SETTING) : '');
                 break;
             case CoreValues::getPasswordsDBName():
-                var_dump('USING PASSWORD DB PASSWORD');
                 return (empty(self::getSiteConfigValue(self::PASSWORDS_DB_PASSWORD_SETTING)) === false ? self::getSiteConfigValue(self::PASSWORDS_DB_PASSWORD_SETTING) : '');
                 break;
             case CoreValues::getPrivilegesDBName():
-                var_dump('USING PRIVILEGES DB PASSWORD');
                 return (empty(self::getSiteConfigValue(self::PRIVILEGES_DB_PASSWORD_SETTING)) === false ? self::getSiteConfigValue(self::PRIVILEGES_DB_PASSWORD_SETTING) : '');
                 break;
             default:
