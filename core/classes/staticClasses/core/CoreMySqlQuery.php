@@ -38,7 +38,7 @@ class CoreMySqlQuery
         // Make sure a connection to the specified database has not already been initialized.
         if (isset(CoreMySqlQuery::$connections[$databaseName]) === false) {
             // Create a MySqlQuery instance for the specified database.
-            CoreMySqlQuery::$connections[$databaseName] = new MySqlQuery(MySqlQuery::getDsn(CoreValues::getDBHostName(), $databaseName, $charset), CoreValues::getDBUserName(), CoreValues::getDBPassword());
+            CoreMySqlQuery::$connections[$databaseName] = new MySqlQuery(MySqlQuery::getDsn(CoreValues::getDBHostName(), $databaseName, $charset), CoreValues::getDBUserName($databaseName), CoreValues::getDBPassword($databaseName));
         }
         // Return the MySqlQuery instance for the specified database.
         return CoreMySqlQuery::$connections[$databaseName];
