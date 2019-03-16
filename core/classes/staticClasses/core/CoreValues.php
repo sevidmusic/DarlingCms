@@ -344,7 +344,21 @@ class CoreValues
     {
         $status = array();
         $config = self::getSiteConfigArray();
-        $requiredSettings = array(
+        foreach (self::getRequiredSettingNames() as $requiredSetting) {
+            array_push($status, in_array($requiredSetting, array_keys($config), true));
+        }
+        return !in_array(false, $status, true);
+    }
+
+    /**
+     * Returns an array of the names of the site configuration settings
+     * that MUST be defined in a site's configuration file.
+     * @return array Array of the names of the site configuration settings
+     *               that MUST be defined a site's configuration file.
+     */
+    public static function getRequiredSettingNames(): array
+    {
+        return array(
             self::CORE_DB_NAME_SETTING,
             self::APPS_DB_NAME_SETTING,
             self::USERS_DB_NAME_SETTING,
@@ -362,10 +376,6 @@ class CoreValues
             self::PRIVILEGES_DB_USER_NAME_SETTING,
             self::PRIVILEGES_DB_PASSWORD_SETTING,
         );
-        foreach ($requiredSettings as $requiredSetting) {
-            array_push($status, in_array($requiredSetting, array_keys($config), true));
-        }
-        return !in_array(false, $status, true);
     }
 
     /**
