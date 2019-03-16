@@ -357,24 +357,28 @@ class CoreValues
      * that MUST be defined in a site's configuration file.
      * @return array Array of the names of the site configuration settings
      *               that MUST be defined a site's configuration file.
+     * @devNote: Whenever a new site configuration setting is required, make sure to add it to the
+     *           array returned by this method.
+     * @devNote: Whenever a site configuration is no longer required make sure to remove it from
+     *           the array returned by this method.
      */
     public static function getRequiredSettingNames(): array
     {
         return array(
-            self::CORE_DB_NAME_SETTING,
-            self::APPS_DB_NAME_SETTING,
-            self::USERS_DB_NAME_SETTING,
-            self::PASSWORD_DB_NAME_SETTING,
-            self::PRIVILEGES_DB_NAME_SETTING,
             self::DB_HOST_NAME_SETTING,
+            self::CORE_DB_NAME_SETTING,
             self::CORE_DB_USER_NAME_SETTING,
             self::CORE_DB_PASSWORD_SETTING,
+            self::APPS_DB_NAME_SETTING,
             self::APPS_DB_USER_NAME_SETTING,
             self::APPS_DB_PASSWORD_SETTING,
+            self::USERS_DB_NAME_SETTING,
             self::USERS_DB_USER_NAME_SETTING,
             self::USERS_DB_PASSWORD_SETTING,
+            self::PASSWORD_DB_NAME_SETTING,
             self::PASSWORDS_DB_USER_NAME_SETTING,
             self::PASSWORDS_DB_PASSWORD_SETTING,
+            self::PRIVILEGES_DB_NAME_SETTING,
             self::PRIVILEGES_DB_USER_NAME_SETTING,
             self::PRIVILEGES_DB_PASSWORD_SETTING,
         );
