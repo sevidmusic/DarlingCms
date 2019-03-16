@@ -39,35 +39,16 @@ namespace DarlingCms\classes\staticClasses\core;
  */
 class CoreValues
 {
-    /**
-     * @var string Name of the site configuration setting that defines the name of the database used by Core.
-     */
-    const CORE_DB_NAME_SETTING = "CoreDBName";
-
-    /**
-     * @var string Name of the site configuration setting that defines the name of the database used by Apps.
-     */
-    const APPS_DB_NAME_SETTING = "AppsDBName";
-
-    /**
-     * @var string Name of the site configuration setting that defines the name of the database used to store User data.
-     */
-    const USERS_DB_NAME_SETTING = "UsersDBName";
-
-    /**
-     * @var string Name of the site configuration setting that defines the name of the database used to store passwords.
-     */
-    const PASSWORD_DB_NAME_SETTING = "PasswordsDBName";
-
-    /**
-     * @var string Name of the site configuration setting that defines the name of the database where privilege data is stored, i.e., Actions, Permissions, Roles.
-     */
-    const PRIVILEGES_DB_NAME_SETTING = "PrivilegesDBName";
 
     /**
      * @var string Name of the site configuration setting that defines the name of the database host. @todo Need to allow different config in case of databases being different as login info may also be different, I.E. AppsDbHost, CoreDbHost, PrivilegesDbHost, etc...
      */
     const DB_HOST_NAME_SETTING = "DBHostName";
+
+    /**
+     * @var string Name of the site configuration setting that defines the name of the database used by Core.
+     */
+    const CORE_DB_NAME_SETTING = "CoreDBName";
 
     /**
      * @var string Name of the site configuration setting that defines the Core database user's username.
@@ -78,6 +59,12 @@ class CoreValues
      * @var string Name of the site configuration setting that defines the Core database user's password.
      */
     const CORE_DB_PASSWORD_SETTING = "CoreDBPassword";
+
+
+    /**
+     * @var string Name of the site configuration setting that defines the name of the database used by Apps.
+     */
+    const APPS_DB_NAME_SETTING = "AppsDBName";
 
     /**
      * @var string Name of the site configuration setting that defines the Apps database user's username.
@@ -90,6 +77,11 @@ class CoreValues
     const APPS_DB_PASSWORD_SETTING = "AppsDBPassword";
 
     /**
+     * @var string Name of the site configuration setting that defines the name of the database used to store User data.
+     */
+    const USERS_DB_NAME_SETTING = "UsersDBName";
+
+    /**
      * @var string Name of the site configuration setting that defines the Users database user's password.
      */
     const USERS_DB_USER_NAME_SETTING = "UsersDBUserName";
@@ -100,6 +92,11 @@ class CoreValues
     const USERS_DB_PASSWORD_SETTING = "UsersDBPassword";
 
     /**
+     * @var string Name of the site configuration setting that defines the name of the database used to store passwords.
+     */
+    const PASSWORD_DB_NAME_SETTING = "PasswordsDBName";
+
+    /**
      * @var string Name of the site configuration setting that defines the Passwords database user's username.
      */
     const PASSWORDS_DB_USER_NAME_SETTING = "PasswordsDBUserName";
@@ -108,6 +105,11 @@ class CoreValues
      * @var string Name of the site configuration setting that defines the Passwords database user's password.
      */
     const PASSWORDS_DB_PASSWORD_SETTING = "PasswordsDBPassword";
+
+    /**
+     * @var string Name of the site configuration setting that defines the name of the database where privilege data is stored, i.e., Actions, Permissions, Roles.
+     */
+    const PRIVILEGES_DB_NAME_SETTING = "PrivilegesDBName";
 
     /**
      * @var string Name of the site configuration setting that defines the Privileges database user's username.
