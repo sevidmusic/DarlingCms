@@ -1,7 +1,6 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: sevidmusic
+ * Created by Sevi Donnelly Foreman.
  * Date: 2019-01-01
  * Time: 22:44
  */
@@ -69,18 +68,6 @@ class CoreValues
      * @var string Name of the site configuration setting that defines the name of the database host. @todo Need to allow different config in case of databases being different as login info may also be different, I.E. AppsDbHost, CoreDbHost, PrivilegesDbHost, etc...
      */
     const DB_HOST_NAME_SETTING = "DBHostName";
-
-    /**
-     * @var string Name of the site configuration setting that defines the name of the database user.WARNING: DO NOT USE, THIS CONSTANT WILL EVENTUALLY BE DEPRECATED! @todo deprecate once property for each required db implemented
-     * @deprecated
-     */
-    const DB_USER_NAME_SETTING = "DBUserName";
-
-    /**
-     * @var string Name of the site configuration setting that defines the database user's password. WARNING: DO NOT USE, THIS CONSTANT WILL EVENTUALLY BE DEPRECATED! @todo deprecate once property for each required db implemented
-     * @deprecated
-     */
-    const DB_PASSWORD_SETTING = "DBPassword";
 
     /**
      * @var string Name of the site configuration setting that defines the Core database user's username.
@@ -277,8 +264,6 @@ class CoreValues
      * @see CoreValues::PASSWORD_DB_NAME_SETTING
      * @see CoreValues::PRIVILEGES_DB_NAME_SETTING
      * @see CoreValues::DB_HOST_NAME_SETTING
-     * @see CoreValues::DB_USER_NAME_SETTING
-     * @see CoreValues::DB_PASSWORD_SETTING
      * @see CoreValues::CORE_DB_USER_NAME_SETTING
      * @see CoreValues::CORE_DB_PASSWORD_SETTING
      * @see CoreValues::APPS_DB_USER_NAME_SETTING
@@ -356,8 +341,6 @@ class CoreValues
      * @see CoreValues::PASSWORD_DB_NAME_SETTING
      * @see CoreValues::PRIVILEGES_DB_NAME_SETTING
      * @see CoreValues::DB_HOST_NAME_SETTING
-     * @see CoreValues::DB_USER_NAME_SETTING
-     * @see CoreValues::DB_PASSWORD_SETTING
      * @see CoreValues::CORE_DB_USER_NAME_SETTING
      * @see CoreValues::CORE_DB_PASSWORD_SETTING
      * @see CoreValues::APPS_DB_USER_NAME_SETTING
@@ -380,8 +363,6 @@ class CoreValues
             self::PASSWORD_DB_NAME_SETTING,
             self::PRIVILEGES_DB_NAME_SETTING,
             self::DB_HOST_NAME_SETTING,
-            self::DB_USER_NAME_SETTING,
-            self::DB_PASSWORD_SETTING,
             self::CORE_DB_USER_NAME_SETTING,
             self::CORE_DB_PASSWORD_SETTING,
             self::APPS_DB_USER_NAME_SETTING,
