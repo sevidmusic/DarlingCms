@@ -216,14 +216,6 @@ class CoreValues
      * CoreValues::DB_HOST_NAME_SETTING: Name of the site configuration setting that defines the name of the
      *                                   database host. @todo Need to allow different config in case of databases being different as login info may also be different, I.E. AppsDbHost, CoreDbHost, PrivilegesDbHost, etc...
      *
-     * CoreValues::DB_USER_NAME_SETTING: Name of the site configuration setting that defines the name of the
-     *                                   database user.WARNING: DO NOT USE, THIS CONSTANT WILL EVENTUALLY BE
-     *                                   DEPRECATED! @todo deprecate once property for each required db implemented
-     *
-     * CoreValues::DB_PASSWORD_SETTING: Name of the site configuration setting that defines the database
-     *                                  user's password. WARNING: DO NOT USE, THIS CONSTANT WILL EVENTUALLY
-     *                                  BE DEPRECATED! @todo deprecate once property for each required db implemented
-     *
      * CoreValues::CORE_DB_USER_NAME_SETTING: Name of the site configuration setting that defines the Core
      *                                        database user's username.
      *
@@ -309,10 +301,6 @@ class CoreValues
      * CoreValues::PRIVILEGES_DB_NAME_SETTING
      *
      * CoreValues::DB_HOST_NAME_SETTING
-     *
-     * CoreValues::DB_USER_NAME_SETTING
-     *
-     * CoreValues::DB_PASSWORD_SETTING
      *
      * CoreValues::CORE_DB_USER_NAME_SETTING
      *
