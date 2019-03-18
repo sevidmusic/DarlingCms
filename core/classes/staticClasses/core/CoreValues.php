@@ -289,7 +289,7 @@ class CoreValues
     /**
      * This method will check that all required site configuration settings are defined.
      *
-     * The site configuration settings whose names correspond to the following constants
+     * Note: The site configuration settings whose names correspond to the following constants
      * MUST be defined in the site's configuration file:
      *
      * CoreValues::CORE_DB_NAME_SETTING
