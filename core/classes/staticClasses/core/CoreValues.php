@@ -19,7 +19,7 @@ namespace DarlingCms\classes\staticClasses\core;
  * A good example of a value that meets this requirement is the site root url, which can be
  * retrieved via the CoreValues::getSiteRootUrl() method. The CoreValues::getSiteRootUrl() method
  * meets the this requirement because it is safe to assume that most apps, and Core will need to
- * determine and use the site's root url, instead of Core and every app defining their own way of
+ * determine and use the site's root url. Instead of Core and every app defining their own way of
  * determining the site's root url, it is more practical to provide that value from a single method
  * insuring continuity, and making it easier to refactor the value if necessary in the future.
  *
@@ -29,7 +29,8 @@ namespace DarlingCms\classes\staticClasses\core;
  *
  * More "complex" types, such as objects, arrays, etc., MUST not be returned by the public static methods
  * defined in this class. For complex return types define appropriately named private static methods that
- * can be accessed via one of the public static methods.
+ * can be accessed via one of the public static methods. Again, public static methods MUST only return
+ * the following types: string, float, int, or bool
  *
  * WARNING:
  * Careful consideration should be taken before adding new methods to this class, especially in regards
@@ -39,16 +40,15 @@ namespace DarlingCms\classes\staticClasses\core;
  */
 class CoreValues
 {
-
-    /**
-     * @var string Name of the site configuration setting that defines the name of the database host. @todo Need to allow different config in case of databases being different as login info may also be different, I.E. AppsDbHost, CoreDbHost, PrivilegesDbHost, etc...
-     */
-    const DB_HOST_NAME_SETTING = "DBHostName";
-
     /**
      * @var string Name of the site configuration setting that defines the name of the database used by Core.
      */
     const CORE_DB_NAME_SETTING = "CoreDBName";
+
+    /**
+     * @var string Name of the site configuration setting that defines the name of host for the database used by Core.
+     */
+    const CORE_DB_HOST_SETTING = "CoreDBHost";
 
     /**
      * @var string Name of the site configuration setting that defines the Core database user's username.
@@ -67,6 +67,11 @@ class CoreValues
     const APPS_DB_NAME_SETTING = "AppsDBName";
 
     /**
+     * @var string Name of the site configuration setting that defines the name of host for the database used by Apps.
+     */
+    const APPS_DB_HOST_SETTING = "AppsDBHost";
+
+    /**
      * @var string Name of the site configuration setting that defines the Apps database user's username.
      */
     const APPS_DB_USER_NAME_SETTING = "AppsDBUserName";
@@ -82,7 +87,13 @@ class CoreValues
     const USERS_DB_NAME_SETTING = "UsersDBName";
 
     /**
-     * @var string Name of the site configuration setting that defines the Users database user's password.
+     * @var string Name of the site configuration setting that defines the name of host for the database used to
+     *             store User data.
+     */
+    const USERS_DB_HOST_SETTING = "UsersDBHost";
+
+    /**
+     * @var string Name of the site configuration setting that defines the Users database user's username.
      */
     const USERS_DB_USER_NAME_SETTING = "UsersDBUserName";
 
@@ -92,9 +103,16 @@ class CoreValues
     const USERS_DB_PASSWORD_SETTING = "UsersDBPassword";
 
     /**
-     * @var string Name of the site configuration setting that defines the name of the database used to store passwords.
+     * @var string Name of the site configuration setting that defines the name of the database used to store
+     *             Password data.
      */
-    const PASSWORD_DB_NAME_SETTING = "PasswordsDBName";
+    const PASSWORDS_DB_NAME_SETTING = "PasswordsDBName";
+
+    /**
+     * @var string Name of the site configuration setting that defines the name of host for the database used to
+     *             store Password data.
+     */
+    const PASSWORDS_DB_HOST_SETTING = "PasswordsDBHost";
 
     /**
      * @var string Name of the site configuration setting that defines the Passwords database user's username.
@@ -107,9 +125,15 @@ class CoreValues
     const PASSWORDS_DB_PASSWORD_SETTING = "PasswordsDBPassword";
 
     /**
-     * @var string Name of the site configuration setting that defines the name of the database where privilege data is stored, i.e., Actions, Permissions, Roles.
+     * @var string Name of the site configuration setting that defines the name of the database used to store Privileges, i.e., Actions, Permissions, Roles.
      */
     const PRIVILEGES_DB_NAME_SETTING = "PrivilegesDBName";
+
+    /**
+     * @var string Name of the site configuration setting that defines the name of host for the database used to
+     *             store Privileges, i.e., Actions, Permissions, and Roles.
+     */
+    const PRIVILEGES_DB_HOST_SETTING = "PrivilegesDBHost";
 
     /**
      * @var string Name of the site configuration setting that defines the Privileges database user's username.
@@ -199,73 +223,67 @@ class CoreValues
      * Note: This class defines the following constants that can be used to identify required site
      * configuration settings:
      *
-     * CoreValues::CORE_DB_NAME_SETTING: Name of the site configuration setting that defines the name of the
-     *                                   database used by Core.
+     * - CoreValues::CORE_DB_NAME_SETTING : Name of the site configuration setting that defines the name of the database used by Core.
      *
-     * CoreValues::APPS_DB_NAME_SETTING: Name of the site configuration setting that defines the name of the
-     *                                   database used by Apps.
+     * - CoreValues::CORE_DB_HOST_SETTING : Name of the site configuration setting that defines the name of host for the database used by Core.
      *
-     * CoreValues::USERS_DB_NAME_SETTING: Name of the site configuration setting that defines the name of the
-     *                                    database used to store User data.
+     * - CoreValues::CORE_DB_USER_NAME_SETTING : Name of the site configuration setting that defines the Core database user's username.
      *
-     * CoreValues::PASSWORD_DB_NAME_SETTING: Name of the site configuration setting that defines the name of
-     *                                       the database used to store passwords.
+     * - CoreValues::CORE_DB_PASSWORD_SETTING : Name of the site configuration setting that defines the Core database user's password.
      *
-     * CoreValues::PRIVILEGES_DB_NAME_SETTING: Name of the site configuration setting that defines the name of
-     *                                         the database where privilege data is stored, i.e., Actions,
-     *                                         Permissions, Roles.
+     * - CoreValues::APPS_DB_NAME_SETTING : Name of the site configuration setting that defines the name of the database used by Apps.
      *
-     * CoreValues::DB_HOST_NAME_SETTING: Name of the site configuration setting that defines the name of the
-     *                                   database host. @todo Need to allow different config in case of databases being different as login info may also be different, I.E. AppsDbHost, CoreDbHost, PrivilegesDbHost, etc...
+     * - CoreValues::APPS_DB_HOST_SETTING : Name of the site configuration setting that defines the name of host for the database used by Apps.
      *
-     * CoreValues::CORE_DB_USER_NAME_SETTING: Name of the site configuration setting that defines the Core
-     *                                        database user's username.
+     * - CoreValues::APPS_DB_USER_NAME_SETTING : Name of the site configuration setting that defines the Apps database user's username.
      *
-     * CoreValues::CORE_DB_PASSWORD_SETTING: Name of the site configuration setting that defines the Core
-     *                                       database user's password.
+     * - CoreValues::APPS_DB_PASSWORD_SETTING : Name of the site configuration setting that defines the Apps database user's password.
      *
-     * CoreValues::APPS_DB_USER_NAME_SETTING: Name of the site configuration setting that defines the Apps
-     *                                        database user's username.
+     * - CoreValues::USERS_DB_NAME_SETTING : Name of the site configuration setting that defines the name of the database used to store User data.
      *
-     * CoreValues::APPS_DB_PASSWORD_SETTING: Name of the site configuration setting that defines the Apps
-     *                                       database user's password.
+     * - CoreValues::USERS_DB_HOST_SETTING : Name of the site configuration setting that defines the name of host for the database used to store User data.
      *
-     * CoreValues::USERS_DB_USER_NAME_SETTING: Name of the site configuration setting that defines the Users
-     *                                         database user's password.
+     * - CoreValues::USERS_DB_USER_NAME_SETTING : Name of the site configuration setting that defines the Users database user's username.
      *
-     * CoreValues::USERS_DB_PASSWORD_SETTING: Name of the site configuration setting that defines the Users
-     *                                        database user's password.
+     * - CoreValues::USERS_DB_PASSWORD_SETTING : Name of the site configuration setting that defines the Users database user's password.
      *
-     * CoreValues::PASSWORDS_DB_USER_NAME_SETTING: Name of the site configuration setting that defines the
-     *                                             Passwords database user's username.
+     * - CoreValues::PASSWORDS_DB_NAME_SETTING : Name of the site configuration setting that defines the name of the database used to store Password data.
      *
-     * CoreValues::PASSWORDS_DB_PASSWORD_SETTING: Name of the site configuration setting that defines the
-     *                                            Passwords database user's password.
+     * - CoreValues::PASSWORDS_DB_HOST_SETTING : Name of the site configuration setting that defines the name of host for the database used to store Password data.
      *
-     * CoreValues::PRIVILEGES_DB_USER_NAME_SETTING: Name of the site configuration setting that defines the
-     *                                              Privileges database user's username.
+     * - CoreValues::PASSWORDS_DB_USER_NAME_SETTING : Name of the site configuration setting that defines the Passwords database user's username.
      *
-     * CoreValues::PRIVILEGES_DB_PASSWORD_SETTING: Name of the site configuration setting that defines the
-     *                                             Privileges database user's password.
+     * - CoreValues::PASSWORDS_DB_PASSWORD_SETTING : Name of the site configuration setting that defines the Passwords database user's password.
      *
-     * @return string The settings value, or an empty string. Note: Some setting may be defined as an empty
+     * - CoreValues::PRIVILEGES_DB_NAME_SETTING : Name of the site configuration setting that defines the name of the database used to store Privileges, i.e., Actions, Permissions, Roles.
+     *
+     * - CoreValues::PRIVILEGES_DB_HOST_SETTING : Name of the site configuration setting that defines the name of host for the database used to store Privileges, i.e., Actions, Permissions, and Roles.
+     *
+     * - CoreValues::PRIVILEGES_DB_USER_NAME_SETTING : Name of the site configuration setting that defines the Privileges database user's username.
+     *
+     * - CoreValues::PRIVILEGES_DB_PASSWORD_SETTING : Name of the site configuration setting that defines the  Privileges database user's password.
+     * @return string The settings value, or an empty string. Note: Some settings may be defined as an empty
      *                string, so it is not reliable to check if this method's return value is an empty
      *                string to determine whether or not the specified setting exists and is set.
      *
      * @see CoreValues::CORE_DB_NAME_SETTING
-     * @see CoreValues::APPS_DB_NAME_SETTING
-     * @see CoreValues::USERS_DB_NAME_SETTING
-     * @see CoreValues::PASSWORD_DB_NAME_SETTING
-     * @see CoreValues::PRIVILEGES_DB_NAME_SETTING
-     * @see CoreValues::DB_HOST_NAME_SETTING
+     * @see CoreValues::CORE_DB_HOST_SETTING
      * @see CoreValues::CORE_DB_USER_NAME_SETTING
      * @see CoreValues::CORE_DB_PASSWORD_SETTING
+     * @see CoreValues::APPS_DB_NAME_SETTING
+     * @see CoreValues::APPS_DB_HOST_SETTING
      * @see CoreValues::APPS_DB_USER_NAME_SETTING
      * @see CoreValues::APPS_DB_PASSWORD_SETTING
+     * @see CoreValues::USERS_DB_NAME_SETTING
+     * @see CoreValues::USERS_DB_HOST_SETTING
      * @see CoreValues::USERS_DB_USER_NAME_SETTING
      * @see CoreValues::USERS_DB_PASSWORD_SETTING
+     * @see CoreValues::PASSWORDS_DB_NAME_SETTING
+     * @see CoreValues::PASSWORDS_DB_HOST_SETTING
      * @see CoreValues::PASSWORDS_DB_USER_NAME_SETTING
      * @see CoreValues::PASSWORDS_DB_PASSWORD_SETTING
+     * @see CoreValues::PRIVILEGES_DB_NAME_SETTING
+     * @see CoreValues::PRIVILEGES_DB_HOST_SETTING
      * @see CoreValues::PRIVILEGES_DB_USER_NAME_SETTING
      * @see CoreValues::PRIVILEGES_DB_PASSWORD_SETTING
      */
@@ -292,53 +310,65 @@ class CoreValues
      * Note: The site configuration settings whose names correspond to the following constants
      * MUST be defined in the site's configuration file:
      *
-     * CoreValues::CORE_DB_NAME_SETTING
+     * - CoreValues::CORE_DB_NAME_SETTING : Name of the site configuration setting that defines the name of the database used by Core.
      *
-     * CoreValues::APPS_DB_NAME_SETTING
+     * - CoreValues::CORE_DB_HOST_SETTING : Name of the site configuration setting that defines the name of host for the database used by Core.
      *
-     * CoreValues::USERS_DB_NAME_SETTING
+     * - CoreValues::CORE_DB_USER_NAME_SETTING : Name of the site configuration setting that defines the Core database user's username.
      *
-     * CoreValues::PASSWORD_DB_NAME_SETTING
+     * - CoreValues::CORE_DB_PASSWORD_SETTING : Name of the site configuration setting that defines the Core database user's password.
      *
-     * CoreValues::PRIVILEGES_DB_NAME_SETTING
+     * - CoreValues::APPS_DB_NAME_SETTING : Name of the site configuration setting that defines the name of the database used by Apps.
      *
-     * CoreValues::DB_HOST_NAME_SETTING
+     * - CoreValues::APPS_DB_HOST_SETTING : Name of the site configuration setting that defines the name of host for the database used by Apps.
      *
-     * CoreValues::CORE_DB_USER_NAME_SETTING
+     * - CoreValues::APPS_DB_USER_NAME_SETTING : Name of the site configuration setting that defines the Apps database user's username.
      *
-     * CoreValues::CORE_DB_PASSWORD_SETTING
+     * - CoreValues::APPS_DB_PASSWORD_SETTING : Name of the site configuration setting that defines the Apps database user's password.
      *
-     * CoreValues::APPS_DB_USER_NAME_SETTING
+     * - CoreValues::USERS_DB_NAME_SETTING : Name of the site configuration setting that defines the name of the database used to store User data.
      *
-     * CoreValues::APPS_DB_PASSWORD_SETTING
+     * - CoreValues::USERS_DB_HOST_SETTING : Name of the site configuration setting that defines the name of host for the database used to store User data.
      *
-     * CoreValues::USERS_DB_USER_NAME_SETTING
+     * - CoreValues::USERS_DB_USER_NAME_SETTING : Name of the site configuration setting that defines the Users database user's username.
      *
-     * CoreValues::USERS_DB_PASSWORD_SETTING
+     * - CoreValues::USERS_DB_PASSWORD_SETTING : Name of the site configuration setting that defines the Users database user's password.
      *
-     * CoreValues::PASSWORDS_DB_USER_NAME_SETTING
+     * - CoreValues::PASSWORDS_DB_NAME_SETTING : Name of the site configuration setting that defines the name of the database used to store Password data.
      *
-     * CoreValues::PASSWORDS_DB_PASSWORD_SETTING
+     * - CoreValues::PASSWORDS_DB_HOST_SETTING : Name of the site configuration setting that defines the name of host for the database used to store Password data.
      *
-     * CoreValues::PRIVILEGES_DB_USER_NAME_SETTING
+     * - CoreValues::PASSWORDS_DB_USER_NAME_SETTING : Name of the site configuration setting that defines the Passwords database user's username.
      *
-     * CoreValues::PRIVILEGES_DB_PASSWORD_SETTING
+     * - CoreValues::PASSWORDS_DB_PASSWORD_SETTING : Name of the site configuration setting that defines the Passwords database user's password.
+     *
+     * - CoreValues::PRIVILEGES_DB_NAME_SETTING : Name of the site configuration setting that defines the name of the database used to store Privileges, i.e., Actions, Permissions, Roles.
+     *
+     * - CoreValues::PRIVILEGES_DB_HOST_SETTING : Name of the site configuration setting that defines the name of host for the database used to store Privileges, i.e., Actions, Permissions, and Roles.
+     *
+     * - CoreValues::PRIVILEGES_DB_USER_NAME_SETTING : Name of the site configuration setting that defines the Privileges database user's username.
+     *
+     * - CoreValues::PRIVILEGES_DB_PASSWORD_SETTING : Name of the site configuration setting that defines the  Privileges database user's password.
      *
      * @return bool True if all required site configuration settings are defined, false otherwise.
      * @see CoreValues::CORE_DB_NAME_SETTING
-     * @see CoreValues::APPS_DB_NAME_SETTING
-     * @see CoreValues::USERS_DB_NAME_SETTING
-     * @see CoreValues::PASSWORD_DB_NAME_SETTING
-     * @see CoreValues::PRIVILEGES_DB_NAME_SETTING
-     * @see CoreValues::DB_HOST_NAME_SETTING
+     * @see CoreValues::CORE_DB_HOST_SETTING
      * @see CoreValues::CORE_DB_USER_NAME_SETTING
      * @see CoreValues::CORE_DB_PASSWORD_SETTING
+     * @see CoreValues::APPS_DB_NAME_SETTING
+     * @see CoreValues::APPS_DB_HOST_SETTING
      * @see CoreValues::APPS_DB_USER_NAME_SETTING
      * @see CoreValues::APPS_DB_PASSWORD_SETTING
+     * @see CoreValues::USERS_DB_NAME_SETTING
+     * @see CoreValues::USERS_DB_HOST_SETTING
      * @see CoreValues::USERS_DB_USER_NAME_SETTING
      * @see CoreValues::USERS_DB_PASSWORD_SETTING
+     * @see CoreValues::PASSWORDS_DB_NAME_SETTING
+     * @see CoreValues::PASSWORDS_DB_HOST_SETTING
      * @see CoreValues::PASSWORDS_DB_USER_NAME_SETTING
      * @see CoreValues::PASSWORDS_DB_PASSWORD_SETTING
+     * @see CoreValues::PRIVILEGES_DB_NAME_SETTING
+     * @see CoreValues::PRIVILEGES_DB_HOST_SETTING
      * @see CoreValues::PRIVILEGES_DB_USER_NAME_SETTING
      * @see CoreValues::PRIVILEGES_DB_PASSWORD_SETTING
      */
@@ -365,28 +395,37 @@ class CoreValues
     public static function getRequiredSettingNames(): array
     {
         return array(
-            self::DB_HOST_NAME_SETTING,
+            /* Core DB Required Configuration Setting Names */
             self::CORE_DB_NAME_SETTING,
+            self::CORE_DB_HOST_SETTING,
             self::CORE_DB_USER_NAME_SETTING,
             self::CORE_DB_PASSWORD_SETTING,
+            /* Apps DB Required Configuration Setting Names */
             self::APPS_DB_NAME_SETTING,
+            self::APPS_DB_HOST_SETTING,
             self::APPS_DB_USER_NAME_SETTING,
             self::APPS_DB_PASSWORD_SETTING,
+            /* Users DB Required Configuration Setting Names */
             self::USERS_DB_NAME_SETTING,
+            self::USERS_DB_HOST_SETTING,
             self::USERS_DB_USER_NAME_SETTING,
             self::USERS_DB_PASSWORD_SETTING,
-            self::PASSWORD_DB_NAME_SETTING,
+            /* Passwords DB Required Configuration Setting Names */
+            self::PASSWORDS_DB_NAME_SETTING,
+            self::PASSWORDS_DB_HOST_SETTING,
             self::PASSWORDS_DB_USER_NAME_SETTING,
             self::PASSWORDS_DB_PASSWORD_SETTING,
+            /* Privileges DB Required Configuration Setting Names */
             self::PRIVILEGES_DB_NAME_SETTING,
+            self::PRIVILEGES_DB_HOST_SETTING,
             self::PRIVILEGES_DB_USER_NAME_SETTING,
             self::PRIVILEGES_DB_PASSWORD_SETTING,
         );
     }
 
     /**
-     * Returns the site's directory name.
-     * @return string The site's directory name.
+     * Returns the site's directory's name.
+     * @return string The site's directory's name.
      */
     public static function getSiteDirName(): string
     {
@@ -483,7 +522,7 @@ class CoreValues
      */
     public static function getPasswordsDBName(): string
     {
-        return (empty(self::getSiteConfigValue(self::PASSWORD_DB_NAME_SETTING)) === false ? self::getSiteConfigValue(self::PASSWORD_DB_NAME_SETTING) : '');
+        return (empty(self::getSiteConfigValue(self::PASSWORDS_DB_NAME_SETTING)) === false ? self::getSiteConfigValue(self::PASSWORDS_DB_NAME_SETTING) : '');
     }
 
     /**
@@ -498,12 +537,52 @@ class CoreValues
     }
 
     /**
-     * Returns the name of the database host.
+     * Returns the name of the database host for the specified database as defined in the site's
+     * configuration file.
+     * @param string $databaseName The name of the database. It is recommended that one of the
+     *                             CoreValues::get*DBName() methods is used to pass this parameter
+     *                             a value. See note^ below for more information.
+     *
+     * Note^: This method can only retrieve a host name for databases whose names can be retrieved
+     *       by one of the following methods:
+     *
+     *       CoreValues::getCoreDBName()
+     *
+     *       CoreValues::getAppsDBName()
+     *
+     *       CoreValues::getUsersDBName()
+     *
+     *       CoreValues::getPasswordsDBName()
+     *
+     *       CoreValues::getPrivilegesDBName()
+     *
+     * For all other databases, use the CoreValues::getSiteConfigValue() method directly.
+     *
+     * @return string The name of the host for the specified database.
+     *
+     * @see CoreValues::getCoreDBName()
+     * @see CoreValues::getAppsDBName()
+     * @see CoreValues::getUsersDBName()
+     * @see CoreValues::getPasswordsDBName()
+     * @see CoreValues::getPrivilegesDBName()
+     * @see CoreValues::getSiteConfigValue()
      * @return string The name of the database host.
      */
-    public static function getDBHostName(): string
+    public static function getDBHostName(string $databaseName): string
     {
-        return (empty(self::getSiteConfigValue(self::DB_HOST_NAME_SETTING)) === false ? self::getSiteConfigValue(self::DB_HOST_NAME_SETTING) : '');
+        switch ($databaseName) {
+            case CoreValues::getCoreDBName():
+                return (empty(self::getSiteConfigValue(self::CORE_DB_HOST_SETTING)) === false ? self::getSiteConfigValue(self::CORE_DB_HOST_SETTING) : '');
+            case CoreValues::getAppsDBName():
+                return (empty(self::getSiteConfigValue(self::APPS_DB_HOST_SETTING)) === false ? self::getSiteConfigValue(self::APPS_DB_HOST_SETTING) : '');
+            case CoreValues::getUsersDBName():
+                return (empty(self::getSiteConfigValue(self::USERS_DB_HOST_SETTING)) === false ? self::getSiteConfigValue(self::USERS_DB_HOST_SETTING) : '');
+            case CoreValues::getPasswordsDBName():
+                return (empty(self::getSiteConfigValue(self::PASSWORDS_DB_HOST_SETTING)) === false ? self::getSiteConfigValue(self::PASSWORDS_DB_HOST_SETTING) : '');
+            case CoreValues::getPrivilegesDBName():
+                return (empty(self::getSiteConfigValue(self::PRIVILEGES_DB_HOST_SETTING)) === false ? self::getSiteConfigValue(self::PRIVILEGES_DB_HOST_SETTING) : '');
+        }
+        return '';
     }
 
     /**
