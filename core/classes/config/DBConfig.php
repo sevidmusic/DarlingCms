@@ -46,7 +46,7 @@ class DBConfig implements IDBConfig
     private $dbUserPassword;
 
     /**
-     * DBConfig constructor. Set's the database configuration.
+     * DBConfig constructor. Defines the database configuration.
      * @param string $dbName The name of the database.
      * @param string $dbHost The database host.
      * @param string $dbUsername The database user's username.
@@ -65,7 +65,7 @@ class DBConfig implements IDBConfig
      */
     public function getDBName(): string
     {
-        return $this->getDBName();
+        return $this->dbName;
     }
 
     /**
@@ -73,7 +73,7 @@ class DBConfig implements IDBConfig
      */
     public function getDBHostName(): string
     {
-        return $this->getDBHostName();
+        return $this->dbHost;
     }
 
     /**
@@ -81,7 +81,7 @@ class DBConfig implements IDBConfig
      */
     public function getDBUsername(): string
     {
-        return $this->getDBUsername();
+        return $this->dbUsername;
     }
 
     /**
@@ -89,7 +89,7 @@ class DBConfig implements IDBConfig
      */
     public function getDBUserPassword(): string
     {
-        return $this->getDBUserPassword();
+        return $this->dbUserPassword;
     }
 
 }
