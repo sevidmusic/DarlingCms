@@ -119,7 +119,6 @@ class DBInstaller implements IInstaller
                 array_push($status, false);
             }
         }
-        var_dump('Uninstall Status: ' . (!in_array(false, $status, true) ? 'True' : 'False'));
         return !in_array(false, $status, true);
     }
 
