@@ -24,7 +24,7 @@ class FileCrud extends AWorkingDirectory implements IFileCrud
     /**
      * FileCrud constructor. Sets the working directory's path. Instantiates the IDirectoryCrud
      * implementation instance used to perform Crud operations on directories in the working directory.
-     * @param string $workingDirectoryPath The path to the working directory.
+     * @param string $workingDirectoryPath The working directory's path.
      */
     public function __construct(string $workingDirectoryPath)
     {
@@ -54,6 +54,7 @@ class FileCrud extends AWorkingDirectory implements IFileCrud
      *                         Value MUST be an octal number that represents the appropriate unix mode.
      *                         For more information see the PHP manual entry for the chmod() function,
      *                         or use the 'man 1 chmod' or 'man 2 chmod' commands from the command line.
+     *                         Defaults to 0644.
      * @return bool True if file was created, false otherwise.
      * @see https://www.php.net/manual/en/function.chmod.php
      */
