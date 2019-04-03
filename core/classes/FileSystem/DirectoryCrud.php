@@ -37,11 +37,11 @@ class DirectoryCrud extends AWorkingDirectory implements IDirectoryCrud
      */
     public function createDirectory(string $directoryName, $permissions = 0644): bool
     {
-        if (is_dir($this->getWorkingDirectoryPath() . $directoryName) === true) {
-            error_log('Directory Crud Error: Cannot create directory ' . $directoryName . ' at path ' . $this->getWorkingDirectoryPath() . $directoryName . ' because a directory with the same name already exists. Try updating instead.');
+        if (is_dir($this->getPathInWorkingDirectory($directoryName)) === true) {
+            error_log('Directory Crud Error: Cannot create directory ' . $directoryName . ' at path ' . $this->getPathInWorkingDirectory($directoryName) . ' because a directory with the same name already exists. Try updating instead.');
             return false;
         }
-        return mkdir($this->getWorkingDirectoryPath() . $directoryName, $permissions, true);
+        return mkdir($this->getPathInWorkingDirectory($directoryName), $permissions, true);
     }
 
     /**
@@ -92,17 +92,17 @@ class DirectoryCrud extends AWorkingDirectory implements IDirectoryCrud
      */
     public function deleteDirectory(string $directoryName): bool
     {
-        $directoryPath = $this->getPathInWorkingDirectory($directoryName);
-        if (empty($directoryPath) === false && $directoryPath !== '/') {
-            $directoryContents = array_diff(scandir($directoryPath), array('.', '..'));
+        $pathInWorkingDirectory = $this->getPathInWorkingDirectory($directoryName);
+        if (empty($pathInWorkingDirectory) === false && $pathInWorkingDirectory !== '/') {
+            $directoryContents = array_diff(scandir($pathInWorkingDirectory), array('.', '..'));
             foreach ($directoryContents as $item) {
-                (is_dir("$directoryPath/$item")) ? $this->deleteDirectory($directoryName . '/' . $item) : unlink($directoryPath . '/' . $item);
+                (is_dir("$pathInWorkingDirectory/$item")) ? $this->deleteDirectory($directoryName . '/' . $item) : unlink($pathInWorkingDirectory . '/' . $item);
             }
-            if (rmdir($directoryPath) === true) {
+            if (rmdir($pathInWorkingDirectory) === true) {
                 return true;
             }
         }
-        error_log('Directory Crud Error: Could not delete directory "' . $directoryName . '"" at path "' . $directoryPath . '"');
+        error_log('Directory Crud Error: Could not delete directory "' . $directoryName . '"" at path "' . $pathInWorkingDirectory . '"');
         return false;
     }
 
