@@ -12,37 +12,49 @@ use DarlingCms\interfaces\html\IHtmlForm;
 use DarlingCms\interfaces\processor\IFormProcessor;
 
 /**
- * Class AFormProcessor. Defines an abstract implementation of the IFormProcessor interface.
+ * Class AFormProcessor. Defines an abstract implementation of the IFormProcessor interface
+ * that can be extended by objects that are responsible for processing html forms that were
+ * built using an IHtmlForm implementation instance.
  * @package DarlingCms\abstractions\processor
  */
 abstract class AFormProcessor implements IFormProcessor
 {
     /**
-     * @var IHtmlForm The injected IHtmlForm implementation instance.
+     * @var IHtmlForm The IHtmlForm implementation instance that was used to
+     *                build the html form processed by this AFormProcessor
+     *                implementation instance.
      */
     protected $form;
     /**
-     * @var Hidden The injected Hidden object instance that holds the form's id.
+     * @var Hidden The Hidden implementation instance that holds the form id used to
+     *             identify the form post submission.
      */
     protected $formIdElement;
 
     /**
-     * @var int Will be either the value of INPUT_GET or INPUT_POST depending on the method used by the $form.
+     * @var int Will be either the value of INPUT_GET or INPUT_POST depending on the method used by the form.
+     * @see INPUT_GET
+     * @see INPUT_POST
      */
     protected $method;
 
     /**
      * @var array Array of processed values, defaults to an empty array.
+     * @devNote: It is up to implementations to manage this array.
      */
     protected $processed = array();
 
     /**
-     * FormProcessor constructor. Injects the IHtmlFrom and Hidden object instances. Determines the method
-     * the form uses. Adds the Hidden object instance to the $form as one of the form's IHtmlFormElement
-     * implementation instances.
-     * @param IHtmlForm $form The IHtmlForm implementation instance this FormProcessor processes.
-     * @param Hidden $formIdElement The Hidden object instance that holds the form's id. This object will
-     *                              be added to the form's form elements.
+     * FormProcessor constructor. Injects the IHtmlFrom implementation instance that
+     * was used to build the html form processed by this AFormProcessor implementation
+     * instance.
+     * Injects the Hidden implementation instance that holds the form id used to identify
+     * the form post submission.
+     * @param IHtmlForm $form The IHtmlFrom implementation instance that was used to build
+     *                        the html form processed by this AFormProcessor implementation
+     *                        instance.
+     * @param Hidden $formIdElement The Hidden implementation instance that holds the form
+     *                              id used to identify the form post submission.
      * @see IHtmlForm::getMethod()
      * @see IHtmlForm::addFormElement()
      */
@@ -56,7 +68,16 @@ abstract class AFormProcessor implements IFormProcessor
 
     /**
      * Determines if the form was submitted.
+     *
+     * @devNote: This method determines whether or not the form was submitted
+     * by verifying that the submitted formIdElement's value in 'get' or 'post'
+     * matches the actual formIdElement's value.
+     *
+     * i.e., $_POST[$formIdElement->getName()] === $this->formIdElement->getAttributes()['value']
+     *
      * @return bool True if the form was submitted, false otherwise.
+     * @see Hidden::getName()
+     * @see Hidden::getAttributes()
      */
     public function formSubmitted(): bool
     {
@@ -81,6 +102,9 @@ abstract class AFormProcessor implements IFormProcessor
     /**
      * Returns an array of the values that were successfully processed, or an empty array if
      * no values were processed.
+     *
+     * @devNote: It is up to implementations to manage this array.
+     *
      * @return array An array of the values that were successfully processed, or an empty array
      *               if no values were processed.
      */
@@ -90,9 +114,14 @@ abstract class AFormProcessor implements IFormProcessor
     }
 
     /**
-     * Returns the IHtmlForm implementation instance processed by this FormProcessor instance.
-     * Note: The returned IHtmlForm instance may have been modified by this FormProcessor instance.
-     * @return IHtmlForm The processed form.
+     * Returns the IHtmlForm implementation instance that was used to build the html form
+     * processed by this AFormProcessor implementation instance.
+     *
+     * Note: The returned IHtmlForm instance may have been modified by this AFormProcessor
+     * implementation instance.
+     *
+     * @return IHtmlForm The IHtmlForm implementation instance that was used to build the html form
+     * processed by this AFormProcessor implementation instance.
      */
     public function getForm(): IHtmlForm
     {
