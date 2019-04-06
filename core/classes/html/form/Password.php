@@ -19,9 +19,10 @@ class Password extends Input
      * @param string $value The password input element's value attribute's value. Defaults to an empty string.
      * @param array $attributes Array of additional attributes to assign to the password input element, defaults to an
      *                          empty array.
+     * @param bool $showName If set to true, this will force the input element's name to be shown within the label.
      */
-    public function __construct(string $name, string $value = '', array $attributes = array())
+    public function __construct(string $name, string $value = '', array $attributes = array(), bool $showName = false)
     {
-        parent::__construct('password', $name, $value, $attributes);
+        parent::__construct('password', $name, $value, $attributes, $showName);
     }
 }
