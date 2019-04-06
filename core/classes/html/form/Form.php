@@ -13,21 +13,47 @@ use DarlingCms\interfaces\html\IHtmlForm;
 use DarlingCms\interfaces\html\IHtmlFormElement;
 
 /**
- * Class Form. Defines an implementation of the IHtmlForm interface that extends the HtmlContainer class to generate
- * the html for a form.
+ * Class Form. Defines an implementation of the IHtmlForm interface that extends the HtmlContainer class
+ * that can be used to build an html form.
  * @package DarlingCms\classes\html\form
  */
 class Form extends HtmlContainer implements IHtmlForm
 {
+    /**
+     * @var string Constant that can be used to set the form's method to "get".
+     */
+    const GET = 'get';
+
+    /**
+     * @var string Constant that can be used to set the form's method to "post".
+     */
+    const POST = 'post';
+
+    /**
+     * @var array $formElements Array of IHtmlFormElement implementations that are used
+     *                          to build the form's elements.
+     */
     protected $formElements = array();
 
     /**
-     * Form constructor. Sets the Form's method, attributes, and any specified IHtmlFormElement instances.
-     * @param string $method The http method the form should use, should be 'get' or 'post'.
+     * Form constructor. Sets the Form's method, attributes, and adds any specified IHtmlFormElement instances
+     * to the form.
+     * @param string $method The http method the form should use, MUST be either 'get' or 'post'.
+     *
+     *                       Note: This class provides the following constants that can be used to set the form's
+     *                       method to get or post, respectively:
+     *
+     *                       Form::GET
+     *
+     *                       Form::POST.
      * @param array $attributes Array of attributes to assign to the form.
      * @param IHtmlFormElement ...$formElements IHtmlFormElement instances that should be added to the form on
-     *                                          instantiation. Note: Additional IHtmlFormElement instances can be
-     *                                          added after instantiation via the addFormElement() method.
+     *                                          instantiation.
+     *
+     *                                          Note: Additional IHtmlFormElement instances can be added
+     *                                          after instantiation via the Form::addFormElement() method.
+     * @see Form::GET
+     * @see Form::POST
      * @see Form::addFormElement()
      */
     public function __construct(string $method, array $attributes = array(), IHtmlFormElement ...$formElements)
