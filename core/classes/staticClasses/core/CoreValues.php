@@ -162,6 +162,12 @@ class CoreValues
     const SITE_CONFIG_EXT = '.config.ini';
 
     /**
+     * @var string Default value used by the CoreValues::getSiteRootUrl() method when
+     *             it is unable to determine the Site's root url.
+     */
+    private const DEFAULT_SITE_ROOT_URL = '';
+
+    /**
      * Returns an array of the site's configuration settings as defined in the site's configuration file.
      * Note: This method will return an empty array if the site's configuration file cannot be found, or
      * if the site's configuration file does not define any configuration settings.
@@ -560,13 +566,13 @@ class CoreValues
      *
      * @return string The name of the host for the specified database.
      *
-     * @see CoreValues::getCoreDBName()
+     * @return string The name of the database host.
      * @see CoreValues::getAppsDBName()
      * @see CoreValues::getUsersDBName()
      * @see CoreValues::getPasswordsDBName()
      * @see CoreValues::getPrivilegesDBName()
      * @see CoreValues::getSiteConfigValue()
-     * @return string The name of the database host.
+     * @see CoreValues::getCoreDBName()
      */
     public static function getDBHostName(string $databaseName): string
     {
@@ -697,11 +703,130 @@ class CoreValues
      */
     public static function getSiteRootUrl(): string
     {
-        $rootUrlPieces = parse_url((!empty($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
-        $rootUrl = $rootUrlPieces['scheme'] . '://' . $rootUrlPieces['host'] . (!empty($rootUrlPieces['port']) ? ':' . $rootUrlPieces['port'] : '') . $rootUrlPieces['path'];
-        $replace = substr($rootUrl, strrpos($rootUrl, '/'));
-        $siteRootUrl = ($replace !== '/' ? str_replace($replace, '', $rootUrl) . '/' : $rootUrl);
-        return $siteRootUrl;
+        return CoreValues::determineRootUrl((!empty($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
+    }
+
+    /**
+     * Discerns the root url of a specified url.
+     *
+     * Example:
+     *
+     *      // The following would return: http://www.example.org/
+     *
+     *      CoreValues::determineRootUrl('http://www.example.org/some/sub/path/someFile.txt');
+     *
+     * @param string $url The url whose root url should be discerned.
+     * @return string The root url discerned from the specified url.
+     */
+    private static function determineRootUrl(string $url): string
+    {
+        $rootUrlPieces = CoreValues::parseUrl($url);
+        if (empty(array_filter($rootUrlPieces, 'strlen')) === true) {
+            return CoreValues::DEFAULT_SITE_ROOT_URL;
+        }
+        // Determine sub scheme url, i.e., part of url that comes after http://
+        $subSchemeUrl = $rootUrlPieces['host'] . (!empty($rootUrlPieces['port']) ? ':' . $rootUrlPieces['port'] : '') . $rootUrlPieces['path'];
+        // Determine root of url from the pieces of the $subSchemeUrl
+        $subSchemeUrlPieces = explode('/', $subSchemeUrl);
+        switch ($rootUrlPieces['host']) {
+            // localhost will always be first and possibly second sub scheme url pieces
+            case 'localhost':
+                $root = $subSchemeUrlPieces[0] . '/' . (!empty($subSchemeUrlPieces[1]) ? $subSchemeUrlPieces[1] . '/' : '');
+                break;
+            // default will always be first sub scheme url piece
+            default:
+                $root = $subSchemeUrlPieces[0] . '/';
+                break;
+        }
+        // Construct and return the Site's root url
+        return CoreValues::urlEncode((!empty($rootUrlPieces['scheme']) ? $rootUrlPieces['scheme'] : 'http') . '://' . $root);
+    }
+
+    /**
+     * Similar to PHP's parse_url() function, this method parses a URL and
+     * returns an associative array containing the various components of
+     * the URL.
+     *
+     * Unlike PHP's parse_url() will always return an array
+     * with values set for the following indexes:
+     *
+     * - scheme (e.g., http)
+     *
+     * - host
+     *
+     * - port
+     *
+     * - user
+     *
+     * - pass
+     *
+     * - path
+     *
+     * - query (after the question mark ?)
+     *
+     * - fragment (after the hashmark #)
+     *
+     * Note: An empty string will be set for any of the above url components
+     * that are not discernible, or do not exist.
+     *
+     * Note: The values of the array elements are not URL decoded.
+     *
+     * Note: This function is not meant to validate the given URL, it only
+     * breaks it up into individual components.
+     *
+     * @param string $url The url to parse.
+     * @return array An associative array of the url's discernible components.
+     *               Note: Empty strings will be assigned to any components
+     *               that could not be discerned, or do not exist.
+     * @devNote: This method is declared private because it does not return a "Core Value",
+     *           it is designed to be used internally by the CoreValues class's methods.
+     * @see parse_url()
+     */
+    final private static function parseUrl(string $url): array
+    {
+        $parsedUrl = parse_url($url);
+        if (is_array($parsedUrl) === false) {
+            return array('scheme' => '', 'host' => '', 'port' => '', 'user' => '', 'pass' => '', 'path' => '', 'query' => '', 'fragment' => '');
+        }
+        return array(
+            'scheme' => (!empty($parsedUrl['scheme']) && is_string($parsedUrl['scheme']) ? $parsedUrl['scheme'] : ''),
+            'host' => (!empty($parsedUrl['host']) && is_string($parsedUrl['host']) ? $parsedUrl['host'] : ''),
+            'port' => (!empty($parsedUrl['port']) && is_int($parsedUrl['port']) ? strval($parsedUrl['port']) : ''),
+            'user' => (!empty($parsedUrl['user']) && is_string($parsedUrl['user']) ? $parsedUrl['user'] : ''),
+            'pass' => (!empty($parsedUrl['pass']) && is_string($parsedUrl['pass']) ? $parsedUrl['pass'] : ''),
+            'path' => (!empty($parsedUrl['path']) && is_string($parsedUrl['path']) ? $parsedUrl['path'] : ''),
+            'query' => (!empty($parsedUrl['query']) && is_string($parsedUrl['query']) ? $parsedUrl['query'] : ''),
+            'fragment' => (!empty($parsedUrl['fragment']) && is_string($parsedUrl['fragment']) ? $parsedUrl['fragment'] : '')
+        );
+    }
+
+    /**
+     * Similar to PHP's urlencode(), this method returns a string in which all
+     * non-alphanumeric characters in the specified $url, except "-","_", and
+     * "." have been replaced with a percent (%) sign followed by two hex digits.
+     * This method also makes an exception for the following characters:
+     *
+     * - / (forward slashes will not be encoded by this method)
+     *
+     * - : (colons will not be encoded by this method)
+     *
+     * Note: An important difference in how this method works as opposed to PHP's
+     * urlencode(), is spaces are always encoded as %20, if this is not desired
+     * it is best to use PHP's urlencode().
+     *
+     * WARNING: If a more standard url-encoding is needed it is best to use PHP's
+     * urlencode() function as this method is tailored to the needs of the CoreValues
+     * class.
+     *
+     * @param string $url The url to encode.
+     * @return string The encoded url.
+     * @see urlencode()
+     */
+    final private static function urlEncode(string $url): string
+    {
+        $standerEncoding = urlencode($url);
+        return str_replace(['%3A', '%2F', '+'], [':', '/', '%20'], $standerEncoding);
+
     }
 
     /**
