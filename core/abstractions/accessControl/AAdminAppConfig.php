@@ -38,7 +38,8 @@ abstract class AAdminAppConfig implements IAppConfig
         $this->userName = (empty($this->userLogin->read(UserLogin::CURRENT_USER_POST_VAR_NAME)) === false ? $this->userLogin->read(UserLogin::CURRENT_USER_POST_VAR_NAME) : '');
         $this->userCrud = $this->crudFactory->getUserCrud();
         $this->roleCrud = $this->crudFactory->getRoleCrud();
-        $this->user = $this->userCrud->read($this->userName);
+        /* @todo: The ternary operator is a temp fix for the following error that keeps occurring: "PHP Fatal error: Uncaught TypeError: Argument 1 passed to DarlingCms\classes\crud\MySqlUserCrud::read() must be of the type string, null given, called in /Applications/MAMP/htdocs/DarlingCms/core/abstractions/accessControl/AAdminAppConfig.php on line 41 and defined in /Applications/MAMP/htdocs/DarlingCms/core/classes/crud/MySqlUserCrud.php:55" | Original code: $this->user = $this->userCrud->read($this->userName); // this code causes errors, somehow a null value makes it's way here it seems whenever a session has timed out. */
+        $this->user = $this->userCrud->read(empty($this->userName) === false ? $this->userName : '');
         $this->validRoles = $this->defineValidRoles();
     }
 
