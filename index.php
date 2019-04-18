@@ -1,21 +1,29 @@
 <?php
 /** Require Composer's auto-loader. **/
 require(__DIR__ . '/vendor/autoload.php');
+
+use DarlingCms\classes\info\AppInfo;
+use DarlingCms\classes\installation\InstallationForm;
+use DarlingCms\classes\installation\InstallationFormProcessor;
+use DarlingCms\classes\startup\MultiAppStartup;
+use DarlingCms\classes\staticClasses\core\CoreValues;
+use DarlingCms\classes\userInterface\CoreInstallerUI;
+use DarlingCms\classes\userInterface\CoreHtmlUserInterface;
+
 // Determine which UI to load based on whether or not the site has been configured
-switch (\DarlingCms\classes\staticClasses\core\CoreValues::siteConfigured()) {
+switch (CoreValues::siteConfigured()) {
     case false:
-        // @todo: Implement installer so user can be guided through configuration process via UI...
-        echo "
-            <h1>Welcome to the Darling Cms</h1>
-            <p>Sorry, it looks like your Darling Cms site has not been configured.</p>
-            <p>Please create a configuration file to use your new Darling Cms installation.</p>
-            ";
+        $installationFormProcessor = new InstallationFormProcessor(new InstallationForm());
+        $installationFormProcessor->processForm();
+        $installerUI = new CoreInstallerUI($installationFormProcessor->getForm());
+        echo $installerUI->getUserInterface();
         break;
     default:
         /** Initialize the user interface. **/
-        $CoreHtmlUserInterface = new \DarlingCms\classes\userInterface\CoreHtmlUserInterface(new \DarlingCms\classes\startup\MultiAppStartup(new \DarlingCms\classes\info\AppInfo(\DarlingCms\classes\info\AppInfo::STARTUP_DEFAULT)));
+        $CoreHtmlUserInterface = new CoreHtmlUserInterface(new MultiAppStartup(new AppInfo(AppInfo::STARTUP_DEFAULT)));
         /** Display the user interface. **/
         echo $CoreHtmlUserInterface->getUserInterface();
         break;
 }
 
+CoreValues::getSiteRootUrl();
