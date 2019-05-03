@@ -29,7 +29,6 @@ class UserLogin extends SessionCrud implements IUserLogin
         if ($password->validatePassword($user, $submittedPassword) === true && $this->isLoggedIn($user->getUserName()) === false) {
             return $this->create(self::CURRENT_USER_POST_VAR_NAME, $user->getUserName()); // for security we only store the user's user name, any component that needs to say, verify a user's role, will need to use an instance of a IUserCrud implementation to read the user from storage and validate against the stored user, this also makes it impossible to say spoof a user which could be done if the entire user object was stored in the session, which could also expose private user meta data to a hijacked session.
         }
-        // @todo : Force input via POST by changing to INPUT_POST once out of dev
         return false;
     }
 
