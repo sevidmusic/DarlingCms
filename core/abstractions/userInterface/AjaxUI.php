@@ -16,7 +16,7 @@ use DarlingCms\interfaces\userInterface\IUserInterface;
  * by apps that use ajax to generate their user interface's content from  defined "views".
  * @package DarlingCms\abstractions\userInterface
  */
-abstract class AjaxUi implements IUserInterface // @todo ! Rename to AjaxUI
+abstract class AjaxUI implements IUserInterface
 {
     /**
      * Name of the url parameter that specifies the view when user is directed via url. This allows the ajax requests to be saved, i.e. someurl.com/index.php?ajaxUiView=view1 should display view 1.
@@ -40,7 +40,8 @@ abstract class AjaxUi implements IUserInterface // @todo ! Rename to AjaxUI
     protected $viewContainerId = 'defaultViewContainer';
 
     /**
-     * AjaxUi constructor.
+     * AjaxUi constructor. Sets the app's name, sets the app's views container id, and determines the
+     * current view from selected view.
      * @param string $appName Name of the app implementing this class. This MUST match the name of the app exactly.
      * @param string $viewContainerId Id of the html element that contains each views content, i.e., id of the parent element of all views.
      */
@@ -48,8 +49,32 @@ abstract class AjaxUi implements IUserInterface // @todo ! Rename to AjaxUI
     {
         $this->appName = $appName;
         $this->viewContainerId = $viewContainerId;
-        $selectedView = filter_input(INPUT_GET, self::VIEW_PARAMETER_NAME); // @todo check in $_POST as well!
+        $selectedView = $this->getSelectedView();
         $this->currentView = (!empty($selectedView) === true ? $selectedView : $this->defaultView);
+    }
+
+    /**
+     * Determines the selected view. This method will first look
+     * in $_GET for a parameter whose name matches the value
+     * of the AjaxUI::VIEW_PARAMETER_NAME constant. If it cannot
+     * find the value in $_GET, it will look in $_POST, and if it
+     * cannot find the value in $_GET or $_POST it will return an
+     * empty string.
+     * @return string The selected view, or an empty string if the
+     *                selected view could not be determined.
+     */
+    private function getSelectedView(): string
+    {
+        return (
+        filter_input(INPUT_GET, self::VIEW_PARAMETER_NAME)
+            ? filter_input(INPUT_GET, self::VIEW_PARAMETER_NAME)
+            :
+            (
+            filter_input(INPUT_POST, self::VIEW_PARAMETER_NAME)
+                ? filter_input(INPUT_POST, self::VIEW_PARAMETER_NAME)
+                : '' /* Default to empty string if not set in get or post... */
+            )
+        );
     }
 
     final protected function getViewsDirPath(): string
@@ -103,28 +128,29 @@ abstract class AjaxUi implements IUserInterface // @todo ! Rename to AjaxUI
 
     /**
      * Generate an AjaxRouterRequest() function call using the provided parameters.
+     * @param array $params Associative array of parameters to pas to the AjaxRouterRequest() call.
      *
-     * The following parameters can be set:
+     * The following parameters can be set using the following indexes:
      *
-     * 'issuingApp' // the name of the Darling Cms App issuing the request.
+     * "issuingApp" => The name of the Darling Cms App issuing the request.
      *
-     * 'handlerName' // the name of the file that handles this request. (Note: Do not include extension)
+     * "handlerName" => The name of the file that handles this request. (Note: Do not include extension)
      *
-     * 'outputElementId' // the id of the html element the request output should be written to.
+     * "outputElementId" => The id of the html element the request output should be written to.
      *
-     * 'requestType' // the type of request, either GET or POST
+     * "requestType" => The type of request, either GET or POST
      *
-     * 'contentType' // application/x-www-form-urlencoded, multipart/form-data, or text/plain (html 5 only)
+     * "contentType" => application/x-www-form-urlencoded, multipart/form-data, or text/plain (html 5 only)
      *
-     * 'additionalParams' // url parameter string, e.g., "someParam=someVal&someOtherParam=Val2"
+     * "additionalParams" => Url parameter string, e.g., "someParam=someVal&someOtherParam=Val2"
      *
-     * 'ajaxDirName' // name of the handler's parent directory, defaults to ajax
+     * "ajaxDirName" => Name of the handler's parent directory, defaults to ajax
      *
-     * 'callFunction' // name of the javascript function to call when request is issued
+     * "callFunction" => Name of the javascript function to call when request is issued
      *
-     * 'callContext' // the current call context, e.g. "window", or "document". defaults to window.
+     * "callContext" => The current call context, e.g. "window", or "document". defaults to window.
      *
-     * 'callArgs' // array of function parameters to pass to the callFunction
+     * "callArgs" => Array of function parameters to pass to the callFunction
      *
      * @return string The Ajax Request string.
      */
@@ -157,7 +183,7 @@ abstract class AjaxUi implements IUserInterface // @todo ! Rename to AjaxUI
                 'requestType' => 'GET',
                 'contentType' => 'application/x-www-form-urlencoded',
                 'additionalParams' => '',
-                'ajaxDirName' => 'views',
+                'ajaxDirName' => $this->getViewsDirName(),
                 //'callFunction' => '', // @devNote if these are ever needed create params for them
                 //'callContext' => '',
                 //'callArgs' => ''
