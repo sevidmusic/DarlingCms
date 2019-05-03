@@ -15,7 +15,7 @@ switch (CoreValues::siteConfigured()) {
     case false:
         $installationFormProcessor = new InstallationFormProcessor(new InstallationForm());
         $installationFormProcessor->processForm();
-        $installerUI = new CoreInstallerUI($installationFormProcessor->getForm());
+        $installerUI = new CoreInstallerUI($installationFormProcessor);
         echo $installerUI->getUserInterface();
         break;
     default:
@@ -25,5 +25,3 @@ switch (CoreValues::siteConfigured()) {
         echo $CoreHtmlUserInterface->getUserInterface();
         break;
 }
-
-CoreValues::getSiteRootUrl();
