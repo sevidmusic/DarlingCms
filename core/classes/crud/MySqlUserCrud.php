@@ -13,6 +13,7 @@ use DarlingCms\abstractions\crud\AMySqlUserCrud;
 use DarlingCms\classes\user\AnonymousUser;
 use DarlingCms\interfaces\crud\IUserCrud;
 use DarlingCms\interfaces\user\IUser;
+use PDO;
 use SplSubject;
 
 /**
@@ -62,10 +63,10 @@ class MySqlUserCrud extends AMySqlUserCrud implements IUserCrud, SplSubject
              * sets the relevant property values. This way the class is constructed as usual,
              * with the responsibility of instantiation logic assigned to the __construct() method.
              */
-            $userData = $this->MySqlQuery->executeQuery('SELECT * FROM ' . $this->tableName . ' WHERE userName=? LIMIT 1', [$userName])->fetchAll(\PDO::FETCH_ASSOC)[0];
+            $userData = $this->MySqlQuery->executeQuery('SELECT * FROM ' . $this->tableName . ' WHERE userName=? LIMIT 1', [$userName])->fetchAll(PDO::FETCH_ASSOC)[0];
             $ctor_args = array($userData['userName'], $this->unpackMeta($userData['userMeta']), $this->unpackRoles($userData['userRoles']));
             $results = $this->MySqlQuery->getClass('SELECT * FROM ' . $this->tableName . ' WHERE userName=? LIMIT 1', $this->getClassName($userName), [$userName], $ctor_args);
-            return array_shift($results);
+            return array_shift($results); // @todo Need to first check that result is in fact an implementation of the IUser interface, this will insure corrupted values do not break this method and logic that relies on this method.
         }
         return new AnonymousUser();
     }
@@ -75,7 +76,7 @@ class MySqlUserCrud extends AMySqlUserCrud implements IUserCrud, SplSubject
      */
     public function readAll(): array
     {
-        $userNames = $this->MySqlQuery->executeQuery('SELECT userName FROM ' . $this->tableName)->fetchAll(\PDO::FETCH_ASSOC);
+        $userNames = $this->MySqlQuery->executeQuery('SELECT userName FROM ' . $this->tableName)->fetchAll(PDO::FETCH_ASSOC);
         $users = array();
         foreach ($userNames as $userName) {
             array_push($users, $this->read($userName['userName']));
