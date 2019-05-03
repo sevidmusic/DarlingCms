@@ -7,7 +7,7 @@
 
 namespace DarlingCms\classes\userInterface;
 
-use DarlingCms\classes\installation\InstallationForm;
+use DarlingCms\classes\installation\InstallationFormProcessor;
 use DarlingCms\classes\staticClasses\core\CoreValues;
 use DarlingCms\interfaces\html\IHtmlPage;
 use DarlingCms\interfaces\userInterface\IUserInterface;
@@ -20,18 +20,19 @@ use DarlingCms\interfaces\userInterface\IUserInterface;
 class CoreInstallerUI implements IUserInterface, IHtmlPage
 {
     /**
-     * @var InstallationForm $installationForm Instance of an InstallationForm that represents the
-     *                                         installation form.
+     * @var InstallationFormProcessor $installationFormProcessor Instance of an InstallationFormProcessor
+     *                                                           that is responsible for processing the
+     *                                                           installation form.
      */
-    private $installationForm;
+    private $installationFormProcessor;
 
     /**
      * CoreInstallerUI constructor.
-     * @param InstallationForm $installationForm
+     * @param InstallationFormProcessor $installationForm
      */
-    public function __construct(InstallationForm $installationForm)
+    public function __construct(InstallationFormProcessor $installationForm)
     {
-        $this->installationForm = $installationForm;
+        $this->installationFormProcessor = $installationForm;
     }
 
     /**
@@ -58,12 +59,10 @@ class CoreInstallerUI implements IUserInterface, IHtmlPage
      */
     public function getHead(): string
     {
-        // @devNote @todo Note on meta refresh, may not want to redirect once everything is working so as not to accidentally interrupt install.
         return PHP_EOL . '
 <head>
     <title>Darling Cms Installer | Welcome To The Darling Cms</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- <meta http-equiv="refresh" content="25; url=' . CoreValues::getSiteRootUrl() . '" /> -->
     <style>
    * {
     box-sizing: border-box;
@@ -323,7 +322,7 @@ label {
      */
     public function getBody(): string
     {
-        return PHP_EOL . '<body>' . PHP_EOL . $this->getWelcomeMsg() . PHP_EOL . $this->installationForm->getHtml() . PHP_EOL . '</body>' . PHP_EOL;
+        return PHP_EOL . '<body>' . PHP_EOL . $this->getWelcomeMsg() . PHP_EOL . $this->installationFormProcessor->getForm()->getHtml() . PHP_EOL . '</body>' . PHP_EOL;
     }
 
     /**
