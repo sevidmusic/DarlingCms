@@ -14,6 +14,7 @@ use DarlingCms\classes\privilege\Permission;
 use DarlingCms\classes\privilege\Role;
 use DarlingCms\interfaces\crud\IRoleCrud;
 use DarlingCms\interfaces\privilege\IRole;
+use PDO;
 
 /**
  * Class MySqlRoleCrud. Defines an implementation of the IUserCrud interface
@@ -46,14 +47,16 @@ class MySqlRoleCrud extends AMySqlRoleCrud implements IRoleCrud
 
     /**
      * Read the specified role's data from the database and return an appropriate IRole implementation instance.
+     * Note: This method will return an Anonymous Role with no Permissions if the specified Role cannot be read.
      * @param string $roleName The name of the role to read.
-     * @return IRole An appropriate IRole implementation instance.
+     * @return IRole An appropriate IRole implementation instance, or an IRole implementation instance that
+     *               represents an Anonymous Role with no Permissions if the specified Role cannot be read.
      */
     public function read(string $roleName): IRole
     {
         if ($this->roleExists($roleName) === true) {
             // 1. get role data
-            $roleData = $this->MySqlQuery->executeQuery('SELECT * FROM ' . $this->tableName . ' WHERE roleName=? LIMIT 1', [$roleName])->fetchAll(\PDO::FETCH_ASSOC)[0];
+            $roleData = $this->MySqlQuery->executeQuery('SELECT * FROM ' . $this->tableName . ' WHERE roleName=? LIMIT 1', [$roleName])->fetchAll(PDO::FETCH_ASSOC)[0];
             // 2. create ctor_args array
             $ctor_args = array($roleData['roleName'], $this->unpackPermissions($roleData['rolePermissions']));
             // 3. Instantiate the appropriate IRole implementation based on the role data.
@@ -69,7 +72,7 @@ class MySqlRoleCrud extends AMySqlRoleCrud implements IRoleCrud
      */
     public function readAll(): array
     {
-        $roleNames = $this->MySqlQuery->executeQuery('SELECT roleName FROM roles')->fetchAll(\PDO::FETCH_ASSOC);
+        $roleNames = $this->MySqlQuery->executeQuery('SELECT roleName FROM roles')->fetchAll(PDO::FETCH_ASSOC);
         $roles = array();
         foreach ($roleNames as $roleName) {
             array_push($roles, $this->read($roleName['roleName']));
