@@ -31,7 +31,7 @@ abstract class AAdminAppConfig implements IAppConfig
     /**
      * AAdminAppConfig constructor. Sets the class properties.
      */
-    final public function __construct()// @todo ! Consider if this should really be final! Having this be final does insure all implementations initialize the required props, but it prevents apps from defining additional validation that may be unique to the app, for instance an app may only show up on certain pages, and may wish to add such a check to it's validation logic...alternativly an abstract method called additionValidation() could be defined where implmentation specific validation could be defined. this method would be called by this class's __construct() method insuring all implementations have a chance to define their own validation...
+    final public function __construct()
     {
         $this->userLogin = new UserLogin();
         $this->crudFactory = new CoreMySqlCrudFactory();
@@ -39,7 +39,7 @@ abstract class AAdminAppConfig implements IAppConfig
         $this->userCrud = $this->crudFactory->getUserCrud();
         $this->roleCrud = $this->crudFactory->getRoleCrud();
         /* @todo: The ternary operator is a temp fix for the following error that keeps occurring: "PHP Fatal error: Uncaught TypeError: Argument 1 passed to DarlingCms\classes\crud\MySqlUserCrud::read() must be of the type string, null given, called in /Applications/MAMP/htdocs/DarlingCms/core/abstractions/accessControl/AAdminAppConfig.php on line 41 and defined in /Applications/MAMP/htdocs/DarlingCms/core/classes/crud/MySqlUserCrud.php:55" | Original code: $this->user = $this->userCrud->read($this->userName); // this code causes errors, somehow a null value makes it's way here it seems whenever a session has timed out. */
-        $this->user = $this->userCrud->read(empty($this->userName) === false ? $this->userName : '');
+        $this->user = ($this->userCrud->read(empty($this->userName) === false ? $this->userName : ''));
         $this->validRoles = $this->defineValidRoles();
     }
 
