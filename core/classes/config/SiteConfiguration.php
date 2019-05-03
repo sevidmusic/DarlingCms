@@ -38,7 +38,7 @@ class SiteConfiguration implements ISiteConfiguration
 
     /**
      * SiteConfiguration constructor. Sets the SiteConfiguration's name, sets the SiteConfiguration's
-     * description, and attaches the supplied ISiteConfiguration implementation instances.
+     * description, and adds the supplied ISiteConfiguration implementation instances.
      * @param string $siteConfigurationName A name to identify this SiteConfiguration
      * @param string $siteConfigurationDescription A description of this SiteConfiguration
      * @param ISiteConfigurationSetting ...$siteConfigurationSettings The ISiteConfigurationSetting
@@ -51,7 +51,7 @@ class SiteConfiguration implements ISiteConfiguration
         $this->siteConfigurationDescription = $siteConfigurationDescription;
         $this->siteConfigurationSettings = new SplObjectStorage();
         foreach ($siteConfigurationSettings as $siteConfigurationSetting) {
-            $this->siteConfigurationSettings->attach($siteConfigurationSetting);
+            $this->addSetting($siteConfigurationSetting);
         }
     }
 
@@ -96,7 +96,6 @@ class SiteConfiguration implements ISiteConfiguration
      *                                                            instance that represents the site configuration
      *                                                            setting.
      */
-    // @todo ! add method to ISiteConfiguration interface
     public function addSetting(ISiteConfigurationSetting $siteConfigurationSetting): void
     {
         $this->siteConfigurationSettings->attach($siteConfigurationSetting);
@@ -106,7 +105,6 @@ class SiteConfiguration implements ISiteConfiguration
      * Remove a site configuration setting from this site configuration.
      * @param string $settingName The name of the setting to remove.
      */
-    // @todo ! add method to ISiteConfiguration interface
     public function removeSetting(string $settingName): void
     {
         foreach ($this->getConfigurationSettings() as $siteConfigurationSetting) {
