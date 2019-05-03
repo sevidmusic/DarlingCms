@@ -70,9 +70,9 @@ class InstallationForm extends Form implements IHtmlForm
      */
     private function buildAdminConfigFormElements(): void
     {
-        $this->addFormElement(new Text('adminUserName', 'DevAdmin', array('id' => 'dcms-install-form-admin-user-name', 'class' => 'dcms-install-form-text-input', 'placeholder' => 'Enter a username', 'autocomplete' => 'off', 'required'), true));
-        $this->addFormElement(new Text('adminUserEmail', 'DevAdminEmail', array('id' => 'dcms-install-form-admin-user-email', 'class' => 'dcms-install-form-text-input', 'placeholder' => 'Enter Your Email', 'autocomplete' => 'off', 'required'), true));
-        $this->addFormElement(new Password('adminUserPassword', 'DevAdminPass', array('id' => 'dcms-install-form-admin-user-password', 'class' => 'dcms-install-form-password-input', 'placeholder' => 'Enter a Password', 'autocomplete' => 'off', 'required'), true));
+        $this->addFormElement(new Text('adminUserName', '', array('id' => 'dcms-install-form-admin-user-name', 'class' => 'dcms-install-form-text-input', 'placeholder' => 'Enter a username', 'autocomplete' => 'off', 'required'), true));
+        $this->addFormElement(new Text('adminUserEmail', '', array('id' => 'dcms-install-form-admin-user-email', 'class' => 'dcms-install-form-text-input', 'placeholder' => 'Enter Your Email', 'autocomplete' => 'off', 'required'), true));
+        $this->addFormElement(new Password('adminUserPassword', '', array('id' => 'dcms-install-form-admin-user-password', 'class' => 'dcms-install-form-password-input', 'placeholder' => 'Enter a Password', 'autocomplete' => 'off', 'required'), true));
     }
 
     /**
@@ -132,9 +132,9 @@ class InstallationForm extends Form implements IHtmlForm
      */
     private function buildDBConfigFormElementGroup(string $dbInfoFormElementDescriptor): void
     {
-        $this->addFormElement(new Text($dbInfoFormElementDescriptor . 'DatabaseName', 'Dev' . ucfirst($dbInfoFormElementDescriptor) . 'DBName', array('id' => 'dcms-install-form-' . $dbInfoFormElementDescriptor . '-db-name', 'class' => 'dcms-install-form-text-input', 'placeholder' => 'Enter the name of the database to use for ' . ucfirst($dbInfoFormElementDescriptor), 'required'), true));
+        $this->addFormElement(new Text($dbInfoFormElementDescriptor . 'DatabaseName', '', array('id' => 'dcms-install-form-' . $dbInfoFormElementDescriptor . '-db-name', 'class' => 'dcms-install-form-text-input', 'placeholder' => 'Enter the name of the database to use for ' . ucfirst($dbInfoFormElementDescriptor), 'required'), true));
         $this->addFormElement(new Text($dbInfoFormElementDescriptor . 'DatabaseHost', 'localhost', array('id' => 'dcms-install-form-' . $dbInfoFormElementDescriptor . '-db-host', 'class' => 'dcms-install-form-text-input', 'placeholder' => 'Enter the name of the host for the ' . ucfirst($dbInfoFormElementDescriptor) . ' database', 'required'), true));
-        $this->addFormElement(new Text($dbInfoFormElementDescriptor . 'DatabaseUserName', 'Dev' . ucfirst($dbInfoFormElementDescriptor) . 'DBUser', array('id' => 'dcms-install-form-' . $dbInfoFormElementDescriptor . '-db-user-name', 'class' => 'dcms-install-form-text-input', 'placeholder' => 'Enter the user name to assign the ' . ucfirst($dbInfoFormElementDescriptor) . ' db user.', 'required'), true));
-        $this->addFormElement(new Password($dbInfoFormElementDescriptor . 'DatabaseUserPassword', 'Dev' . ucfirst($dbInfoFormElementDescriptor) . 'DBPass', array('id' => 'dcms-install-form-' . $dbInfoFormElementDescriptor . '-db-user-password', 'class' => 'dcms-install-form-password-input', 'placeholder' => 'Enter the password to assign the ' . ucfirst($dbInfoFormElementDescriptor) . ' db user.', 'required'), true));
+        $this->addFormElement(new Text($dbInfoFormElementDescriptor . 'DatabaseUserName', '', array('id' => 'dcms-install-form-' . $dbInfoFormElementDescriptor . '-db-user-name', 'class' => 'dcms-install-form-text-input', 'placeholder' => 'Enter the user name to assign the ' . ucfirst($dbInfoFormElementDescriptor) . ' db user.', 'required'), true));
+        $this->addFormElement(new Password($dbInfoFormElementDescriptor . 'DatabaseUserPassword', '', array('id' => 'dcms-install-form-' . $dbInfoFormElementDescriptor . '-db-user-password', 'class' => 'dcms-install-form-password-input', 'placeholder' => 'Enter the password to assign the ' . ucfirst($dbInfoFormElementDescriptor) . ' db user.', 'required'), true));
     }
 }
