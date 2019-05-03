@@ -16,6 +16,7 @@ use DarlingCms\classes\user\UserPassword;
 use DarlingCms\interfaces\crud\IUserPasswordCrud;
 use DarlingCms\interfaces\user\IUser;
 use DarlingCms\interfaces\user\IUserPassword;
+use PDO;
 
 class MySqlUserPasswordCrud extends AMySqlQueryCrud implements IUserPasswordCrud
 {
@@ -77,14 +78,14 @@ class MySqlUserPasswordCrud extends AMySqlQueryCrud implements IUserPasswordCrud
         // hint select * from table where userName=user->getUserName()
         if ($this->passwordExists($user->getUserName()) === true) {
             // 1. get password data
-            $passwordData = $this->MySqlQuery->executeQuery('SELECT * FROM ' . $this->tableName . ' WHERE userName=? LIMIT 1', [$user->getUserName()])->fetchAll(\PDO::FETCH_ASSOC)[0];
+            $passwordData = $this->MySqlQuery->executeQuery('SELECT * FROM ' . $this->tableName . ' WHERE userName=? LIMIT 1', [$user->getUserName()])->fetchAll(PDO::FETCH_ASSOC)[0];
             // 2. create ctor_args array
             $ctor_args = array($user, $passwordData['password']);
             // 3. Instantiate the appropriate IAction implementation based on the password data.
             $results = $this->MySqlQuery->getClass('SELECT * FROM ' . $this->tableName . ' WHERE userName=? LIMIT 1', $this->getClassName($user->getUserName()), [$user->getUserName()], $ctor_args);
             return array_shift($results);
         }
-        return new UserPassword(new AnonymousUser(), password_hash(base64_encode(json_encode($this)), PASSWORD_DEFAULT)); // @todo Implement default UserPassword, i.e., class AnonymousPassword()...
+        return new UserPassword(new AnonymousUser(), password_hash(base64_encode(json_encode($this)), PASSWORD_DEFAULT));
     }
 
     public function update(IUser $user, IUserPassword $newUserPassword): bool
@@ -124,6 +125,6 @@ class MySqlUserPasswordCrud extends AMySqlQueryCrud implements IUserPasswordCrud
      */
     private function getClassName(string $userName): string
     {
-        return $this->MySqlQuery->executeQuery('SELECT IPasswordType FROM ' . $this->tableName . ' WHERE userName=? LIMIT 1', [$userName])->fetchAll(\PDO::FETCH_ASSOC)[0]['IPasswordType'];
+        return $this->MySqlQuery->executeQuery('SELECT IPasswordType FROM ' . $this->tableName . ' WHERE userName=? LIMIT 1', [$userName])->fetchAll(PDO::FETCH_ASSOC)[0]['IPasswordType'];
     }
 }
