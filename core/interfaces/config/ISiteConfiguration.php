@@ -35,4 +35,18 @@ interface ISiteConfiguration
      */
     public function getConfigurationDescription(): string;
 
+    /**
+     * Remove a site configuration setting from this site configuration.
+     * @param string $settingName The name of the setting to remove.
+     */
+    public function removeSetting(string $settingName): void;
+
+    /**
+     * Add a site configuration setting to this site configuration.
+     * @param ISiteConfigurationSetting $siteConfigurationSetting The ISiteConfigurationSetting implementation
+     *                                                            instance that represents the site configuration
+     *                                                            setting.
+     */
+    public function addSetting(ISiteConfigurationSetting $siteConfigurationSetting): void;
+
 }
