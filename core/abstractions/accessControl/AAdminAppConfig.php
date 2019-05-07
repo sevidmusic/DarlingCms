@@ -53,6 +53,11 @@ abstract class AAdminAppConfig implements IAppConfig
      */
     final public function validateAccess(): bool
     {
+        // Always return false if user name is empty.
+        if (empty($this->userName) === true) {
+            // error_log("AAdminAppConfig Error: Unable to determine current user's username.");
+            return false;
+        }
         $loggingIn = (empty(filter_input(INPUT_POST, $this->userLogin::LOGIN_STATE_VAR_NAME)) === true ? false : filter_input(INPUT_POST, $this->userLogin::LOGIN_STATE_VAR_NAME) === $this->userLogin::LOGIN_STATE_VAR_VALUE);
         $loggingOut = (empty(filter_input(INPUT_POST, $this->userLogin::LOGOUT_STATE_VAR_NAME)) === true ? false : filter_input(INPUT_POST, $this->userLogin::LOGOUT_STATE_VAR_NAME) === $this->userLogin::LOGOUT_STATE_VAR_VALUE);
         if ($loggingIn === false && $loggingOut === false && $this->userLogin->isLoggedIn($this->userName) === true && $this->hasValidRoles() === true) {
