@@ -10,6 +10,7 @@ namespace DarlingCms\classes\userInterface;
 use DarlingCms\interfaces\html\IHtmlPage;
 use DarlingCms\interfaces\startup\IAppStartup;
 use DarlingCms\interfaces\userInterface\IUserInterface;
+use DOMDocument;
 
 /**
  * Class CoreHtmlUserInterface. Defines an implementation of the IUserInterface and IHtmlPage interfaces
@@ -27,7 +28,7 @@ use DarlingCms\interfaces\userInterface\IUserInterface;
  * @see CoreHtmlUserInterface::formatHtml()
  * @see CoreHtmlUserInterface::cleanHtml()
  */
-class CoreHtmlUserInterface extends \DOMDocument implements IHtmlPage, IUserInterface
+class CoreHtmlUserInterface extends DOMDocument implements IHtmlPage, IUserInterface
 {
     /**
      * @var string String used to preserve empty elements during formatting.
@@ -61,6 +62,7 @@ class CoreHtmlUserInterface extends \DOMDocument implements IHtmlPage, IUserInte
      */
     public function __construct(IAppStartup $appStartup)
     {
+        parent::__construct();
         $this->appStartup = $appStartup;
         $this->appStartup->startup();
         $this->setCssLinkTags();
