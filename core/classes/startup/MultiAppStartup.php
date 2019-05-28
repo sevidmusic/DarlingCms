@@ -17,6 +17,7 @@ use DarlingCms\interfaces\startup\IAppStartup;
  *
  * @package DarlingCms\classes\startup
  *
+ * @see MultiAppStartup::getAppInfo()
  * @see MultiAppStartup::getCssPaths()
  * @see MultiAppStartup::getJsPaths()
  * @see MultiAppStartup::getAppOutput()
@@ -28,8 +29,8 @@ use DarlingCms\interfaces\startup\IAppStartup;
 class MultiAppStartup implements IAppStartup
 {
     /**
-     * @var string Index assigned to the value of the path to the apps directory in the
-     *             $paths property's array.
+     * @var string Index assigned to the value of the absolute path to the
+     *             apps directory in the $paths property's array.
      */
     const APP_DIR_PATH_INDEX = 'appDirPath';
 
@@ -66,6 +67,8 @@ class MultiAppStartup implements IAppStartup
      * @param AppInfo $appInfo The AppInfo implementation instance that provides
      *                         information about the apps handled by this
      *                         MultiAppStartup implementation instance.
+     *
+     * @see AppInfo
      */
     public function __construct(AppInfo $appInfo)
     {
@@ -87,7 +90,7 @@ class MultiAppStartup implements IAppStartup
      * each app that started up successfully.
      *
      * @return array Array of paths to the css files belonging to the themes assigned
-     * to each app that started up successfully.
+     *               to each app that started up successfully.
      *
      * @see AppInfo::getAppStartupObjects()
      * @see IAppStartup::getCssPaths()
@@ -112,7 +115,7 @@ class MultiAppStartup implements IAppStartup
      * libraries assigned to each app that started up successfully.
      *
      * @return array Array of paths to the javascript files belonging to the javascript
-     * libraries assigned to each app that started up successfully.
+     *               libraries assigned to each app that started up successfully.
      *
      * @see AppInfo::getAppStartupObjects()
      * @see IAppStartup::getJsPaths()
@@ -153,13 +156,17 @@ class MultiAppStartup implements IAppStartup
     }
 
     /**
-     * Returns an array of the following paths: The path to the Darling Cms apps directory,
-     * an array of paths to the AppConfig.php files defined by each of the apps in the apps
-     * directory, an array of paths to the css files belonging to the themes assigned to
-     * each app in the apps directory, an array of paths to the javascript files belonging
-     * to the javascript libraries assigned to each app in the apps directory.
+     * Returns an array of the following paths:
+     * - The path to the Darling Cms apps directory.
+     * - An array of paths to the AppConfig.php files defined by each
+     *   of the apps in the apps directory.
+     * - An array of paths to the css files belonging to the themes assigned to
+     *   each app in the apps directory that started up successfully.
+     * - An array of paths to the javascript files belonging to the javascript
+     *   libraries assigned to each app in the apps directory that started up
+     *   successfully.
      *
-     * The paths are indexed using the class constants defined for each index:
+     * The paths are indexed using the class constants defined for each index as indicated below:
      *
      * MultiAppStartup::APP_DIR_PATH_KEY : The path to the apps directory.
      *
