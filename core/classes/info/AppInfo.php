@@ -9,6 +9,9 @@ namespace DarlingCms\classes\info;
 
 use DarlingCms\classes\startup\AppStartup;
 use DarlingCms\classes\startup\AppStartupJsonCache;
+use DarlingCms\classes\staticClasses\core\CoreValues;
+use DarlingCms\interfaces\startup\IAppStartup;
+use DirectoryIterator;
 
 /**
  * Class AppInfo. Provides information about installed apps necessary for startup and configuration.
@@ -27,26 +30,6 @@ use DarlingCms\classes\startup\AppStartupJsonCache;
  */
 class AppInfo
 {
-    /**
-     * @var string Default startup mode, utilizes the AppStartup implementation of the IAppStartup interface.
-     */
-    const STARTUP_DEFAULT = 2;
-
-    /**
-     * @var string Startup mode that utilizes the AppStartupJsonCache implementation of the IAppStartup interface.
-     */
-    const STARTUP_JSON_CACHE = 4;
-
-    /**
-     * @var int Determines which IAppStartup implementation will be instantiated for each app. Supported modes
-     *          are represented by the following class constants:
-     *          - self::STARTUP_DEFAULT    Use the AppStartup implementation of the IAppStartup interface,
-     *                                     which does not use a caching mechanism. (Default)
-     *          - self::STARTUP_JSON_CACHE Use the AppStartupJsonCache implementation of the IAppStartup
-     *                                     interface, which uses JSON as a caching mechanism.
-     */
-    private $startupMode = self::STARTUP_DEFAULT;
-
     /**
      * @var string The path to the Darling Cms apps directory.
      */
@@ -85,15 +68,6 @@ class AppInfo
      * AppInfo constructor. Sets the startup mode, determines the path to the apps directory, determines
      * the paths to each app's AppConfig.php file, determines each app's namespace, and instantiates the
      * appropriate IAppStartup implementation for each app based on the $startupMode.
-     * @param int $startupMode The mode to use for startup. This parameter determines which IAppStartup
-     *                         implementation will be instantiated for each app. Supported modes are
-     *                         represented by the following class constants:
-     *
-     *          - AppInfo::STARTUP_DEFAULT    Use the AppStartup implementation of the IAppStartup interface,
-     *                                        which does not use a caching mechanism. (Default)
-     *
-     *         - AppInfo::STARTUP_JSON_CACHE Use the AppStartupJsonCache implementation of the IAppStartup
-     *                                        interface, which uses JSON as a caching mechanism.
      * @param string ...$excludeApp Name of the app(s) that should be excluded from this AppInfo instance.
      *                              Note: To set more then one app to be excluded from this App Info instance,
      *                              pass additional app names as additional parameters.
@@ -105,13 +79,12 @@ class AppInfo
      * @see AppInfo::setAppConfigObjects()
      * @see AppInfo::setAppStartupObjects()
      */
-    public function __construct(int $startupMode = 2, string ...$excludeApp)
+    public function __construct(string ...$excludeApp)
     {
-        $this->startupMode = $startupMode;
         foreach ($excludeApp as $app) {
             $this->excludeApp($app);
         }
-        $this->appDirPath = str_replace('core/classes/info', 'apps', __DIR__);
+        $this->appDirPath = CoreValues::getAppsRootDirPath();
         $this->setAppConfigPaths();
         $this->setAppNamespaces();
         $this->setAppConfigObjects();
@@ -137,7 +110,7 @@ class AppInfo
      */
     private function setAppConfigPaths(): void
     {
-        $appDirIterator = new \DirectoryIterator($this->appDirPath);
+        $appDirIterator = new DirectoryIterator($this->appDirPath);
         foreach ($appDirIterator as $directoryIterator) {
             $appConfigPath = $directoryIterator->getRealPath() . '/AppConfig.php';
             if (in_array($directoryIterator->getFilename(), $this->excludedApps, true) === false && $directoryIterator->isDir() === true && $directoryIterator->isDot() === false) {
@@ -232,14 +205,7 @@ class AppInfo
     private function setAppStartupObjects(): void
     {
         foreach ($this->appConfigObjects as $appConfigObject) {
-            switch ($this->startupMode) {
-                case self::STARTUP_DEFAULT:
-                    array_push($this->appStartupObjects, new AppStartup($appConfigObject));
-                    break;
-                case self::STARTUP_JSON_CACHE:
-                    array_push($this->appStartupObjects, new AppStartupJsonCache($appConfigObject));
-                    break;
-            }
+            array_push($this->appStartupObjects, new AppStartup($appConfigObject));
         }
     }
 
@@ -247,7 +213,7 @@ class AppInfo
      * Returns an array of IAppStartup implementations instantiated for each app.
      * Note: The returned array will not include IAppStartup implementation instances for apps assigned
      * to the $excludedApps property's array, i.e. apps that were passed to the excludeApp() method.
-     * @return array An array of IAppStartup implementations instantiated for each app.
+     * @return array|IAppStartup An array of IAppStartup implementations instantiated for each app.
      * @see $excludedApps
      * @see AppInfo::excludeApp()
      */
