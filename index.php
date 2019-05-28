@@ -20,7 +20,7 @@ switch (CoreValues::siteConfigured()) {
         break;
     default:
         /** Initialize the user interface. **/
-        $CoreHtmlUserInterface = new CoreHtmlUserInterface(new MultiAppStartup(new AppInfo(AppInfo::STARTUP_DEFAULT)));
+        $CoreHtmlUserInterface = new CoreHtmlUserInterface(new MultiAppStartup(new AppInfo()));
         /** Display the user interface. **/
         echo $CoreHtmlUserInterface->getUserInterface();
         break;
