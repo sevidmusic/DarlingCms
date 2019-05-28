@@ -1,13 +1,12 @@
 <?php
 /**
- * Created by PhpStorm.
+ * Created by Sevi Donnelly Foreman.
  * User: sevidmusic
  * Date: 10/6/18
  * Time: 2:17 AM
  */
 
 namespace DarlingCms\classes\startup;
-
 
 use DarlingCms\classes\staticClasses\core\CoreValues;
 use DarlingCms\interfaces\accessControl\IAppConfig;
@@ -223,6 +222,7 @@ class AppStartup implements IAppStartup
      *
      *
      * @return array The array of paths assigned to the $paths property's array.
+     *
      * @see AppStartup::ROOT_DIR_INDEX
      * @see AppStartup::ROOT_URL_INDEX
      * @see AppStartup::APPS_DIR_INDEX
@@ -237,21 +237,27 @@ class AppStartup implements IAppStartup
     }
 
     /**
-     * Handles startup logic. Specifically, compiles the app's output, and sets the paths to the css files, and
-     * javascript files, belonging to the themes and javascript libraries assigned to the app, respectively.
+     * Handles startup logic. Specifically, compiles the app's output, and assigns the
+     * paths to the css files and javascript files belonging to the themes and javascript
+     * libraries assigned to the app to the arrays of css and js paths in the $paths
+     * property's array, respectively.
      *
-     * WARNING: If the app's IAppConfig implementation's validateAccess() method returns false, the app will not
-     * be started up, the paths to the css files, and javascript files, belonging to the themes and javascript
-     * libraries assigned to the app will not be set, and this method will return false.
+     * WARNING: If the app's IAppConfig implementation's validateAccess() method returns
+     * false, the app will not be started up, the paths to the css files, and javascript
+     * files, belonging to the themes and javascript libraries assigned to the app will
+     * not be set, and this method will return false.
      *
-     * WARNING: If the app's APPNAME.php file does not exist, this method will log an error and return false.
-     * e.g., if an attempt is made to startup an app named helloWorld, and helloWorld does not provide a
-     * helloWorld.php file, this method will log an error and return false.
+     * WARNING: If the app's APPNAME.php file does not exist, this method will log an
+     * error and return false. e.g., if an attempt is made to startup an app named
+     * helloWorld, and helloWorld does not provide a helloWorld.php file, this method
+     * will log an error and return false.
      *
-     * WARNING: If the app's APPNAME.php file does not exist, the paths to the css files, and javascript files,
-     * belonging to the themes and javascript libraries assigned to the app will not be set.
+     * WARNING: If the app's APPNAME.php file does not exist, the paths to the css
+     * files, and javascript files, belonging to the themes and javascript libraries
+     * assigned to the app will not be set.
      *
      * @return bool True if startup was successful, false otherwise.
+     *
      * @see IAppConfig::validateAccess()
      * @see AppStartup::setCssPaths()
      * @see AppStartup::setJsPaths()
@@ -267,9 +273,11 @@ class AppStartup implements IAppStartup
     }
 
     /**
-     * Includes the app's APP_NAME.php file to get the app's output. If include is successful, the output
-     * is assigned to the $appOutput property.
+     * Includes the app's APP_NAME.php file to get the app's output. If include
+     * is successful, the output is assigned to the $appOutput property.
+     *
      * @return bool True if app output was included successfully, false otherwise.
+     *
      * @see AppStartup::APPS_DIR_INDEX
      * @see IAppConfig::getName()
      */
@@ -278,7 +286,7 @@ class AppStartup implements IAppStartup
         $appFilePath = $this->paths[self::APPS_DIR_INDEX] . $this->appConfig->getName() . '/' . $this->appConfig->getName() . '.php';
         ob_start();
         if (file_exists($appFilePath) === false) {
-            error_log('Darling Cms Startup Error: Failed to start app ' . $this->appConfig->getName() . '. The ' . str_replace('core/classes/startup', 'apps/' . $this->appConfig->getName() . '/', __DIR__) . $this->appConfig->getName() . '.php file does not exist.');
+            error_log("Darling Cms Startup Error: Failed to start app {$this->appConfig->getName()}. The {$appFilePath} file does not exist.");
             return false;
         }
         include_once $appFilePath;
@@ -287,8 +295,9 @@ class AppStartup implements IAppStartup
     }
 
     /**
-     * Assigns the paths to the css files belonging to the themes assigned to the app to the array assigned to
-     * the CSS_PATHS_INDEX in the $paths property's array.
+     * Assigns the paths to the css files belonging to the themes assigned to the app to
+     * the array assigned to the CSS_PATHS_INDEX in the $paths property's array.
+     *
      * @see IAppConfig::getThemeNames()
      * @see AppStartup::getDirectoryListing()
      * @see AppStartup::ROOT_DIR_INDEX
@@ -308,8 +317,10 @@ class AppStartup implements IAppStartup
     }
 
     /**
-     * Assigns the paths to the javascript files belonging to the javascript libraries assigned to the app to
-     * the array assigned to the JS_PATHS_INDEX in the $paths property's array.
+     * Assigns the paths to the javascript files belonging to the javascript libraries
+     * assigned to the app to the array assigned to the JS_PATHS_INDEX in the $paths
+     * property's array.
+     *
      * @see IAppConfig::getJsLibraryNames()
      * @see AppStartup::getDirectoryListing()
      * @see AppStartup::ROOT_DIR_INDEX
@@ -330,9 +341,13 @@ class AppStartup implements IAppStartup
 
     /**
      * Returns an array of file names of files of a specified type from a specified directory.
+     *
      * @param string $path The path to the directory.
+     *
      * @param string $type The file extension of the type of files to include in the array.
+     *
      * @return array Array of file names of files of a specified type from a specified directory.
+     *
      * @see \DirectoryIterator
      * @see \DirectoryIterator::isDot()
      * @see \DirectoryIterator::getExtension()
@@ -353,11 +368,14 @@ class AppStartup implements IAppStartup
     }
 
     /**
-     * Handles shutdown logic. Specifically, resets the $appOutput property to an empty string, resets the array
-     * assigned to the AppStartup::CSS_PATHS_INDEX index in the $paths property's array back to an empty array,
-     * and resets the array assigned to the AppStartup::JS_PATHS_INDEX index in the $paths property's array back
-     * to an empty array.
+     * Handles shutdown logic. Specifically, resets the $appOutput property to an empty
+     * string, resets the array assigned to the AppStartup::CSS_PATHS_INDEX index in
+     * the $paths property's array back to an empty array, and resets the array assigned
+     * to the AppStartup::JS_PATHS_INDEX index in the $paths property's array back to an
+     * empty array.
+     *
      * @return bool True if shutdown was successful, false otherwise.
+     *
      * @see AppStartup::CSS_PATHS_INDEX
      * @see AppStartup::JS_PATHS_INDEX
      */
@@ -371,7 +389,10 @@ class AppStartup implements IAppStartup
 
     /**
      * Handles restart logic. Calls the shutdown() method, and then the startup() method.
-     * @return bool True if restart was successful, i.e. shutdown and startup were both successful, false otherwise.
+     *
+     * @return bool True if restart was successful, i.e. shutdown and startup were both
+     *              successful, false otherwise.
+     *
      * @see AppStartup::shutdown()
      * @see AppStartup::startup()
      */
