@@ -9,8 +9,10 @@ namespace DarlingCms\classes\startup;
 
 use DarlingCms\interfaces\accessControl\IAppConfig;
 use DarlingCms\interfaces\startup\IAppStartup;
+use DirectoryIterator;
 
-/**
+/** @todo Deprecate this class
+ * @deprecated
  * Class AppStartup. Defines an implementation of the IAppStartup interface that is responsible for starting up
  * a single Darling Cms app. Note: This implementation will cache the app's output on startup. Consequently, if
  * an attempt is made by any instance of this class to startup an app that was already started up, either by the
@@ -422,7 +424,7 @@ class AppStartupJsonCache implements IAppStartup
     {
         $directoryListing = array();
         if (is_dir($path) === true) {
-            $directoryIterator = new \DirectoryIterator($path);
+            $directoryIterator = new DirectoryIterator($path);
             foreach ($directoryIterator as $directory) {
                 if ($directory->isFile() === true && $directory->isDot() === false && $directory->getExtension() === $type) {
                     array_push($directoryListing, $directory->getFilename());
