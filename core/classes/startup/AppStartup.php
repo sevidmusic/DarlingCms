@@ -12,10 +12,14 @@ namespace DarlingCms\classes\startup;
 use DarlingCms\classes\staticClasses\core\CoreValues;
 use DarlingCms\interfaces\accessControl\IAppConfig;
 use DarlingCms\interfaces\startup\IAppStartup;
+use DirectoryIterator;
 
 /**
- * Class AppStartup
+ * Class AppStartup. Implementation of the IAppStartup interface that can be used to
+ * startup a single app.
+ *
  * @package DarlingCms\classes\startup
+ *
  * @see AppStartup::ROOT_DIR_INDEX
  * @see AppStartup::ROOT_URL_INDEX
  * @see AppStartup::APPS_DIR_INDEX
@@ -38,62 +42,76 @@ use DarlingCms\interfaces\startup\IAppStartup;
 class AppStartup implements IAppStartup
 {
     /**
-     * @var string Value of the index assigned to the root directory's absolute path in the $paths property's array.
+     * @var string Value of the index assigned to the root directory's absolute path in
+     *             the $paths property's array.
      */
     const ROOT_DIR_INDEX = 'rootDir';
 
     /**
-     * @var string Value of the index assigned to the root url in the $paths property's array.
+     * @var string Value of the index assigned to the root url in the $paths
+     *             property's array.
      */
     const ROOT_URL_INDEX = 'rootUrl';
 
     /**
-     * @var string Value of the index assigned to the apps directory's absolute path in the $paths property's array.
+     * @var string Value of the index assigned to the apps directory's absolute path in
+     *             the $paths property's array.
      */
     const APPS_DIR_INDEX = 'appsDir';
 
     /**
-     * @var string Value of the index assigned to the themes directory's relative path in the $paths property's array.
+     * @var string Value of the index assigned to the themes directory's relative path in
+     *             the $paths property's array.
      */
     const THEMES_DIR_INDEX = 'themesDir';
 
     /**
-     * @var string Value of the index assigned to the js directory's relative path in the $paths property's array.
+     * @var string Value of the index assigned to the js directory's relative path in the
+     *             $paths property's array.
      */
     const JS_DIR_INDEX = 'jsDir';
 
     /**
-     * @var string Value of the index assigned to the array of css paths in the $paths property's array.
+     * @var string Value of the index assigned to the array of css paths in the $paths
+     *             property's array.
      */
     const CSS_PATHS_INDEX = 'cssPaths';
 
     /**
-     * @var string Value of the index assigned to the array of js paths in the $paths property's array.
+     * @var string Value of the index assigned to the array of js paths in the $paths
+     *             property's array.
      */
     const JS_PATHS_INDEX = 'jsPaths';
 
     /**
-     * @var array Array of paths set by the __construct() method, and, if startup was successful, the startup() method.
+     * @var array Array of paths set by the __construct() method, and, if startup was
+     *            successful, the startup() method.
      */
     private $paths = array();
 
     /**
-     * @var IAppConfig Local instance of an object that implements the IAppConfig interface. This property's value
-     * is set by the __construct() method upon instantiation. This will most likely be the App's implementation of
-     * the IAppConfig interface.
+     * @var IAppConfig Local instance of an object that implements the
+     *                 IAppConfig interface. This property's value is
+     *                 set by the __construct() method upon instantiation.
+     *                 This will most likely be an instance of the App's
+     *                 implementation of the IAppConfig interface.
      */
     private $appConfig;
 
     /**
-     * @var string The app's output, or an empty string if there is no output, or app failed to startup.
+     * @var string The app's output, or, if there is no output, or if the app failed
+     *             to startup, an empty string.
      */
     private $appOutput = '';
 
     /**
-     * AppStartup constructor. Injects an instance of an object that implements the IAppConfig interface, determines
-     * the path to the Darling Cms root directory, and initializes the $paths property's array.
-     * @param IAppConfig $appConfig An instance of an object that implements the IAppConfig interface. This will most
-     *                              likely be the App's implementation of the IAppConfig interface.
+     * AppStartup constructor. Injects the specified IAppConfig implementation instance,
+     * and initializes the $paths property's array's initial values.
+     *
+     * @param IAppConfig $appConfig An IAppConfig implantation instance. This will most
+     *                              likely be an instance of the App's implementation of
+     *                              the IAppConfig interface.
+     *
      * @see AppStartup::ROOT_DIR_INDEX
      * @see AppStartup::ROOT_URL_INDEX
      * @see AppStartup::APPS_DIR_INDEX
@@ -105,11 +123,10 @@ class AppStartup implements IAppStartup
     public function __construct(IAppConfig $appConfig)
     {
         $this->appConfig = $appConfig;
-        $rootDir = str_replace('core/classes/startup', '', __DIR__);
         $this->paths = array(
-            self::ROOT_DIR_INDEX => $rootDir,
-            self::ROOT_URL_INDEX => CoreValues::getSiteRootUrl(),//(!empty($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . '/DarlingCms/',
-            self::APPS_DIR_INDEX => $rootDir . 'apps/',
+            self::ROOT_DIR_INDEX => CoreValues::getSiteRootDirPath() . '/',
+            self::ROOT_URL_INDEX => CoreValues::getSiteRootUrl(),
+            self::APPS_DIR_INDEX => CoreValues::getAppsRootDirPath() . '/',
             self::THEMES_DIR_INDEX => 'themes/',
             self::JS_DIR_INDEX => 'js/',
             self::CSS_PATHS_INDEX => array(),
@@ -118,10 +135,13 @@ class AppStartup implements IAppStartup
     }
 
     /**
-     * Returns an array of paths to the css files belonging to the themes assigned to the app, or an empty array
-     * if the app is not assigned any themes, or startup failed.
-     * @return array Array of paths to the css files belonging to the themes assigned to the app, or an empty array
-     *               if the app is not assigned any themes, or startup failed.
+     * Returns an array of paths to the css files belonging to the themes assigned to the
+     * app, or an empty array if the app is not assigned any themes, or startup failed.
+     *
+     * @return array Array of paths to the css files belonging to the themes assigned to
+     *               the app, or an empty array if the app is not assigned any themes,
+     *               or startup failed.
+     *
      * @see AppStartup::CSS_PATHS_INDEX
      */
     public function getCssPaths(): array
@@ -130,10 +150,15 @@ class AppStartup implements IAppStartup
     }
 
     /**
-     * Returns an array of paths to the javascript files belonging to the javascript libraries assigned to the app,
-     * or an empty array if the app is not assigned any javascript libraries, or startup failed.
-     * @return array Array of paths to the javascript files belonging to the javascript libraries assigned to the app,
-     *               or an empty array if the app is not assigned any javascript libraries, or startup failed.
+     * Returns an array of paths to the javascript files belonging to the javascript
+     * libraries assigned to the app, or an empty array if the app is not assigned
+     * any javascript libraries, or startup failed.
+     *
+     * @return array Array of paths to the javascript files belonging to the
+     *               javascript libraries assigned to the app, or an empty
+     *               array if the app is not assigned any javascript
+     *               libraries, or startup failed.
+     *
      * @see AppStartup::JS_PATHS_INDEX
      */
     public function getJsPaths(): array
@@ -142,9 +167,11 @@ class AppStartup implements IAppStartup
     }
 
     /**
-     * Returns the app's output. If app has no output, or the app failed to startup, this method will
-     * return an empty string.
-     * @return string The app's output.
+     * Returns the app's output. If app has no output, or the app failed to startup,
+     * this method will return an empty string.
+     *
+     * @return string The app's output, or if the app has no output, or if the app
+     *                failed to startup, an empty string.
      */
     public function getAppOutput(): string
     {
@@ -152,33 +179,47 @@ class AppStartup implements IAppStartup
     }
 
     /**
-     * Returns an array of the following paths: The absolute path to the Darling Cms root directory, the root url,
-     * the absolute path to the apps directory, the relative path to the themes directory, and the relative path to
-     * the js directory. Additionally, if startup was successful, this array is assigned an array of css file paths,
-     * and an array of javascript file paths, belonging to the themes and javascript libraries assigned to the app,
-     * respectively.
+     * Returns an array of the following paths:
      *
-     * Note: If startup is not successful, the arrays assigned to the CSS_PATHS_INDEX and the JS_PATHS_INDEX will
-     * be empty.
+     * - The absolute path to the Darling Cms root directory.
      *
-     * The path values are indexed by the following constants:
+     * - The site's root url.
      *
-     * AppStartup::ROOT_DIR_INDEX : The absolute path to the Darling Cms root directory.
+     * - The absolute path to the Darling Cms apps directory.
      *
-     * AppStartup::ROOT_URL_INDEX : The site's root url.
+     * - The relative path to the Darling Cms themes directory.
      *
-     * AppStartup::APPS_DIR_INDEX : The absolute path to the Darling Cms apps directory.
+     * - The relative path to the Darling Cms js directory.
      *
-     * AppStartup::THEMES_DIR_INDEX : The relative path to the Darling Cms themes directory, i.e., '/themes'.
+     * Additionally, if startup was successful, this array is assigned an array of css
+     * file paths, and an array of javascript file paths, belonging to the themes and
+     * javascript libraries assigned to the app, respectively.
      *
-     * AppStartup::JS_DIR_INDEX : The relative path to the Darling Cms js directory, i.e., '/js'.
+     * Note: If startup is not successful, the arrays assigned to the CSS_PATHS_INDEX
+     * and the JS_PATHS_INDEX will be empty.
      *
-     * AppStartup::CSS_PATHS_INDEX : Array of paths to the css files belonging to the themes assigned to the app,
-     *                               or an empty array if the app is not assigned any themes, or startup failed.
+     * The path values are indexed in the array by the following constants:
      *
-     * AppStartup::JS_PATHS_INDEX : Array of paths to the javascript files belonging to the javascript libraries
-     *                              assigned to the app, or an empty array if the app is not assigned any
-     *                              javascript libraries, or startup failed.
+     * AppStartup::ROOT_DIR_INDEX : Index assigned to the absolute path to the
+     *                              Darling Cms root directory.
+     *
+     * AppStartup::ROOT_URL_INDEX : Index assigned to the site's root url.
+     *
+     * AppStartup::APPS_DIR_INDEX : Index assigned to the absolute path to the
+     *                              Darling Cms apps directory.
+     *
+     * AppStartup::THEMES_DIR_INDEX : Index assigned to the relative path to the
+     *                                Darling Cms themes directory.
+     *
+     * AppStartup::JS_DIR_INDEX : Index assigned to the relative path to the
+     *                            Darling Cms js directory.
+     *
+     * AppStartup::CSS_PATHS_INDEX : Index assigned to the array of paths to the css
+     *                               files belonging to the themes assigned to the app.
+     *
+     * AppStartup::JS_PATHS_INDEX : Index assigned to the array of paths to the javascript
+     *                              files belonging to the javascript libraries assigned
+     *                              to the app.
      *
      *
      * @return array The array of paths assigned to the $paths property's array.
@@ -301,7 +342,7 @@ class AppStartup implements IAppStartup
     {
         $directoryListing = array();
         if (is_dir($path) === true) {
-            $directoryIterator = new \DirectoryIterator($path);
+            $directoryIterator = new DirectoryIterator($path);
             foreach ($directoryIterator as $directory) {
                 if ($directory->isFile() === true && $directory->isDot() === false && $directory->getExtension() === $type) {
                     array_push($directoryListing, $directory->getFilename());
