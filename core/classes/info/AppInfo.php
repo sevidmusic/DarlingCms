@@ -10,12 +10,16 @@ namespace DarlingCms\classes\info;
 use DarlingCms\classes\startup\AppStartup;
 use DarlingCms\classes\startup\AppStartupJsonCache;
 use DarlingCms\classes\staticClasses\core\CoreValues;
+use DarlingCms\interfaces\accessControl\IAppConfig;
 use DarlingCms\interfaces\startup\IAppStartup;
 use DirectoryIterator;
 
 /**
- * Class AppInfo. Provides information about installed apps necessary for startup and configuration.
+ * Class AppInfo. Provides information about installed apps necessary for startup
+ * and configuration.
+ *
  * @package DarlingCms\classes\info
+ *
  * @see AppInfo::setAppConfigPaths()
  * @see AppInfo::getAppConfigPaths()
  * @see AppInfo::setAppNamespaces()
@@ -36,8 +40,9 @@ class AppInfo
     private $appDirPath = '';
 
     /**
-     * @var array Array of apps that will be excluded. Note: Use the excludeApp() method to assign apps to
-     *            the $excludedApps property's array.
+     * @var array Array of apps that will be excluded. Note: Use the excludeApp()
+     *            method to assign apps to the $excludedApps property's array.
+     *
      * @see AppInfo::excludeApp()
      */
     private $excludedApps = array();
@@ -54,23 +59,29 @@ class AppInfo
 
     /**
      * @var array Array of the IAppConfig implementations defined by each app.
+     *
+     * @see IAppConfig
      */
     private $appConfigObjects = array();
 
     /**
-     * @var array Array of IAppStartup implementations for each app. Note: The $startupMode property determines
-     *            which IAppStartup implementation will be instantiated for each app.
-     * @see $startupMode
+     * @var array Array of IAppStartup implementations for each app.
+     *
+     * @see IAppStartup
      */
     private $appStartupObjects = array();
 
     /**
-     * AppInfo constructor. Sets the startup mode, determines the path to the apps directory, determines
-     * the paths to each app's AppConfig.php file, determines each app's namespace, and instantiates the
-     * appropriate IAppStartup implementation for each app based on the $startupMode.
-     * @param string ...$excludeApp Name of the app(s) that should be excluded from this AppInfo instance.
-     *                              Note: To set more then one app to be excluded from this App Info instance,
-     *                              pass additional app names as additional parameters.
+     * AppInfo constructor. Determines the path to the apps directory,
+     * determines the paths to each app's AppConfig.php file, determines
+     * each app's namespace, and instantiates an appropriate IAppStartup
+     * implementation for each app.
+     *
+     * @param string ...$excludeApp Name of the app(s) that should be excluded from
+     *                              this AppInfo instance.
+     *                              Note: To set more then one app to be excluded from
+     *                              this App Info instance, pass additional app names
+     *                              as additional parameters.
      * @see $startupMode
      * @see $excludedApps
      * @see AppInfo::excludeApp()
