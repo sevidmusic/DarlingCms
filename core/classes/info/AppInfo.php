@@ -15,8 +15,8 @@ use DarlingCms\interfaces\startup\IAppStartup;
 use DirectoryIterator;
 
 /**
- * Class AppInfo. Provides information about installed apps necessary for startup
- * and configuration.
+ * Class AppInfo. Provides information about installed apps, including information
+ * necessary for startup and configuration.
  *
  * @package DarlingCms\classes\info
  *
@@ -35,11 +35,6 @@ use DirectoryIterator;
 class AppInfo
 {
     /**
-     * @var string The path to the Darling Cms apps directory.
-     */
-    private $appDirPath = '';
-
-    /**
      * @var array Array of apps that will be excluded. Note: Use the excludeApp()
      *            method to assign apps to the $excludedApps property's array.
      *
@@ -48,7 +43,7 @@ class AppInfo
     private $excludedApps = array();
 
     /**
-     * @var array Array of paths to the AppConfig.php files for each app.
+     * @var array Array of paths to each app's respective AppConfig.php file.
      */
     private $appConfigPaths = array();
 
@@ -58,32 +53,31 @@ class AppInfo
     private $appNamespaces = array();
 
     /**
-     * @var array Array of the IAppConfig implementations defined by each app.
+     * @var array Array of instances of each app's respective IAppConfig implementation.
      *
      * @see IAppConfig
      */
     private $appConfigObjects = array();
 
     /**
-     * @var array Array of IAppStartup implementations for each app.
+     * @var array Array of instances of each app's respective IAppStartup implementation.
      *
      * @see IAppStartup
      */
     private $appStartupObjects = array();
 
     /**
-     * AppInfo constructor. Determines the path to the apps directory,
-     * determines the paths to each app's AppConfig.php file, determines
-     * each app's namespace, and instantiates an appropriate IAppStartup
-     * implementation for each app.
+     * AppInfo constructor. Determines the absolute path to the apps directory,
+     * determines the paths to each app's AppConfig.php file, determines each
+     * app's namespace, and instantiates an appropriate IAppStartup implementation
+     * instance for each app.
      *
      * @param string ...$excludeApp Name of the app(s) that should be excluded from
      *                              this AppInfo instance.
      *                              Note: To set more then one app to be excluded from
      *                              this App Info instance, pass additional app names
      *                              as additional parameters.
-     * @see $startupMode
-     * @see $excludedApps
+     *
      * @see AppInfo::excludeApp()
      * @see AppInfo::setAppConfigPaths()
      * @see AppInfo::setAppNamespaces()
@@ -95,7 +89,6 @@ class AppInfo
         foreach ($excludeApp as $app) {
             $this->excludeApp($app);
         }
-        $this->appDirPath = CoreValues::getAppsRootDirPath();
         $this->setAppConfigPaths();
         $this->setAppNamespaces();
         $this->setAppConfigObjects();
@@ -103,25 +96,29 @@ class AppInfo
     }
 
     /**
-     * Determines the path to each app's AppConfig.php file, and assigns it to the the $appConfigPaths property's
-     * array.
+     * Determines the absolute path to each app's AppConfig.php file and assigns
+     * it to the the $appConfigPaths property's array.
      *
-     * WARNING: This method will not assign a path to the $appConfigPaths property's array for any apps that do not
-     * provide an AppConfig.php file. Furthermore, this method will log an error for any apps that do not provide
-     * an AppConfig.php file.
+     * WARNING: This method will not assign a path to the $appConfigPaths property's
+     * array for any apps that do not provide an AppConfig.php file. Furthermore,
+     * this method will log an error for any apps that do not provide an
+     * AppConfig.php file.
      *
-     * WARNING: This method will not assign a path to the $appConfigPaths property's array for any apps that are
-     * assigned to the $excludedApps property's array, i.e., apps that were passed to the excludeApp() method.
+     * WARNING: This method will not assign a path to the $appConfigPaths property's
+     * array for any apps that are assigned to the $excludedApps property's array,
+     * i.e., apps that were passed to the excludeApp() method.
+     *
      * @see $excludedApps
      * @see AppInfo::excludeApp()
      * @see \DirectoryIterator
      * @see \DirectoryIterator::getRealPath()
+     * @see \DirectoryIterator::getFilename()
      * @see \DirectoryIterator::isDir()
      * @see \DirectoryIterator::isDot()
      */
     private function setAppConfigPaths(): void
     {
-        $appDirIterator = new DirectoryIterator($this->appDirPath);
+        $appDirIterator = new DirectoryIterator($this->getAppDirPath());
         foreach ($appDirIterator as $directoryIterator) {
             $appConfigPath = $directoryIterator->getRealPath() . '/AppConfig.php';
             if (in_array($directoryIterator->getFilename(), $this->excludedApps, true) === false && $directoryIterator->isDir() === true && $directoryIterator->isDot() === false) {
@@ -139,11 +136,12 @@ class AppInfo
 
     /**
      * Returns an array of paths to the AppConfig.php files defined by each app.
-     * Note: The returned array will not include paths to AppConfig.php files that belong to apps assigned
-     * to the $excludedApps property's array, i.e., apps that were passed to the excludeApp() method.
+     *
+     * Note: The returned array will not include paths to AppConfig.php files
+     * that belong to apps assigned to the $excludedApps property's array,
+     * i.e., apps that were passed to the excludeApp() method.
+     *
      * @return array An array of paths to the AppConfig.php files defined by each app.
-     * @see $excludedApps
-     * @see AppInfo::excludeApp()
      */
     public function getAppConfigPaths(): array
     {
@@ -151,7 +149,8 @@ class AppInfo
     }
 
     /**
-     * Determines each app's namespace and assigns it to the $appNamespaces property's array.
+     * Determines each app's namespace and assigns it to the $appNamespaces
+     * property's array.
      */
     private function setAppNamespaces(): void
     {
@@ -162,11 +161,13 @@ class AppInfo
 
     /**
      * Returns an array of namespaces for each app.
-     * Note: The returned array will not include namespaces that belong to apps assigned to the
-     * $excludedApps property's array, i.e., apps that were passed to the excludeApp() method.
+     *
+     * Note: The returned array will not include namespaces that belong to apps assigned
+     * to the $excludedApps property's array, i.e., apps that were passed to the
+     * excludeApp() method.
+     *
      * @return array An array of namespaces for each app.
-     * @see $excludedApps
-     * @see AppInfo::excludeApp()
+     *
      */
     public function getAppNamespaces(): array
     {
@@ -174,11 +175,13 @@ class AppInfo
     }
 
     /**
-     * Instantiates each app's DarlingCms\interfaces\accessControl\IAppConfig implementation.
+     * Instantiates an instance of each app's respective IAppConfig implementation.
      *
-     * WARNING: This method will not perform instantiation, and will log an error for any apps that do not define
-     * an AppConfig class, or any app's that define an AppConfig class that does not implement the
-     * DarlingCms\interfaces\accessControl\IAppConfig interface.
+     * WARNING: This method will not perform instantiation, and will log an error
+     * for any apps that do not define an AppConfig class, or any app's that define
+     * an AppConfig class that does not implement
+     * the DarlingCms\interfaces\accessControl\IAppConfig interface.
+     *
      * @see IAppConfig
      */
     private function setAppConfigObjects(): void
@@ -196,11 +199,13 @@ class AppInfo
 
     /**
      * Returns an array of IAppConfig implementations defined by each app.
-     * Note: The returned array will not include IAppConfig implementations defined by apps assigned
-     * to the $excludedApps property's array, i.e., apps that were passed to the excludeApp() method.
+     *
+     * Note: The returned array will not include IAppConfig implementations
+     * defined by apps assigned to the $excludedApps property's array,
+     * i.e., apps that were passed to the excludeApp() method.
+     *
      * @return array An array of IAppConfig implementations defined by each app.
-     * @see $excludedApps
-     * @see AppInfo::excludeApp()
+     *
      */
     public function getAppConfigObjects(): array
     {
@@ -208,10 +213,13 @@ class AppInfo
     }
 
     /**
-     * Instantiates an IAppStartup implementation for each app.
+     * Instantiates an IAppStartup implementation instance for each app.
+     *
+     * Note: At the moment, the \DarlingCms\classes\startup\AppStartup
+     * implementation of the IAppStartup interface is used for all apps.
+     *
      * @see IAppStartup
      * @see AppStartup
-     * @see AppStartupJsonCache
      */
     private function setAppStartupObjects(): void
     {
@@ -221,12 +229,15 @@ class AppInfo
     }
 
     /**
-     * Returns an array of IAppStartup implementations instantiated for each app.
-     * Note: The returned array will not include IAppStartup implementation instances for apps assigned
-     * to the $excludedApps property's array, i.e. apps that were passed to the excludeApp() method.
-     * @return array|IAppStartup An array of IAppStartup implementations instantiated for each app.
-     * @see $excludedApps
-     * @see AppInfo::excludeApp()
+     * Returns an array of IAppStartup implementation instances instantiated for each app.
+     *
+     * Note: The returned array will not include IAppStartup implementation instances
+     * for apps assigned to the $excludedApps property's array, i.e. apps that were
+     * passed to the excludeApp() method.
+     *
+     * @return array|IAppStartup An array of IAppStartup implementations instances
+     *                           instantiated for each app.
+     *
      */
     public function getAppStartupObjects(): array
     {
@@ -235,18 +246,23 @@ class AppInfo
 
     /**
      * Returns the path to the apps directory.
+     *
      * @return string The path to the apps directory.
+     *
+     * @see CoreValues::getAppsRootDirPath()
      */
     public function getAppDirPath(): string
     {
-        return $this->appDirPath;
+        return CoreValues::getAppsRootDirPath();
     }
 
     /**
      * Exclude the specified app(s) from this App Info instance.
-     * @param string ...$appName The name of the app to exclude from this App Info instance. To set more then one
-     *                           app to be excluded from this App Info instance, pass additional app names as
-     *                           additional parameters.
+     *
+     * @param string ...$appName The name of the app to exclude from
+     *                           this App Info instance. To set more then one
+     *                           app to be excluded from this App Info instance,
+     *                           pass additional app names as additional parameters.
      */
     public function excludeApp(string ...$appName): void
     {
@@ -256,9 +272,11 @@ class AppInfo
     }
 
     /**
-     * Returns an array of the apps that will be excluded from this App Info instance, i.e., apps that were passed to
-     * the excludeApp() method.
-     * @return array An array of the apps that will be excluded from this App Info instance.
+     * Returns an array of the apps that will be excluded from this AppInfo
+     * instance, i.e., apps that were passed to the excludeApp() method.
+     *
+     * @return array An array of the apps that will be excluded from this
+     *               AppInfo instance.
      */
     public function getExcludedApps(): array
     {
