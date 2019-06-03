@@ -34,6 +34,32 @@ interface IAppRegion extends IClassifiable
     const APPEND = 2;
 
     /**
+     * @var int Interface constant that defines a value that can be
+     *          used to indicate that this IAppRegion implementation
+     *          instance type is contained. For example, this value may
+     *          be returned by the implementations getType() method.
+     *
+     * Note: This value is specifically designed to be used in regards to
+     *       the app regions type.
+     *
+     * @see IAppRegion::getType()
+     */
+    const CONTAINED = 'contained';
+
+    /**
+     * @var int Interface constant that defines a value that can be
+     *          used to indicate that this IAppRegion implementation
+     *          instance type is un-contained. For example, this value may
+     *          be returned by the implementations getType() method.
+     *
+     * Note: This value is specifically designed to be used in regards to
+     *       the app regions type.
+     *
+     * @see IAppRegion::getType()
+     */
+    const UN_CONTAINED = 'un-contained';
+
+    /**
      * Add a app to the end of the region.
      *
      * @param string $appName The name of the app to add.
