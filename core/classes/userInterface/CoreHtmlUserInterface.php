@@ -38,7 +38,7 @@ class CoreHtmlUserInterface extends DOMDocument implements IHtmlPage, IUserInter
     /**
      * @var IAppStartup $appStartup Local instance of an object that implements the IAppStartup interface.
      */
-    private $appStartup;
+    protected $appStartup;
 
     /**
      * @var array Array of css link tags to assign to the head.
