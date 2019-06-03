@@ -7,8 +7,11 @@
 
 namespace DarlingCms\classes\startup;
 
+use DarlingCms\classes\config\EmptyAppConfig;
 use DarlingCms\classes\info\AppInfo;
+use DarlingCms\interfaces\accessControl\IAppConfig;
 use DarlingCms\interfaces\startup\IAppStartup;
+use DarlingCms\interfaces\startup\IMultiAppStartup;
 
 /**
  * Class MultiAppStartup. Defines an implementation of the IAppStartup interface that
@@ -26,7 +29,7 @@ use DarlingCms\interfaces\startup\IAppStartup;
  * @see MultiAppStartup::shutdown()
  * @see MultiAppStartup::restart()
  */
-class MultiAppStartup implements IAppStartup
+class MultiAppStartup implements IAppStartup, IMultiAppStartup
 {
     /**
      * @var string Index assigned to the value of the absolute path to the
@@ -274,4 +277,50 @@ class MultiAppStartup implements IAppStartup
         }
         return !in_array(false, $status, true);
     }
+
+    /**
+     * Returns the specified app's output, or an empty string if the specified
+     * app does not have any output, or if the attempt to get the app's output
+     * failed.
+     *
+     * WARNING: This method will return an empty string in the case of failure
+     *          as well as if the app does not have any output, so it is not
+     *          reliable to test if this method's return value is empty to
+     *          determine whether or not this method was successful.
+     *
+     * @param string $appName The name of the app whose output should be returned.
+     *
+     * @return string The specified app's output, or an empty string if the
+     *                specified app does not have any output, or if the attempt
+     *                to get the app's output failed.
+     */
+    public function getSpecifiedAppOutput(string $appName): string
+    {
+        /**
+         * @var IAppStartup $startupObject The IAppStartup implementation instance being
+         *                                 processed.
+         */
+        foreach ($this->appInfo->getAppStartupObjects() as $startupObject) {
+            if ($startupObject->getAppConfig()->getName() === $appName) {
+                return $startupObject->getAppOutput();
+            }
+        }
+        error_log(sprintf("MultiAppStartup Error: Failed to get output from app %s. The specified app either failed to startup or does not exist.", $appName));
+        return '';
+    }
+
+    /**
+     * Since this class handles multiple apps, this method simply returns a
+     * generic instance of an IAppConfig implementation, specifically, an
+     * instance of the "core" EmptyAppConfig implementation of the IAppConfig
+     * interface.
+     *
+     * @return IAppConfig A generic instance of an IAppConfig implementation.
+     */
+    public function getAppConfig(): IAppConfig
+    {
+        return new EmptyAppConfig();
+    }
+
+
 }
