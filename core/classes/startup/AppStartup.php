@@ -340,13 +340,16 @@ class AppStartup implements IAppStartup
     }
 
     /**
-     * Returns an array of file names of files of a specified type from a specified directory.
+     * Returns an array of file names of files of a specified type from a
+     * specified directory.
      *
      * @param string $path The path to the directory.
      *
-     * @param string $type The file extension of the type of files to include in the array.
+     * @param string $type The file extension of the type of files to include
+     *                     in the array.
      *
-     * @return array Array of file names of files of a specified type from a specified directory.
+     * @return array Array of file names of files of a specified type from a
+     *               specified directory.
      *
      * @see \DirectoryIterator
      * @see \DirectoryIterator::isDot()
