@@ -401,4 +401,15 @@ class AppStartup implements IAppStartup
         return ($this->shutdown() === true && $this->startup() === true);
     }
 
+    /**
+     * Returns an instance of the app's IAppConfig implementation.
+     *
+     * @return IAppConfig An instance of the app's IAppConfig implementation.
+     */
+    public function getAppConfig(): IAppConfig
+    {
+        return $this->appConfig;
+    }
+
+
 }
