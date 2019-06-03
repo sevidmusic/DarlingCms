@@ -15,8 +15,8 @@ use DarlingCms\interfaces\startup\IAppStartup;
 use DirectoryIterator;
 
 /**
- * Class AppInfo. Provides information about installed apps, including information
- * necessary for startup and configuration.
+ * Class AppInfo. Provides information about installed Darling Cms apps,
+ * including information necessary for startup and configuration.
  *
  * @package DarlingCms\classes\info
  *
@@ -29,18 +29,64 @@ use DirectoryIterator;
  * @see AppInfo::setAppStartupObjects()
  * @see AppInfo::getAppStartupObjects()
  * @see AppInfo::getAppDirPath()
- * @see AppInfo::excludeApp()
- * @see AppInfo::getExcludedApps()
+ * @see AppInfo::addAppName()
+ * @see AppInfo::getAppNames()
  */
 class AppInfo
 {
     /**
-     * @var array Array of apps that will be excluded. Note: Use the excludeApp()
-     *            method to assign apps to the $excludedApps property's array.
-     *
-     * @see AppInfo::excludeApp()
+     * @var int This constant can be passed to the __construct() method's
+     *          $filterMode parameter to indicate this AppInfo instance
+     *          should provide information about all installed Darling
+     *          Cms apps. This is the default.
      */
-    private $excludedApps = array();
+    public const NO_FILTER = 0;
+
+    /**
+     * @var int This constant can be passed to the __construct() method's
+     *          $filterMode parameter to indicate this AppInfo instance
+     *          should only provide information about the Darling Cms apps
+     *          specified in the $appNames property's array.
+     *          i.e., Only provide information on whitelisted apps.
+     */
+    public const WHITELIST = 2;
+
+    /**
+     * @var int This constant can be passed to the __construct() method's
+     *          $filterMode parameter to indicate this AppInfo instance
+     *          should only provide information about the Darling Cms apps
+     *          not specified in the $appNames property's array.
+     *          i.e., Exclude information about blacklisted apps.
+     */
+    public const BLACKLIST = 4;
+
+    /**
+     * @var int Determines which app's information will be provided by
+     *          this AppInfo instance.
+     *
+     *          Note: It is recommended that one of the following class constants
+     *          be used to set this property's value:
+     *
+     *          - AppInfo::NO_FILTER
+     *
+     *          - AppInfo::WHITELIST
+     *
+     *          - AppInfo::BLACKLIST
+     *
+     * @see AppInfo::NO_FILTER
+     * @see AppInfo::WHITELIST
+     * @see AppInfo::BLACKLIST
+     *
+     */
+    private $filterMode = 0;
+
+    /**
+     * @var array Array of the names of the apps whose information will be included or excluded
+     *            depending on the value of the $filterMode property.
+     *
+     * @see AppInfo::$filterMode
+     */
+    private $appNames = array();
 
     /**
      * @var array Array of paths to each app's respective AppConfig.php file.
@@ -66,28 +112,46 @@ class AppInfo
      */
     private $appStartupObjects = array();
 
+
     /**
-     * AppInfo constructor. Determines the absolute path to the apps directory,
-     * determines the paths to each app's AppConfig.php file, determines each
-     * app's namespace, and instantiates an appropriate IAppStartup implementation
-     * instance for each app.
+     * AppInfo constructor. Determines the paths to each app's AppConfig.php file,
+     * determines each app's namespace, instantiates an appropriate IAppConfig
+     * implementation instance for each app, instantiates an appropriate IAppStartup
+     * implementation instance for each app, and determines which app's information
+     * should be provided by this AppInfo instance.
      *
-     * @param string ...$excludeApp Name of the app(s) that should be excluded from
-     *                              this AppInfo instance.
-     *                              Note: To set more then one app to be excluded from
-     *                              this App Info instance, pass additional app names
-     *                              as additional parameters.
+     * @param int $filterMode Determines which app's information will be provided
+     *                        by this AppInfo instance.
      *
-     * @see AppInfo::excludeApp()
+     *                        Note: It is recommended that one of the following class
+     *                        constants be used to set this parameter's value:
+     *
+     *                        - AppInfo::NO_FILTER (Default)
+     *
+     *                        - AppInfo::WHITELIST
+     *
+     *                        - AppInfo::BLACKLIST
+     *
+     * @param string ...$appNames Name of the apps whose information will be included
+     *                            or excluded depending on the value of the $filterMode
+     *                            property, i.e. the value passed to this method's
+     *                            $filterMode parameter.
+     *
+     * @see AppInfo::$filterMode
+     * @see AppInfo::NO_FILTER
+     * @see AppInfo::WHITELIST
+     * @see AppInfo::BLACKLIST
+     * @see AppInfo::$appNames
      * @see AppInfo::setAppConfigPaths()
      * @see AppInfo::setAppNamespaces()
      * @see AppInfo::setAppConfigObjects()
      * @see AppInfo::setAppStartupObjects()
      */
-    public function __construct(string ...$excludeApp)
+    public function __construct($filterMode = 0, string ...$appNames)
     {
-        foreach ($excludeApp as $app) {
-            $this->excludeApp($app);
+        $this->filterMode = $filterMode;
+        foreach ($appNames as $app) {
+            $this->addAppName($app);
         }
         $this->setAppConfigPaths();
         $this->setAppNamespaces();
@@ -108,8 +172,8 @@ class AppInfo
      * array for any apps that are assigned to the $excludedApps property's array,
      * i.e., apps that were passed to the excludeApp() method.
      *
-     * @see $excludedApps
-     * @see AppInfo::excludeApp()
+     * @see $appNames
+     * @see AppInfo::addAppName()
      * @see \DirectoryIterator
      * @see \DirectoryIterator::getRealPath()
      * @see \DirectoryIterator::getFilename()
@@ -119,12 +183,12 @@ class AppInfo
     private function setAppConfigPaths(): void
     {
         $appDirIterator = new DirectoryIterator($this->getAppDirPath());
-        foreach ($appDirIterator as $directoryIterator) {
-            $appConfigPath = $directoryIterator->getRealPath() . '/AppConfig.php';
-            if (in_array($directoryIterator->getFilename(), $this->excludedApps, true) === false && $directoryIterator->isDir() === true && $directoryIterator->isDot() === false) {
+        foreach ($appDirIterator as $appDirectoryIterator) {
+            $appConfigPath = $appDirectoryIterator->getRealPath() . '/AppConfig.php';
+            if ($this->validateApp($appDirectoryIterator->getFilename()) === true && $this->validateAppDirectory($appDirectoryIterator) === true) {
                 switch (file_exists($appConfigPath)) {
                     case false:
-                        error_log('Darling Cms Error: ' . $directoryIterator->getFilename() . ' does not provide an AppConfig.php file.');
+                        error_log('Darling Cms Error: ' . $appDirectoryIterator->getFilename() . ' does not provide an AppConfig.php file.');
                         break;
                     default:
                         array_push($this->appConfigPaths, $appConfigPath);
@@ -132,6 +196,54 @@ class AppInfo
                 }
             }
         }
+    }
+
+
+    /**
+     * Determines whether or not it is valid to provide information about
+     * the specified app. Below is an overview of what is considered valid
+     * based on what the $filterMode property is set to:
+     *
+     * - If the $filterMode property is set to AppInfo::NO_FILTER, then
+     *   all apps will be considered valid.
+     * - If the $filterMode property is set to AppInfo::WHITELIST then
+     *   only the apps that are assigned to the $appNames property's
+     *   array will be considered valid.
+     * - If the $filterMode property is set to AppInfo::BLACKLIST then
+     *   only apps not assigned to the $appNames property's array will
+     *   be considered valid.
+     *
+     * Note: This method will log an error and return false if the $filterMode
+     * property's value is invalid.
+     *
+     * @param string $appName The name of the app to validate.
+     *
+     * @return bool True if it is valid to provide information about the
+     *              specified app, false otherwise.
+     */
+    private function validateApp(string $appName): bool
+    {
+        switch ($this->filterMode) {
+            case self::NO_FILTER:
+                return true;
+            case self::WHITELIST:
+                return in_array($appName, $this->appNames, true) === true;
+            case self::BLACKLIST:
+                return in_array($appName, $this->appNames, true) === false;
+        }
+        error_log(sprintf("AppInfo Error: Invalid filter mode \"%s\". Filter mode must be one of the following: NO_FILTER (%s), WHITELIST (%s), or BLACKLIST (%s)", strval($this->filterMode), self::NO_FILTER, self::WHITELIST, self::BLACKLIST));
+        return false;
+    }
+
+    /**
+     * Determines whether or not a directory is a valid Darling Cms app directory.
+     * @param DirectoryIterator $appDirectoryIterator A DirectoryIterator instance for the
+     *                                                directory being validated.
+     * @return bool True if directory is a valid Darling Cms app directory, false otherwise.
+     */
+    private function validateAppDirectory(DirectoryIterator $appDirectoryIterator): bool
+    {
+        return $appDirectoryIterator->isDir() === true && $appDirectoryIterator->isDot() === false;
     }
 
     /**
@@ -257,17 +369,14 @@ class AppInfo
     }
 
     /**
-     * Exclude the specified app(s) from this App Info instance.
+     * Adds the specified $appName to the $appNames property's array.
      *
-     * @param string ...$appName The name of the app to exclude from
-     *                           this App Info instance. To set more then one
-     *                           app to be excluded from this App Info instance,
-     *                           pass additional app names as additional parameters.
+     * @param string ...$appName The name of the app to add.
      */
-    public function excludeApp(string ...$appName): void
+    public function addAppName(string ...$appName): void
     {
         foreach ($appName as $app) {
-            array_push($this->excludedApps, $app);
+            array_push($this->appNames, $app);
         }
     }
 
@@ -278,8 +387,8 @@ class AppInfo
      * @return array An array of the apps that will be excluded from this
      *               AppInfo instance.
      */
-    public function getExcludedApps(): array
+    public function getAppNames(): array
     {
-        return $this->excludedApps;
+        return $this->appNames;
     }
 }
