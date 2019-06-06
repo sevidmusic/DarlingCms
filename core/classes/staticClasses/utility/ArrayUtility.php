@@ -1,6 +1,5 @@
 <?php
 
-
 namespace DarlingCms\classes\staticClasses\utility;
 
 /**
@@ -9,13 +8,14 @@ namespace DarlingCms\classes\staticClasses\utility;
  */
 class ArrayUtility
 {
-
     /**
      * Returns the key of a specified value in the specified array.
      *
-     * Note: If the value exists at more than key, the key for the first occurrence is returned.
+     * Note: If the value exists at more than key, the key for the first occurrence
+     *       is returned.
      *
-     * Note: If the specified value does not exist in the specified array this method will return false.
+     * Note: If the specified value does not exist in the specified array this method
+     *       will return false.
      *
      * Examples:
      *
@@ -29,7 +29,9 @@ class ArrayUtility
      *
      * @param array $array The array to search.
      *
-     * @return bool|int|string The value's key, or false if the value's key could not be determined.
+     * @return bool|int|string The value's key, or false if the value's key could not be
+     *                         determined.
+     *
      */
     public static function getValuesKey($value, array $array)
     {
@@ -46,35 +48,41 @@ class ArrayUtility
     /**
      * Splits an array into two arrays at the specified value.
      *
-     * Note: Which of the two arrays the $value ends up in is determine by the $splitBefore parameter
-     *       If set to true, the $value will be placed at the end of the first of the two resulting
-     *       arrays, if set to false the $value will placed at the top of the second of the two
-     *       resulting arrays.
+     * Note: Which of the two arrays the $value ends up in is determine by the $splitBefore
+     *       parameter. If set to true, the $value will be placed at the end of the first
+     *       of the two resulting arrays, if set to false the $value will placed at the
+     *       beginning of the second of the two resulting arrays.
      *
      *       For example:
      *
-     *           splitArrayAtValue(array(1,2,3,4), 3, $splitBefore = true) // returns array(array(1,2,3), array(4))
+     *           splitArrayAtValue(array(1,2,3,4), 3, $splitBefore = true)
+     *           // returns array(array(1,2,3), array(4))
      *
-     *           splitArrayAtValue(array(1,2,3,4), 3, $splitBefore = false) // returns array(array(1,2), array(3,4))
+     *           splitArrayAtValue(array(1,2,3,4), 3, $splitBefore = false)
+     *           // returns array(array(1,2), array(3,4))
      *
      * @param array $array The array to split.
      *
      * @param mixed $value The value to split the array at.
      *
-     * @param bool $splitBefore Determines which of the two resulting arrays the $value will end up in.
-     *                          If set to true, the $value will be the last item in the first of the
-     *                          two resulting arrays, if set to false the $value will be the first
-     *                          item in the second of the two resulting arrays.
-     * @return array An array containing the arrays resulting from the split. The first array at index
-     *               0 will contain the values that came before the specified $value, and the second
-     *               array at index 1 will contain the values that came after the specified $value.
+     * @param bool $splitBefore Determines which of the two resulting arrays the $value
+     *                          will end up in. If set to true, the $value will be the
+     *                          last item in the first of the two resulting arrays, if
+     *                          set to false the $value will be the first item in the
+     *                          second of the two resulting arrays.
+     *
+     * @return array An array containing the arrays resulting from the split. The
+     *               first array at index 0 will contain the values that came before
+     *               the specified $value, and the second array at index 1 will contain
+     *               the values that came after the specified $value.
      *
      *               <br>Example: array(0 => [VALUES BEFORE VALUE], 0 => [VALUES AFTER VALUE])
      *
-     *               <br>Also Note: The $splitBefore parameter determines which of the arrays the value will
-     *                          be assigned to.
+     *               <br>Also Note: The $splitBefore parameter determines which of the arrays
+     *                              the value will be assigned to.
      *
      *               <br>Note: Original indexes will not be preserved in the resulting arrays.
+     *
      */
     public static function splitArrayAtValue(array $array, $value, $splitBefore = false): array
     {
