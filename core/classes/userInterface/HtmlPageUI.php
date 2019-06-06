@@ -46,7 +46,7 @@ class HtmlPageUI extends CoreHtmlUserInterface implements IHtmlPage, IUserInterf
     {
         parent::__construct($appStartup);
         $this->htmlPage = $htmlPage;
-
+        $this->title = $htmlPage->getName();
     }
 
     /**
