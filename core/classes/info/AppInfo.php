@@ -132,10 +132,10 @@ class AppInfo
      *
      *                        - AppInfo::BLACKLIST
      *
-     * @param string ...$appNames Name of the apps whose information will be included
-     *                            or excluded depending on the value of the $filterMode
-     *                            property, i.e. the value passed to this method's
-     *                            $filterMode parameter.
+     * @param array $appNames Name of the apps whose information will be included
+     *                        or excluded depending on the value of the $filterMode
+     *                        property, i.e. the value passed to this method's
+     *                        $filterMode parameter.
      *
      * @see AppInfo::$filterMode
      * @see AppInfo::NO_FILTER
@@ -147,7 +147,7 @@ class AppInfo
      * @see AppInfo::setAppConfigObjects()
      * @see AppInfo::setAppStartupObjects()
      */
-    public function __construct($filterMode = 0, string ...$appNames)
+    public function __construct($filterMode = 0, array $appNames = array())
     {
         $this->filterMode = $filterMode;
         foreach ($appNames as $app) {
