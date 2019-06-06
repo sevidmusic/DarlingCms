@@ -34,7 +34,7 @@ class AClassifiable implements IClassifiable
      */
     public function getName(): string
     {
-        return $this->getName();
+        return $this->name;
     }
 
     /**
@@ -44,7 +44,7 @@ class AClassifiable implements IClassifiable
      */
     public function getType(): string
     {
-        return $this->getType();
+        return $this->type;
     }
 
     /**
@@ -54,7 +54,7 @@ class AClassifiable implements IClassifiable
      */
     public function getDescription(): string
     {
-        return $this->getDescription();
+        return $this->description;
     }
 
 
