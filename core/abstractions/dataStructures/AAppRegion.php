@@ -9,7 +9,9 @@ use DarlingCms\interfaces\dataStructures\IAppRegion;
 
 /**
  * Class AAppRegion. Defines an abstract implementation of the IAppRegion interface
- * that can be used as a base for classes that implement the IAppRegion interface.
+ * which extends the AClassifiable abstract class that can be used as a base for
+ * classes that implement the IAppRegion interface.
+ *
  * @package DarlingCms\abstractions\dataStructures
  */
 abstract class AAppRegion extends AClassifiable implements IAppRegion
