@@ -89,7 +89,7 @@ class ArrayUtility
         $valuesKey = ArrayUtility::getValuesKey($value, $array);
         // if value's key cannot be determined, log error and return an empty array.
         if ($valuesKey === false) {
-            error_log(sprintf('IAppRegion Implementation Error: Specified value "%s" does not exist.', $value));
+            error_log(sprintf('ArrayUtility Implementation Error: Specified value "%s" does not exist.', $value));
             return array();
         }
         $preArray = array();
