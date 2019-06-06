@@ -29,19 +29,38 @@ class ArrayUtility
      *
      * @param array $array The array to search.
      *
+     * @param bool $strict (Optional)Determines whether not the specified $value should
+     *                               be compared with the values in the specified $array
+     *                               strictly.
+     *
+     *                               If set to true, comparison will be strict (===).
+     *
+     *                               If false it will be loose (==).
+     *
+     *                               (Defaults to false)
+     *
      * @return bool|int|string The value's key, or false if the value's key could not be
      *                         determined.
      *
      */
-    public static function getValuesKey($value, array $array)
+    public static function getValuesKey($value, array $array, $strict = false)
     {
         // Determine value's key in the array
         foreach ($array as $key => $val) {
-            if ($val === $value) {
-                return $key;
+            switch ($strict) {
+                case true:
+                    if ($val === $value) {
+                        return $key;
+                    }
+                    break;
+                default:
+                    if ($val == $value) {
+                        return $key;
+                    }
+                    break;
             }
         }
-        error_log(sprintf('IHtmlPage implementation error: Failed to determine key of value "%s" in the specified array.', $value));
+        error_log(sprintf('IHtmlPage implementation error: Failed to determine key of value "%s" in the specified array.', serialize($value)));
         return false;
     }
 
@@ -89,7 +108,7 @@ class ArrayUtility
         $valuesKey = ArrayUtility::getValuesKey($value, $array);
         // if value's key cannot be determined, log error and return an empty array.
         if ($valuesKey === false) {
-            error_log(sprintf('ArrayUtility Implementation Error: Specified value "%s" does not exist.', $value));
+            error_log(sprintf('ArrayUtility Implementation Error: Specified value "%s" does not exist.', serialize($value)));
             return array();
         }
         $preArray = array();
