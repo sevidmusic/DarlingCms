@@ -155,9 +155,13 @@ abstract class AAppRegion implements IAppRegion
     public function insertApp(string $appName, string $neighbor, int $insertMode = 2): bool
     {
         $splitArrays = $this->splitArrayAtValue($this->getAppNames(), $neighbor, ($insertMode === IAppRegion::PREPEND ? true : false));
-        unset($this->appNames);
-        $this->appNames = array_merge($splitArrays[0], [$appName], $splitArrays[1]);
-        return true;
+        if (count($splitArrays) === 2) {
+            unset($this->appNames);
+            $this->appNames = array_merge($splitArrays[0], [$appName], $splitArrays[1]);
+            return true;
+        }
+        error_log(sprintf('Failed to insert app "%s" into the "%s" app region. The specified neighbor "%s" does not exist.', $appName, $this->getName(), $neighbor));
+        return false;
     }
 
     /**
