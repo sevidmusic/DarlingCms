@@ -12,27 +12,12 @@ use DarlingCms\interfaces\dataStructures\IAppRegion;
  * that can be used as a base for classes that implement the IAppRegion interface.
  * @package DarlingCms\abstractions\dataStructures
  */
-abstract class AAppRegion implements IAppRegion
+abstract class AAppRegion extends AClassifiable implements IAppRegion
 {
     /**
      * @var array Array of the names of the apps that belong to the region.
      */
     protected $appNames = array();
-
-    /**
-     * @var string The name of the region.
-     */
-    protected $name = '';
-
-    /**
-     * @var string The region's type.
-     */
-    protected $type = '';
-
-    /**
-     * @var string The region's description.
-     */
-    protected $description = '';
 
     /**
      * AAppRegion constructor. Sets the region's name, type, description, and
@@ -172,36 +157,6 @@ abstract class AAppRegion implements IAppRegion
     public function getAppNames(): array
     {
         return $this->appNames;
-    }
-
-    /**
-     * Returns the region's name.
-     *
-     * @return string The region's name.
-     */
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    /**
-     * Returns the region's description.
-     *
-     * @return string The region's description.
-     */
-    public function getType(): string
-    {
-        return $this->type;
-    }
-
-    /**
-     * Returns the region's description.
-     *
-     * @return string The region's description.
-     */
-    public function getDescription(): string
-    {
-        return $this->description;
     }
 
     /**
