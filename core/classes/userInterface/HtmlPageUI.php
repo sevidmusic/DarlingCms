@@ -81,7 +81,7 @@ class HtmlPageUI extends CoreHtmlUserInterface implements IHtmlPage, IUserInterf
             $regionOutput .= $this->appStartup->getSpecifiedAppOutput($appName);
         }
         if ($appRegion->getType() === $appRegion::CONTAINED) {
-            return "<div class=\"{$this->formatRegionName($appRegion)}\">{$regionOutput}</div>";
+            return "<div class=\"dcms-app-region {$this->formatRegionName($appRegion)}\">{$regionOutput}</div>";
         }
         return $regionOutput;
     }
