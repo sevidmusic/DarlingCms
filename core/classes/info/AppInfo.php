@@ -8,7 +8,6 @@
 namespace DarlingCms\classes\info;
 
 use DarlingCms\classes\startup\AppStartup;
-use DarlingCms\classes\startup\AppStartupJsonCache;
 use DarlingCms\classes\staticClasses\core\CoreValues;
 use DarlingCms\interfaces\accessControl\IAppConfig;
 use DarlingCms\interfaces\startup\IAppStartup;
