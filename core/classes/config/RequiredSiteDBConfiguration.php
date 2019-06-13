@@ -158,4 +158,25 @@ class RequiredSiteDBConfiguration implements ISiteConfiguration
         return 'The following database configurations MUST be defined by all sites. WARNING: The following site configuration\'s settings are required, DO NOT edit them unless you know exactly what you are doing, and you are aware of the consequences!';
     }
 
+    /**
+     * Remove a site configuration setting from this site configuration.
+     * @param string $settingName The name of the setting to remove.
+     */
+    public function removeSetting(string $settingName): void
+    {
+        // TODO: Implement removeSetting() method. NOTE: This method will be defined by the ASiteConfiguration abstract class which has not yet been developed
+    }
+
+    /**
+     * Add a site configuration setting to this site configuration.
+     * @param ISiteConfigurationSetting $siteConfigurationSetting The ISiteConfigurationSetting implementation
+     *                                                            instance that represents the site configuration
+     *                                                            setting.
+     */
+    public function addSetting(ISiteConfigurationSetting $siteConfigurationSetting): void
+    {
+        // TODO: Implement removeSetting() method. NOTE: This method will be defined by the ASiteConfiguration abstract class which has not yet been developed
+    }
+
+
 }
