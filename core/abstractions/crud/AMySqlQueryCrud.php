@@ -163,6 +163,7 @@ abstract class AMySqlQueryCrud
      *                The call above would return '\\Some\\Namespace\\SomeClass'
      *
      * @todo : move to new AMySqlObjectQueryCrud once it is defined
+     * @todo move to ISqlObjectQuery
      */
     final protected function formatClassName(string $className): string
     {
