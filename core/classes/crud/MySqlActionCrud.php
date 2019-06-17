@@ -9,11 +9,10 @@ namespace DarlingCms\classes\crud;
 
 
 use DarlingCms\abstractions\crud\AMySqlActionCrud;
-use DarlingCms\classes\database\SQL\MySqlQuery;
-use DarlingCms\classes\observer\crud\MySqlActionCrudObserver;
 use DarlingCms\classes\privilege\Action;
 use DarlingCms\interfaces\crud\IActionCrud;
 use DarlingCms\interfaces\privilege\IAction;
+use PDO;
 
 /**
  * Class MySqlActionCrud. Defines an implementation of the IActionCrud interface
@@ -57,7 +56,7 @@ class MySqlActionCrud extends AMySqlActionCrud implements IActionCrud
     {
         if ($this->actionExists($actionName) === true) {
             // 1. get action data
-            $actionData = $this->MySqlQuery->executeQuery('SELECT * FROM ' . $this->tableName . ' WHERE actionName=? LIMIT 1', [$actionName])->fetchAll(\PDO::FETCH_ASSOC)[0];
+            $actionData = $this->MySqlQuery->executeQuery('SELECT * FROM ' . $this->tableName . ' WHERE actionName=? LIMIT 1', [$actionName])->fetchAll(PDO::FETCH_ASSOC)[0];
             // 2. create ctor_args array
             $ctor_args = array($actionData['actionName'], $actionData['actionDescription']);
             // 3. Instantiate the appropriate IAction implementation based on the action data.
@@ -73,7 +72,7 @@ class MySqlActionCrud extends AMySqlActionCrud implements IActionCrud
      */
     public function readAll(): array
     {
-        $actionNames = $this->MySqlQuery->executeQuery('SELECT actionName FROM ' . $this->tableName)->fetchAll(\PDO::FETCH_ASSOC);
+        $actionNames = $this->MySqlQuery->executeQuery('SELECT actionName FROM ' . $this->tableName)->fetchAll(PDO::FETCH_ASSOC);
         $actions = array();
         foreach ($actionNames as $actionName) {
             array_push($actions, $this->read($actionName['actionName']));
