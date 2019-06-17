@@ -145,6 +145,7 @@ class MySqlQuery extends PDO implements ISQLQuery
      *                         PDO from setting undeclared property values.
      *
      * @todo This should be part of the ISqlObjectQuery interface, therefore this method should be moved to a new class called MySqlObjectQuery and classes that build objects should implement that class instead of this class. this class should be specifically for generic MySql queries.
+     * @todo move to ISqlObjectQuery
      */
     public function getClass(string $sql, string $className, array $params = array(), array $ctor_args = array())
     {
