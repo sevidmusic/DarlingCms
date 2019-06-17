@@ -18,6 +18,13 @@ use DarlingCms\interfaces\user\IUser;
 use DarlingCms\interfaces\user\IUserPassword;
 use PDO;
 
+/**
+ * Class MySqlUserPasswordCrud
+ * @package DarlingCms\classes\crud
+ *
+ * @todo Add/revise doc comments
+ * @todo This class should extend the AMySqlObjectQueryCrud class once it is defined
+ */
 class MySqlUserPasswordCrud extends AMySqlQueryCrud implements IUserPasswordCrud
 {
     const PASSWORD_TABLE_NAME = 'passwords';
