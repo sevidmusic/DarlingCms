@@ -11,6 +11,7 @@ namespace DarlingCms\classes\database\SQL;
 
 use DarlingCms\interfaces\database\SQL\ISQLQuery;
 use \PDO;
+use PDOStatement;
 
 /**
  * Class MySqlQuery. Defines an implementation of the ISQLQuery interface that
@@ -81,7 +82,7 @@ class MySqlQuery extends PDO implements ISQLQuery
      * parameter in an IN() clause. Binding more values than specified is not possible; if more keys exist
      * in input_parameters than in the SQL specified in the PDO::prepare(), then the statement will fail
      * and an error is emitted.
-     * @return \PDOStatement If the database server successfully prepares the statement, PDO::prepare()
+     * @return PDOStatement If the database server successfully prepares the statement, PDO::prepare()
      *                       returns a PDOStatement object. If the database server cannot successfully
      *                       prepare the statement, PDO::prepare() returns FALSE or emits PDOException
      *                       (depending on error handling)...
@@ -90,7 +91,7 @@ class MySqlQuery extends PDO implements ISQLQuery
      * @see \PDOStatement::execute()
      * @see https://secure.php.net/manual/en/pdostatement.execute.php
      */
-    public function executeQuery(string $sql, array $params = array()): \PDOStatement
+    public function executeQuery(string $sql, array $params = array()): PDOStatement
     {
         $stmt = $this->prepare($sql);
         $stmt->execute($params);
@@ -142,6 +143,8 @@ class MySqlQuery extends PDO implements ISQLQuery
      *
      * *...NON EMPTY...* Hint: An empty __set() method can be implemented by classes that wish to prevent
      *                         PDO from setting undeclared property values.
+     *
+     * @todo This should be part of the ISqlObjectQuery interface, therefore this method should be moved to a new class called MySqlObjectQuery and classes that build objects should implement that class instead of this class. this class should be specifically for generic MySql queries.
      */
     public function getClass(string $sql, string $className, array $params = array(), array $ctor_args = array())
     {
