@@ -21,7 +21,7 @@ use PDOStatement;
  *
  * @package DarlingCms\interfaces\database\SQL
  */
-interface ISQLQuery extends IPDO
+interface ISQLObjectQuery extends IPDO
 {
     /**
      * Execute an SQL query.
