@@ -65,7 +65,7 @@ class MySqlQuery extends PDO implements ISqlQuery
      *             debugging. Note: This property is specifically intended for use
      *             when debugging.
      */
-    private $uid;
+    protected $uid;
 
     /**
      * (PHP 5 &gt;= 5.1.0, PHP 7, PECL pdo &gt;= 0.1.0)<br/>
