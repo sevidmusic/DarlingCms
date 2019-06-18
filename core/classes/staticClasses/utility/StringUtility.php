@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by Sevi Donnelly Foreman.
+ * Created by Sevi Darling.
  * Date: 2019-01-19
  * Time: 15:24
  */
@@ -21,7 +21,12 @@ use Exception;
  * Methods in this class MUST only return the following types:
  * - string
  * - bool
+ *
  * @package DarlingCms\classes\staticClasses\utility
+ *
+ * @see StringUtility::convertFromCamelCase()
+ * @see StringUtility::randString()
+ * @see StringUtility::filterAlphaNumeric()
  */
 class StringUtility
 {
@@ -33,6 +38,7 @@ class StringUtility
      * StringUtility::convertFromCamelCase('CamelCaseString'); // returns "Camel Case String"
      *
      * @param string $string The string to covert.
+     *
      * @return string The converted string.
      */
     public static function convertFromCamelCase(string $string): string
@@ -69,13 +75,21 @@ class StringUtility
     /**
      * Removes all non-alpha-numeric characters from a string.
      *
-     * Note: This method will also remove all white space.
+     * Note: This method will also remove all white space unless the $preserveWhiteSpace
+     *       parameter is explicitly set to true.
      *
      * @param string $string The string to filter.
+     *
+     * @param bool $preserveWhiteSpace If set to true, then whitespace will be preserved, if set
+     *                                 to false whitespace will be removed, defaults to false.
+     *
      * @return string The filtered string.
      */
-    public static function filterAlphaNumeric(string $string): string
+    public static function filterAlphaNumeric(string $string, $preserveWhiteSpace = false): string
     {
+        if ($preserveWhiteSpace === true) {
+            return trim(preg_replace("/[^a-zA-Z0-9\s]+/", "", $string));
+        }
         return trim(preg_replace("/[^a-zA-Z0-9]+/", "", $string));
     }
 }
