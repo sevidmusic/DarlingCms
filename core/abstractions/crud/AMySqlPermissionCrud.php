@@ -11,9 +11,11 @@ namespace DarlingCms\abstractions\crud;
 
 use DarlingCms\classes\observer\crud\MySqlPermissionCrudObserver;
 use DarlingCms\interfaces\crud\IPermissionCrud;
-use DarlingCms\classes\database\SQL\MySqlQuery;
+use DarlingCms\classes\database\SQL\MySqlObjectQuery;
 use DarlingCms\interfaces\crud\IActionCrud;
+use DarlingCms\interfaces\privilege\IAction;
 use DarlingCms\interfaces\privilege\IPermission;
+use PDO;
 
 /**
  * Class AMySqlPermissionCrud. Defines an abstract implementation of the AObservableMySqlQueryCrud abstract class
@@ -43,17 +45,17 @@ abstract class AMySqlPermissionCrud extends AObservableMySqlQueryCrud implements
      * AMySqlPermissionCrud constructor. Injects the MySqlQuery instance used for CRUD operations on
      * permission data. Injects the IActionCrud implementation instance used for CRUD operations on
      * action data.
-     * @param MySqlQuery $mySqlQuery
+     * @param MySqlObjectQuery $mySqlObjectQuery
      * @param IActionCrud $actionCrud
      */
-    public function __construct(MySqlQuery $mySqlQuery, IActionCrud $actionCrud, bool $observe = true)
+    public function __construct(MySqlObjectQuery $mySqlObjectQuery, IActionCrud $actionCrud, bool $observe = true)
     {
         switch ($observe) {
             case true:
-                parent::__construct($mySqlQuery, self::PERMISSIONS_TABLE_NAME, new MySqlPermissionCrudObserver());
+                parent::__construct($mySqlObjectQuery, self::PERMISSIONS_TABLE_NAME, new MySqlPermissionCrudObserver());
                 break;
             case false;
-                parent::__construct($mySqlQuery, self::PERMISSIONS_TABLE_NAME);
+                parent::__construct($mySqlObjectQuery, self::PERMISSIONS_TABLE_NAME);
                 break;
         }
         $this->actionCrud = $actionCrud;
@@ -98,7 +100,7 @@ abstract class AMySqlPermissionCrud extends AObservableMySqlQueryCrud implements
      */
     protected function getClassName(string $permissionName): string
     {
-        return $this->MySqlQuery->executeQuery('SELECT IPermissionType FROM permissions WHERE permissionName=? LIMIT 1', [$permissionName])->fetchAll(\PDO::FETCH_ASSOC)[0]['IPermissionType'];
+        return $this->MySqlQuery->executeQuery('SELECT IPermissionType FROM permissions WHERE permissionName=? LIMIT 1', [$permissionName])->fetchAll(PDO::FETCH_ASSOC)[0]['IPermissionType'];
     }
 
     /**
@@ -127,11 +129,12 @@ abstract class AMySqlPermissionCrud extends AObservableMySqlQueryCrud implements
     /**
      * Unpack the Permission's permissions.
      * @param string $packedPermissions The packed permissions, i.e., the json string representing the data.
-     * @return array An array of the IPermission implementation instances assigned to the Permission.
+     * @return array|IAction An array of the IAction implementation instances assigned to the Permission.
      */
     final protected function unpackActions(string $packedPermissions): array
     {
         $unpackedData = json_decode($packedPermissions);
+        sort($unpackedData);
         $permissions = [];
         foreach ($unpackedData as $actionName) {
             array_push($permissions, $this->actionCrud->read($actionName));
