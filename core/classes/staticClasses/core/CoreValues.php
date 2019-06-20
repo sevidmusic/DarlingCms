@@ -63,7 +63,7 @@ namespace DarlingCms\classes\staticClasses\core;
  *
  * Note: There is one exception to the rule above, the getRequiredSettingNames()
  *       method returns an array. This method has been grandfathered in as it
- *       is an important part of Core. This mehtod may eventyally be moved
+ *       is an important part of Core. This method may eventyally be moved
  *       to another class.
  *       Despite the exception described above, new public static methods
  *       added to this class MUST NOT return complex types.
