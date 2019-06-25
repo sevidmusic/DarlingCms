@@ -16,26 +16,27 @@ use PDO;
 
 /**
  * Class AMySqlActionCrud. Defines an abstract implementation of the
- * AObservableMySqlQueryCrud abstract class, that also implements the
- * IActionCrud interface, which can be used as a base class for
- * IActionCrud implementations that perform CRUD operations on IAction
- * instance data in a database via a MySqlQuery instance.
+ * AObservableMySqlObjectQueryCrud abstract class that implements the
+ * IActionCrud interface which can be used as a base class for IActionCrud
+ * implementations that perform CRUD operations on IAction instance data in
+ * a database via a MySqlObjectQuery instance.
  *
- * Implementations of this class can also be observed by an instance of the
- * MySqlActionCrudObserver class which is responsible for performing
- * updates to any permissions that would be affected by modifications
- * of the relevant action. To enable this, set the __construct() method's
- * $observe parameter to true on instantiation, note, the __construct()
- * method's $observe parameter is set to true by default to insure that
- * the larger permissions system remains in tact when actions are modified,
- * as permissions are defined by the actions that are assigned to them. To
- * disable observation, the __construct() method's $observe parameter must
- * be explicitly set to true.
+ * Implementations of this class can be observed by an internally injected
+ * instance of the MySqlActionCrudObserver class which is responsible for
+ * performing updates to any permissions that would be affected by modifications
+ * of the relevant action. To enable this, set the __construct() method's $observe
+ * parameter to true on instantiation.
+ *
+ * Note: The __construct() method's $observe parameter is set to true by default
+ *       to insure that the larger permissions system remains in tact when actions
+ *       are modified, as permissions are defined by the actions that are assigned
+ *       to them. To disable observation, the __construct() method's $observe parameter
+ *       must be explicitly set to false.
  *
  * Note: By default observation is turned on, to turn observation off
  *       simply set the __construct() method's $observe parameter to false.
  *
- * Note: If the __construct() method's observe property is set to true, which
+ * Note: If the __construct() method's $observe property is set to true, which
  *       is the default, an instance of a MySqlActionCrudObserver will be injected
  *       internally by the __construct() method on instantiation. This instance of
  *       a MySqlActionCrudObserver will be used to notify any permissions that would
@@ -43,6 +44,8 @@ use PDO;
  *
  * @package DarlingCms\abstractions\crud
  *
+ * @see IActionCrud
+ * @see AObservableMySqlObjectQueryCrud
  * @see AMySqlActionCrud::ACTIONS_TABLE_NAME
  * @see AMySqlActionCrud::__construct()
  * @see AMySqlActionCrud::generateTable()
@@ -54,7 +57,7 @@ use PDO;
  * @see AMySqlActionCrud::update()
  * @see AMySqlActionCrud::delete()
  */
-abstract class AMySqlActionCrud extends AObservableMySqlQueryCrud implements IActionCrud
+abstract class AMySqlActionCrud extends AObservableMySqlObjectQueryCrud implements IActionCrud
 {
 
     /**
@@ -73,17 +76,18 @@ abstract class AMySqlActionCrud extends AObservableMySqlQueryCrud implements IAc
     public $modifiedAction;
 
     /**
-     * MySqlActionCrud constructor. Injects the MySqlQuery implementation
+     * MySqlActionCrud constructor. Injects the MySqlObjectQuery implementation
      * instance used to connect to and query the database, and determines
      * whether or not this instance should be observed by an internally
-     * injected instance of the MySqlActionCrudObserver() class.
+     * injected instance of the MySqlActionCrudObserver class.
      *
-     * @param MySqlObjectQuery $MySqlObjectQuery The MySqlQuery implementation instance
-     *                                     used to connect to and query the database.
+     * @param MySqlObjectQuery $mySqlObjectQuery The MySqlObjectQuery implementation
+     *                                           instance used to connect to and query
+     *                                           the database.
      *
      * @param bool $observe Determines whether or not this instance should be
      *                      observed by an internally injected instance of the
-     *                      MySqlActionCrudObserver() class.
+     *                      MySqlActionCrudObserver class.
      *                      Note: By default observation is turned on, to turn
      *                            observation off simply set the $observe parameter
      *                            to false.
@@ -96,9 +100,9 @@ abstract class AMySqlActionCrud extends AObservableMySqlQueryCrud implements IAc
      *                            to notify any permissions that would be effected by
      *                            the modification of a specific action.
      *
-     * @see AObservableMySqlQueryCrud::__construct()
+     * @see AObservableMySqlObjectQueryCrud::__construct()
      */
-    public function __construct(MySqlObjectQuery $MySqlObjectQuery, $observe = true)
+    public function __construct(MySqlObjectQuery $mySqlObjectQuery, $observe = true)
     {
         /**
          * @devNote IMPORTANT! DO NOT DELETE THE FOLLOWING DEV NOTE!
@@ -123,10 +127,10 @@ abstract class AMySqlActionCrud extends AObservableMySqlQueryCrud implements IAc
          */
         switch ($observe) {
             case false:
-                parent::__construct($MySqlObjectQuery, self::ACTIONS_TABLE_NAME);
+                parent::__construct($mySqlObjectQuery, self::ACTIONS_TABLE_NAME);
                 break;
             default:
-                parent::__construct($MySqlObjectQuery, self::ACTIONS_TABLE_NAME, new MySqlActionCrudObserver());
+                parent::__construct($mySqlObjectQuery, self::ACTIONS_TABLE_NAME, new MySqlActionCrudObserver());
                 break;
 
         }
@@ -146,7 +150,7 @@ abstract class AMySqlActionCrud extends AObservableMySqlQueryCrud implements IAc
      */
     protected function generateTable(): bool
     {
-        if ($this->MySqlQuery->executeQuery('CREATE TABLE ' . $this->tableName . ' (
+        if ($this->MySqlObjectQuery->executeQuery('CREATE TABLE ' . $this->tableName . ' (
             tableId INT NOT NULL AUTO_INCREMENT PRIMARY KEY UNIQUE,
             actionName VARCHAR(242) NOT NULL UNIQUE,
             actionDescription VARCHAR(242) NOT NULL UNIQUE,
@@ -166,7 +170,7 @@ abstract class AMySqlActionCrud extends AObservableMySqlQueryCrud implements IAc
      */
     protected function actionExists(string $actionName): bool
     {
-        $actionData = $this->MySqlQuery->executeQuery('SELECT * FROM ' . $this->tableName . ' WHERE actionName=?', [$actionName])->fetchAll();
+        $actionData = $this->MySqlObjectQuery->executeQuery('SELECT * FROM ' . $this->tableName . ' WHERE actionName=?', [$actionName])->fetchAll();
         if (empty($actionData) === true) {
             return false;
         }
@@ -182,13 +186,15 @@ abstract class AMySqlActionCrud extends AObservableMySqlQueryCrud implements IAc
      */
     protected function getClassName(string $actionName): string
     {
-        return $this->MySqlQuery->executeQuery('SELECT IActionType FROM actions WHERE actionName=? LIMIT 1', [$actionName])->fetchAll(PDO::FETCH_ASSOC)[0]['IActionType'];
+        return $this->MySqlObjectQuery->executeQuery('SELECT IActionType FROM actions WHERE actionName=? LIMIT 1', [$actionName])->fetchAll(PDO::FETCH_ASSOC)[0]['IActionType'];
     }
 
     /**
      * Create a new action.
+     *
      * @param IAction $action The IAction implementation instance that
      *                        represents the action to create.
+     *
      * @return bool True if action was created, false otherwise
      */
     abstract public function create(IAction $action): bool;
@@ -199,16 +205,23 @@ abstract class AMySqlActionCrud extends AObservableMySqlQueryCrud implements IAc
      * @param string $actionName The name of the action to read.
      *
      * @return IAction An IAction implementation instance that represents the action,
-     *                 or a default IAction implementation instance.
+     *                 or a default IAction implementation instance if the specified
+     *                 actions does not exist.
+     *
+     * @devNote: It is up to implementations to determine an appropriate default
+     *           IAction implementation to return in the event that the specified
+     *           action does not exist.
      */
     abstract public function read(string $actionName): IAction;
 
     /**
      * Returns an array of IAction implementation instances for each
-     * action stored in the database.
+     * action stored in the database, or an empty array if there aren't
+     * any actions stored in the database.
      *
      * @return array An array of IAction implementation instances for each
-     * action stored in the database.
+     *               action stored in the database, or an empty array if
+     *               there aren't any actions stored in the database.
      */
     abstract public function readAll(): array;
 
