@@ -9,6 +9,8 @@ namespace DarlingCms\abstractions\crud;
 
 use DarlingCms\abstractions\privilege\APDOCompatibleAction;
 use DarlingCms\interfaces\crud\IActionCrud;
+use DarlingCms\interfaces\crud\ISqlObjectQueryCrud;
+use DarlingCms\interfaces\crud\ISqlQueryCrud;
 use DarlingCms\interfaces\privilege\IAction;
 use DarlingCms\classes\database\SQL\MySqlObjectQuery;
 use DarlingCms\classes\observer\crud\MySqlActionCrudObserver;
@@ -45,6 +47,8 @@ use PDO;
  * @package DarlingCms\abstractions\crud
  *
  * @see IActionCrud
+ * @see ISqlQueryCrud
+ * @see ISqlObjectQueryCrud
  * @see AObservableMySqlObjectQueryCrud
  * @see AMySqlActionCrud::ACTIONS_TABLE_NAME
  * @see AMySqlActionCrud::__construct()
@@ -57,7 +61,7 @@ use PDO;
  * @see AMySqlActionCrud::update()
  * @see AMySqlActionCrud::delete()
  */
-abstract class AMySqlActionCrud extends AObservableMySqlObjectQueryCrud implements IActionCrud
+abstract class AMySqlActionCrud extends AObservableMySqlObjectQueryCrud implements IActionCrud, ISqlQueryCrud, ISqlObjectQueryCrud
 {
 
     /**
@@ -67,11 +71,13 @@ abstract class AMySqlActionCrud extends AObservableMySqlObjectQueryCrud implemen
 
     /**
      * @var APDOCompatibleAction The original action.
+     * @todo Should probably be protected...this is for another refactor as it is not pressing
      */
     public $originalAction;
 
     /**
      * @var APDOCompatibleAction The modified action.
+     * @todo Should probably be protected...this is for another refactor as it is not pressing
      */
     public $modifiedAction;
 
@@ -137,18 +143,13 @@ abstract class AMySqlActionCrud extends AObservableMySqlObjectQueryCrud implemen
     }
 
     /**
-     * Creates a table named using the value of the $tableName property.
-     *
-     * Note: This method is intended to be called by the __construct()
-     *       method on instantiation.
-     *
-     * NOTE: Implementations MUST implement this method in order to insure
-     *       the __construct() method can create the table used by the
-     *       implementation if it does not already exist in the database.
+     * Creates the table this AMySqlActionCrud implementation instance performs
+     * crud operation on if it does not already exist in the database.
      *
      * @return bool True if table was created, false otherwise.
+     *
      */
-    protected function generateTable(): bool
+    public function generateTable(): bool
     {
         if ($this->MySqlObjectQuery->executeQuery('CREATE TABLE ' . $this->tableName . ' (
             tableId INT NOT NULL AUTO_INCREMENT PRIMARY KEY UNIQUE,
