@@ -15,13 +15,15 @@ use DarlingCms\interfaces\privilege\IAction;
 use DarlingCms\classes\database\SQL\MySqlObjectQuery;
 use DarlingCms\classes\observer\crud\MySqlActionCrudObserver;
 use PDO;
+use SplSubject;
 
 /**
  * Class AMySqlActionCrud. Defines an abstract implementation of the
  * AObservableMySqlObjectQueryCrud abstract class that implements the
- * IActionCrud interface which can be used as a base class for IActionCrud
- * implementations that perform CRUD operations on IAction instance data in
- * a database via a MySqlObjectQuery instance.
+ * IActionCrud, SplSubject, ISqlQueryCrud, and ISqlObjectQueryCrud
+ * interfaces which can be used as a base class for IActionCrud
+ * implementations that perform CRUD operations on IAction instance
+ * data in a database via a MySqlObjectQuery instance.
  *
  * Implementations of this class can be observed by an internally injected
  * instance of the MySqlActionCrudObserver class which is responsible for
@@ -61,7 +63,7 @@ use PDO;
  * @see AMySqlActionCrud::update()
  * @see AMySqlActionCrud::delete()
  */
-abstract class AMySqlActionCrud extends AObservableMySqlObjectQueryCrud implements IActionCrud, ISqlQueryCrud, ISqlObjectQueryCrud
+abstract class AMySqlActionCrud extends AObservableMySqlObjectQueryCrud implements IActionCrud, SplSubject, ISqlQueryCrud, ISqlObjectQueryCrud
 {
 
     /**
