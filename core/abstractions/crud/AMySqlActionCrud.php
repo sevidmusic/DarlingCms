@@ -73,15 +73,19 @@ abstract class AMySqlActionCrud extends AObservableMySqlObjectQueryCrud implemen
 
     /**
      * @var APDOCompatibleAction The original action.
-     * @todo Should probably be protected...this is for another refactor as it is not pressing
+     * @todo: Implement the following methods:
+     *        setOriginalAction(APDOCompatibleAction $action):bool;
+     *        getOriginalAction():APDOCompatibleAction;
      */
-    public $originalAction;
+    protected $originalAction;
 
     /**
      * @var APDOCompatibleAction The modified action.
-     * @todo Should probably be protected...this is for another refactor as it is not pressing
+     * @todo: Implement the following methods:
+     *        setModifiedAction(APDOCompatibleAction $action):bool;
+     *        getModifiedAction():APDOCompatibleAction;
      */
-    public $modifiedAction;
+    protected $modifiedAction;
 
     /**
      * MySqlActionCrud constructor. Injects the MySqlObjectQuery implementation
