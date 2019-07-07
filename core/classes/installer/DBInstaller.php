@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by Sevi Donnelly Foreman.
+ * Created by Sevi Darling.
  * Date: 2019-03-16
  * Time: 12:55
  */
@@ -11,22 +11,27 @@ namespace DarlingCms\classes\installer;
 use DarlingCms\classes\database\SQL\MySqlQuery;
 use DarlingCms\interfaces\config\IDBConfig;
 use DarlingCms\interfaces\installer\IInstaller;
+use Exception;
+use SplObjectStorage;
 
 /**
- * Class DBInstaller. Defines an implementation of the IInstaller interface that can be used
- * to install or uninstall mysql databases and related database users.
+ * Class DBInstaller. Defines an implementation of the IInstaller interface that can
+ * be used to install or uninstall mysql databases and related database users.
+ *
  * @package DarlingCms\classes\installer
  */
 class DBInstaller implements IInstaller
 {
     /**
-     * @var MySqlQuery $mySqlQuery MySqlQuery implementation instance used to install/uninstall the databases.
+     * @var MySqlQuery $mySqlQuery MySqlQuery implementation instance used to
+     *                             install/uninstall the databases.
      */
     private $mySqlQuery;
+
     /**
-     * @var \SplObjectStorage Object map of the IDBConfig implementation instances that represent
-     *                        the databases this DBInstaller instance is responsible for installing
-     *                        and uninstalling.
+     * @var SplObjectStorage Object map of the IDBConfig implementation instances that
+     *                        represent the databases this DBInstaller instance is
+     *                        responsible for installing and uninstalling.
      */
     private $dbConfigs;
 
@@ -35,7 +40,10 @@ class DBInstaller implements IInstaller
      * used to install/uninstall the databases. Attaches the provided IDBConfig
      * implementation instances that represent the databases this DBInstaller is
      * responsible for installing and uninstalling.
-     * @param MySqlQuery $mySqlQuery MySqlQuery implementation instance used to install/uninstall the databases.
+     *
+     * @param MySqlQuery $mySqlQuery MySqlQuery implementation instance used to
+     *                               install/uninstall the databases.
+     *
      * @param IDBConfig ...$dbConfigs IDBConfig implementation instances that represent
      *                                the databases this DBInstaller instance is responsible
      *                                for installing and uninstalling.
@@ -43,7 +51,7 @@ class DBInstaller implements IInstaller
     public function __construct(MySqlQuery $mySqlQuery, IDBConfig...$dbConfigs)
     {
         $this->mySqlQuery = $mySqlQuery;
-        $this->dbConfigs = new \SplObjectStorage();
+        $this->dbConfigs = new SplObjectStorage();
         foreach ($dbConfigs as $dbConfig) {
             $this->dbConfigs->attach($dbConfig);
         }
@@ -52,6 +60,7 @@ class DBInstaller implements IInstaller
 
     /**
      * Install the databases and the related database users.
+     *
      * @return bool True if installation was successful, false otherwise.
      */
     public function install(): bool
@@ -64,7 +73,7 @@ class DBInstaller implements IInstaller
             try {
                 $this->installDatabase($dbConfig);
                 $this->installDatabaseUser($dbConfig);
-            } catch (\Exception $exception) {
+            } catch (Exception $exception) {
                 error_log('DBInstaller Error: Failed to install the ' . $dbConfig->getDBName() . PHP_EOL . '(Error Message) ' . $exception->getMessage());
                 array_push($status, false);
             }
@@ -74,8 +83,9 @@ class DBInstaller implements IInstaller
 
     /**
      * Installs a database.
-     * @param IDBConfig $dbConfig The IDBConfig implementation instance that represents the database
-     *                            to install.
+     *
+     * @param IDBConfig $dbConfig The IDBConfig implementation instance that represents
+     *                            the database to install's configuration.
      */
     private function installDatabase(IDBConfig $dbConfig): void
     {
@@ -85,9 +95,9 @@ class DBInstaller implements IInstaller
 
     /**
      * Installs a database user.
-     * @param IDBConfig $dbConfig The IDBConfig implementation instance that represents the database
-     *                            the user is related to, i.e., the IDBConfig implementation instance
-     *                            that defines the database user's username and password.
+     *
+     * @param IDBConfig $dbConfig The IDBConfig implementation instance that represents
+     *                            the database configuration the user is related to.
      */
     private function installDatabaseUser(IDBConfig $dbConfig): void
     {
@@ -101,11 +111,11 @@ class DBInstaller implements IInstaller
 
     /**
      * Un-install the databases and the related database users.
+     *
      * @return bool True if un-installation was successful, false otherwise.
      */
     public function uninstall(): bool
     {
-        // TODO: Implement uninstall() method.
         $status = array();
         /**
          * @var IDBConfig $dbConfig
@@ -114,7 +124,7 @@ class DBInstaller implements IInstaller
             try {
                 $this->uninstallDatabase($dbConfig);
                 $this->uninstallDatabaseUser($dbConfig);
-            } catch (\Exception $exception) {
+            } catch (Exception $exception) {
                 error_log('DBInstaller Error: Failed to uninstall the ' . $dbConfig->getDBName() . PHP_EOL . '(Error Message) ' . $exception->getMessage());
                 array_push($status, false);
             }
@@ -124,8 +134,9 @@ class DBInstaller implements IInstaller
 
     /**
      * Un-installs a database.
-     * @param IDBConfig $dbConfig The IDBConfig implementation instance that represents the database
-     *                            to un-install.
+     *
+     * @param IDBConfig $dbConfig The IDBConfig implementation instance that represents
+     *                            the database to un-install.
      */
     private function uninstallDatabase(IDBConfig $dbConfig): void
     {
@@ -134,14 +145,13 @@ class DBInstaller implements IInstaller
 
     /**
      * Un-installs a database user.
-     * @param IDBConfig $dbConfig The IDBConfig implementation instance that represents the database
-     *                            the user is related to, i.e., the IDBConfig implementation instance
-     *                            that defines the database user's username and password.
+     *
+     * @param IDBConfig $dbConfig The IDBConfig implementation instance that represents
+     *                            the database configuration the user is related to.
      */
     private function uninstallDatabaseUser(IDBConfig $dbConfig): void
     {
         $this->mySqlQuery->executeQuery("DROP USER '" . $dbConfig->getDBUsername() . "'@'" . $dbConfig->getDBHostName() . "'");
     }
-
 
 }
