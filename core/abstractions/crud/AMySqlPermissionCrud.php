@@ -84,20 +84,20 @@ abstract class AMySqlPermissionCrud extends AObservableMySqlObjectQueryCrud impl
     /**
      * @var APDOCompatiblePermission Instance of a APDOCompatiblePermission implementation
      *                               that represents the original permission.
-     * @todo !  Implement setter and getter methods:
-     *          setOriginalPermission(APDOCompatiblePermission $permission):bool;
-     *          getOriginalPermission():APDOCompatiblePermission;
+     * @todo ! Make protected and implement setter and getter methods:
+     *         setOriginalPermission(APDOCompatiblePermission $permission):bool;
+     *         getOriginalPermission():APDOCompatiblePermission;
      */
-    protected $originalPermission;
+    public $originalPermission;
 
     /**
      * @var APDOCompatiblePermission Instance of a APDOCompatiblePermission implementation
      *                               that represents the updated permission.
-     * @todo ! Implement setter and getter methods:
+     * @todo ! Make protected and implement setter and getter methods:
      *         setModifiedPermission(APDOCompatiblePermission $permission):bool;
      *         getModifiedPermission():APDOCompatiblePermission;
      */
-    protected $modifiedPermission;
+    public $modifiedPermission;
 
     /**
      * AMySqlPermissionCrud constructor. Injects the MySqlObjectQuery instance used to
