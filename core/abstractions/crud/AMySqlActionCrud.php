@@ -157,7 +157,7 @@ abstract class AMySqlActionCrud extends AObservableMySqlObjectQueryCrud implemen
      */
     public function generateTable(): bool
     {
-        if ($this->MySqlObjectQuery->executeQuery('CREATE TABLE ' . $this->tableName . ' (
+        if ($this->MySqlQuery->executeQuery('CREATE TABLE ' . $this->tableName . ' (
             tableId INT NOT NULL AUTO_INCREMENT PRIMARY KEY UNIQUE,
             actionName VARCHAR(242) NOT NULL UNIQUE,
             actionDescription VARCHAR(242) NOT NULL UNIQUE,
@@ -177,7 +177,7 @@ abstract class AMySqlActionCrud extends AObservableMySqlObjectQueryCrud implemen
      */
     protected function actionExists(string $actionName): bool
     {
-        $actionData = $this->MySqlObjectQuery->executeQuery('SELECT * FROM ' . $this->tableName . ' WHERE actionName=?', [$actionName])->fetchAll();
+        $actionData = $this->MySqlQuery->executeQuery('SELECT * FROM ' . $this->tableName . ' WHERE actionName=?', [$actionName])->fetchAll();
         if (empty($actionData) === true) {
             return false;
         }
@@ -193,7 +193,7 @@ abstract class AMySqlActionCrud extends AObservableMySqlObjectQueryCrud implemen
      */
     protected function getClassName(string $actionName): string
     {
-        return $this->MySqlObjectQuery->executeQuery('SELECT IActionType FROM actions WHERE actionName=? LIMIT 1', [$actionName])->fetchAll(PDO::FETCH_ASSOC)[0]['IActionType'];
+        return $this->MySqlQuery->executeQuery('SELECT IActionType FROM actions WHERE actionName=? LIMIT 1', [$actionName])->fetchAll(PDO::FETCH_ASSOC)[0]['IActionType'];
     }
 
     /**
