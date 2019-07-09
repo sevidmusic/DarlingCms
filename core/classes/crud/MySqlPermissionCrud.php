@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by Sevi Donnelly Foreman.
+ * Created by Sevi Darling.
  * Date: 2018-12-21
  * Time: 23:23
  */
@@ -10,20 +10,28 @@ namespace DarlingCms\classes\crud;
 use DarlingCms\abstractions\crud\AMySqlPermissionCrud;
 use DarlingCms\classes\privilege\Permission;
 use DarlingCms\interfaces\crud\IPermissionCrud;
+use DarlingCms\interfaces\crud\ISqlObjectQueryCrud;
+use DarlingCms\interfaces\crud\ISqlQueryCrud;
 use DarlingCms\interfaces\privilege\IPermission;
+use PDO;
+use SplSubject;
 
 /**
- * Class MySqlPermissionCrud. Defines an implementation of the IPermissionCrud interface
- * that extends the AMySqlPermissionCrud abstract class. This implementation can be used
- * to perform CRUD operations on Permission data in a MySql database.
+ * Class MySqlPermissionCrud. Defines an implementation of the AMySqlPermissionCrud
+ * abstract class that implements the IPermissionCrud, SplSubject, ISqlQueryCrud,
+ * and ISqlObjectQueryCrud interfaces that can be used to perform CRUD operations
+ * on IPermission instance data in a MySql database.
+ *
  * @package DarlingCms\classes\crud
  */
-class MySqlPermissionCrud extends AMySqlPermissionCrud implements IPermissionCrud
+class MySqlPermissionCrud extends AMySqlPermissionCrud implements IPermissionCrud, SplSubject, ISqlQueryCrud, ISqlObjectQueryCrud
 {
-
     /**
      * Create a new permission.
-     * @param IPermission $permission The IPermission implementation instance that represents the permission.
+     *
+     * @param IPermission $permission The IPermission implementation instance that
+     *                                represents the permission.
+     *
      * @return bool True if permission was created, false otherwise.
      */
     public function create(IPermission $permission): bool
@@ -45,16 +53,18 @@ class MySqlPermissionCrud extends AMySqlPermissionCrud implements IPermissionCru
     }
 
     /**
-     * Read the specified permission's data from the database and return an appropriate IPermission implementation
-     * instance.
+     * Read the specified permission's data from the database and return an
+     * appropriate IPermission implementation instance.
+     *
      * @param string $permissionName The name of the permission to read.
+     *
      * @return IPermission An appropriate IPermission implementation instance.
      */
     public function read(string $permissionName): IPermission
     {
         if ($this->permissionExists($permissionName) === true) {
             // 1. get permission data
-            $permissionData = $this->MySqlQuery->executeQuery('SELECT * FROM ' . $this->tableName . ' WHERE permissionName=? LIMIT 1', [$permissionName])->fetchAll(\PDO::FETCH_ASSOC)[0];
+            $permissionData = $this->MySqlQuery->executeQuery('SELECT * FROM ' . $this->tableName . ' WHERE permissionName=? LIMIT 1', [$permissionName])->fetchAll(PDO::FETCH_ASSOC)[0];
             // 2. create ctor_args array
             $ctor_args = array($permissionData['permissionName'], $this->unpackActions($permissionData['permissionActions']));
             // 3. Instantiate the appropriate IPermission implementation based on the permission data.
@@ -65,11 +75,15 @@ class MySqlPermissionCrud extends AMySqlPermissionCrud implements IPermissionCru
     }
 
     /**
-     * @return array|IPermission[]
+     * Returns an array of IPermission implementation instances for all
+     * stored permissions.
+     *
+     * @return array|IPermission[] An array of IPermission implementation
+     *                             instances for all stored permissions.
      */
     public function readAll(): array
     {
-        $permissionNames = $this->MySqlQuery->executeQuery('SELECT permissionName FROM ' . $this->tableName)->fetchAll(\PDO::FETCH_ASSOC);
+        $permissionNames = $this->MySqlQuery->executeQuery('SELECT permissionName FROM ' . $this->tableName . ' ORDER BY permissionName ASC')->fetchAll(PDO::FETCH_ASSOC);
         $permissions = array();
         foreach ($permissionNames as $permissionName) {
             array_push($permissions, $this->read($permissionName['permissionName']));
@@ -79,9 +93,12 @@ class MySqlPermissionCrud extends AMySqlPermissionCrud implements IPermissionCru
 
     /**
      * Update the specified permission.
+     *
      * @param string $permissionName The name of the permission to update.
-     * @param IPermission $newPermission The IPermission implementation instance that represents
-     *                                   the new permission.
+     *
+     * @param IPermission $newPermission The IPermission implementation instance that
+     *                                   represents the updated permission.
+     *
      * @return bool True if permission was updated, false otherwise.
      */
     public function update(string $permissionName, IPermission $newPermission): bool
@@ -100,7 +117,9 @@ class MySqlPermissionCrud extends AMySqlPermissionCrud implements IPermissionCru
 
     /**
      * Delete a specified permission.
+     *
      * @param string $permissionName The name of the permission to delete.
+     *
      * @return bool True if permission was deleted, false otherwise.
      */
     public function delete(string $permissionName): bool
