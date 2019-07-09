@@ -14,12 +14,12 @@ use DarlingCms\classes\crud\MySqlActionCrud;
 use DarlingCms\classes\crud\MySqlPermissionCrud;
 use DarlingCms\classes\crud\MySqlRoleCrud;
 use DarlingCms\classes\crud\MySqlUserCrud;
-use DarlingCms\classes\staticClasses\core\CoreMySqlQuery;
+use DarlingCms\classes\staticClasses\core\CoreMySqlObjectQuery;
 use DarlingCms\classes\staticClasses\core\CoreValues;
 use DarlingCms\classes\user\User;
 use SplObserver;
 use SplSubject;
-use DarlingCms\classes\database\SQL\MySqlQuery;
+use DarlingCms\classes\database\SQL\MySqlObjectQuery;
 
 /**
  * Class MySqlRoleCrudObserver. This class is responsible for observing when a role is updated
@@ -30,13 +30,13 @@ use DarlingCms\classes\database\SQL\MySqlQuery;
 class MySqlRoleCrudObserver implements SplObserver
 {
     /**
-     * @var MySqlQuery Instance of a MySqlQuery implementation used to connect to the database where users
+     * @var MySqlObjectQuery Instance of a MySqlQuery implementation used to connect to the database where users
      *                 are stored.
      */
     private $mySqlUserQuery;
 
     /**
-     * @var MySqlQuery Instance of a MySqlQuery implementation used to connect to the database where privileges
+     * @var MySqlObjectQuery Instance of a MySqlQuery implementation used to connect to the database where privileges
      *                 are stored (i.e., Actions, Permissions, Roles).
      */
     private $mySqlPrivilegesQuery;
@@ -62,8 +62,8 @@ class MySqlRoleCrudObserver implements SplObserver
      */
     public function __construct()
     {
-        $this->mySqlUserQuery = CoreMySqlQuery::DbConnection(CoreValues::getUsersDBName());
-        $this->mySqlPrivilegesQuery = CoreMySqlQuery::DbConnection(CoreValues::getPrivilegesDBName());
+        $this->mySqlUserQuery = CoreMySqlObjectQuery::DbConnection(CoreValues::getUsersDBName());
+        $this->mySqlPrivilegesQuery = CoreMySqlObjectQuery::DbConnection(CoreValues::getPrivilegesDBName());
         $this->userCrud = new MySqlUserCrud(
             $this->mySqlUserQuery,
             new MySqlRoleCrud(
