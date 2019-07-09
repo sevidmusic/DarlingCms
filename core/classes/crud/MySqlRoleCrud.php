@@ -73,6 +73,7 @@ class MySqlRoleCrud extends AMySqlRoleCrud implements IRoleCrud
     public function readAll(): array
     {
         $roleNames = $this->MySqlQuery->executeQuery('SELECT roleName FROM roles')->fetchAll(PDO::FETCH_ASSOC);
+        sort($roleNames, SORT_ASC);
         $roles = array();
         foreach ($roleNames as $roleName) {
             array_push($roles, $this->read($roleName['roleName']));
