@@ -8,9 +8,10 @@
 namespace DarlingCms\classes\observer\crud;
 
 
-use DarlingCms\classes\database\SQL\MySqlQuery;
-use DarlingCms\classes\staticClasses\core\CoreMySqlQuery;
+use DarlingCms\classes\database\SQL\MySqlObjectQuery;
+use DarlingCms\classes\staticClasses\core\CoreMySqlObjectQuery;
 use DarlingCms\classes\staticClasses\core\CoreValues;
+use SplObserver;
 use SplSubject;
 use DarlingCms\abstractions\crud\AMySqlUserCrud;
 
@@ -20,11 +21,11 @@ use DarlingCms\abstractions\crud\AMySqlUserCrud;
  * to the user's corresponding password data whenever a user is updated.
  * @package DarlingCms\classes\observer\crud
  */
-class MySqlUserCrudObserver implements \SplObserver
+class MySqlUserCrudObserver implements SplObserver
 {
 
     /**
-     * @var MySqlQuery Instance of a MySqlQuery implementation.
+     * @var MySqlObjectQuery Instance of a MySqlQuery implementation.
      */
     private $mySqlQuery;
 
@@ -35,7 +36,7 @@ class MySqlUserCrudObserver implements \SplObserver
      *           and to get the required MySqlQuery instance. CoreValues is used to insure multiple
      *           instances of this class to not result in multiple database connections being opened
      *           to the same database.
-     * @see MySqlQuery
+     * @see MySqlObjectQuery
      * @see CoreValues
      */
     public function __construct()
@@ -47,7 +48,7 @@ class MySqlUserCrudObserver implements \SplObserver
          *           updated by this observer, the rest of the password data MUST not be modified by
          *           instances of this class.
          */
-        $this->mySqlQuery = CoreMySqlQuery::DbConnection(CoreValues::getPasswordsDBName());
+        $this->mySqlQuery = CoreMySqlObjectQuery::DbConnection(CoreValues::getPasswordsDBName());
     }
 
 
