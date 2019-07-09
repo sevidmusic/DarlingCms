@@ -9,10 +9,12 @@
 namespace DarlingCms\classes\crud;
 
 
-use DarlingCms\abstractions\crud\AMySqlQueryCrud;
-use DarlingCms\classes\database\SQL\MySqlQuery;
+use DarlingCms\abstractions\crud\AMySqlObjectQueryCrud;
+use DarlingCms\classes\database\SQL\MySqlObjectQuery;
 use DarlingCms\classes\user\AnonymousUser;
 use DarlingCms\classes\user\UserPassword;
+use DarlingCms\interfaces\crud\ISqlObjectQueryCrud;
+use DarlingCms\interfaces\crud\ISqlQueryCrud;
 use DarlingCms\interfaces\crud\IUserPasswordCrud;
 use DarlingCms\interfaces\user\IUser;
 use DarlingCms\interfaces\user\IUserPassword;
@@ -25,18 +27,18 @@ use PDO;
  * @todo Add/revise doc comments
  * @todo This class should extend the AMySqlObjectQueryCrud class once it is defined
  */
-class MySqlUserPasswordCrud extends AMySqlQueryCrud implements IUserPasswordCrud
+class MySqlUserPasswordCrud extends AMySqlObjectQueryCrud implements IUserPasswordCrud, ISqlQueryCrud, ISqlObjectQueryCrud
 {
     const PASSWORD_TABLE_NAME = 'passwords';
 
     /**
      * AMySqlQueryCrud constructor. Injects the MySqlQuery instance used for CRUD operations. Set's the
      * name of the table CRUD operations will be performed on.
-     * @param MySqlQuery $MySqlQuery The MySqlQuery instance that will handle CRUD operations.
+     * @param MySqlObjectQuery $mySqlObjectQuery The MySqlQuery instance that will handle CRUD operations.
      */
-    final public function __construct(MySqlQuery $MySqlQuery)
+    final public function __construct(MySqlObjectQuery $mySqlObjectQuery)
     {
-        parent::__construct($MySqlQuery, self::PASSWORD_TABLE_NAME);
+        parent::__construct($mySqlObjectQuery, self::PASSWORD_TABLE_NAME);
     }
 
     /**
@@ -47,7 +49,7 @@ class MySqlUserPasswordCrud extends AMySqlQueryCrud implements IUserPasswordCrud
      * implementation if it does not already exist.
      * @return bool True if table was created, false otherwise.
      */
-    protected function generateTable(): bool
+    public function generateTable(): bool
     {
         if ($this->MySqlQuery->executeQuery('CREATE TABLE ' . $this->tableName . ' (
             tableId INT NOT NULL AUTO_INCREMENT PRIMARY KEY UNIQUE,
