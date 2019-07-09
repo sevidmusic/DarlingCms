@@ -125,7 +125,9 @@ class MySqlActionCrudObserver implements SplObserver
          *            WARNING: Such an error would be need to be investigated as it could
          *                     be a sign of a security vulnerability.
          */
-        $this->performAppropriateUpdates($subject);
+        if ($this->performAppropriateUpdates($subject) === false) {
+            error_log('MySqlActionCrudObserver Error: Failed to perform all appropriate updates, some permission data may have been corrupted!');
+        }
     }
 
     /**
@@ -133,24 +135,30 @@ class MySqlActionCrudObserver implements SplObserver
      *
      * @param MySqlActionCrud $mySqlActionCrud The MySqlActionCrud implementation instance
      *                                         that notified this observer.
+     *
+     * @return bool True if all appropriate updates were successful, false otherwise.
      */
-    private function performAppropriateUpdates(MySqlActionCrud $mySqlActionCrud): void
+    private function performAppropriateUpdates(MySqlActionCrud $mySqlActionCrud): bool
     {
-        if (isset($subject->modType) === false || isset($subject->originalAction) === false || isset($subject->modifiedAction) === false) {
-            error_log('MySqlUserCrudObserver Error: Failed to update effected permissions for Action "' . $mySqlActionCrud->originalAction->getActionName() . '". WARNING: This may corrupt effected privileges.');
+        $status = array();
+        if (isset($mySqlActionCrud->modType) === false || isset($mySqlActionCrud->originalAction) === false || isset($mySqlActionCrud->modifiedAction) === false) {
+            error_log('MySqlActionCrudObserver Error: Failed to update effected permissions for Action "' . $mySqlActionCrud->originalAction->getActionName() . '". WARNING: This may corrupt effected privileges.');
+            return false;
         }
         foreach ($this->getEffectedPermissions($mySqlActionCrud->originalAction) as $permission) {
             switch ($mySqlActionCrud->modType) {
                 case  MySqlActionCrud::MOD_TYPE_UPDATE:
                 case  MySqlActionCrud::MOD_TYPE_DELETE:
-                    $this->updatePermission($mySqlActionCrud, $permission);
+                    array_push($status, $this->updatePermission($mySqlActionCrud, $permission));
                     break;
                 default:
                     // Log error, invalid modification type
-                    error_log('MySqlUserCrudObserver Error: The "' . $permission->getPermissionName() . '" Permission could not be updated to reflect changes to the "' . $mySqlActionCrud->originalAction->getActionName() . '" Action because the supplied modification type was invalid.');
+                    error_log('MySqlActionCrudObserver Error: The "' . $permission->getPermissionName() . '" Permission could not be updated to reflect changes to the "' . $mySqlActionCrud->originalAction->getActionName() . '" Action because the supplied modification type was invalid.');
+                    array_push($status, false);
                     break;
             }
         }
+        return in_array(false, $status, true);
     }
 
     /**
