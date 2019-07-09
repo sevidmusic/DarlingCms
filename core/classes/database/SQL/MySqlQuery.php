@@ -57,6 +57,7 @@ class MySqlQuery extends PDO implements ISqlQuery
      *                             $charset parameter.
      *
      * @see MySqlQuery::getDsn()
+     * @todo ! make it an interface constant defined as part of the ISqlQuery interface.
      */
     const DEFAULT_CHARSET = 'utf8mb4';
 
