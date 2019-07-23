@@ -7,6 +7,9 @@
 
 namespace DarlingCms\classes\staticClasses\core;
 
+use DarlingCms\classes\accessControl\UserLogin;
+use DarlingCms\classes\crud\SessionCrud;
+
 /**
  * Class CoreValues. This class defines various static methods which can be
  * used to retrieve Core values such as the site's root url, root directory
@@ -1082,6 +1085,18 @@ class CoreValues
     public static function getThemeDirPath(string $themeName): string
     {
         return self::getThemesRootDirPath() . '/' . $themeName;
+    }
+
+    /**
+     * The current user's user name, or "Anonymous" if no one is logged in.
+     *
+     * @return string The current user's user name, or "Anonymous" if no one is logged in.
+     */
+    public static function getCurrentUser(): string
+    {
+        $sessionCrud = new SessionCrud();
+        $userName = $sessionCrud->read(UserLogin::CURRENT_USER_POST_VAR_NAME);
+        return (empty($userName) === true ? 'Anonymous' : $userName);
     }
 
 }
