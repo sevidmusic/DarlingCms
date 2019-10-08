@@ -2,4 +2,4 @@
 Vagrantfile
 .vagrant/
 .idea/
-
+vendor/
