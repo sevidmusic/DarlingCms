@@ -3,3 +3,7 @@ Vagrantfile
 .vagrant/
 .idea/
 vendor/
+apps/
+themes
+js/
+*.json
